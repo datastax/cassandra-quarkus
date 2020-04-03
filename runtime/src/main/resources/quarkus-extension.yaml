@@ -1,0 +1,12 @@
+---
+name: "DataStax Apache Cassandra client"
+metadata:
+  keywords:
+    - "cassandra"
+    - "DataStax"
+    - "nosql"
+    - "datastore"
+  guide: "https://quarkus.io/guides/cassandra"
+  categories:
+    - "data"
+  status: "preview"

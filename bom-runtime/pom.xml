@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright DataStax, Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.datastax.oss.quarkus</groupId>
+    <artifactId>cassandra-quarkus-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>cassandra-quarkus-bom</artifactId>
+  <packaging>pom</packaging>
+  <name>Cassandra Quarkus :: BOM :: Runtime</name>
+  <properties>
+    <datastax-java-driver.version>4.5.1</datastax-java-driver.version>
+  </properties>
+  <dependencyManagement>
+    <dependencies>
+      <!-- External BOM -->
+      <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-bom</artifactId>
+        <version>${quarkus.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- DataStax Java Driver BOM -->
+      <dependency>
+        <groupId>com.datastax.oss</groupId>
+        <artifactId>java-driver-bom</artifactId>
+        <version>${datastax-java-driver.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- Cassandra Quarkus Extension (Runtime) -->
+      <dependency>
+        <groupId>com.datastax.oss.quarkus</groupId>
+        <artifactId>cassandra-quarkus-client</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <!-- Driver Optional dependencies -->
+      <dependency>
+        <groupId>org.lz4</groupId>
+        <artifactId>lz4-java</artifactId>
+        <version>1.6.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.xerial.snappy</groupId>
+        <artifactId>snappy-java</artifactId>
+        <version>1.1.7.3</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>
