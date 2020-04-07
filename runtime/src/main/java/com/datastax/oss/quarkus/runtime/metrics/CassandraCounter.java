@@ -15,9 +15,9 @@
  */
 package com.datastax.oss.quarkus.runtime.metrics;
 
-import com.codahale.metrics.Metric;
 import com.datastax.oss.driver.api.core.metrics.SessionMetric;
 import org.eclipse.microprofile.metrics.Counter;
+import org.eclipse.microprofile.metrics.Metric;
 
 public class CassandraCounter implements Counter {
   private SessionMetric sessionMetric;
@@ -50,15 +50,13 @@ public class CassandraCounter implements Counter {
   @Override
   public long getCount() {
     Metric metrics = MetricsFinder.getMetrics(sessionMetric);
-    if (!(metrics instanceof com.codahale.metrics.Counter)) {
+    if (!(metrics instanceof Counter)) {
       throw new IllegalArgumentException(
           String.format(
               "The metric for metric name: %s should be of %s type, but is: %s.",
-              sessionMetric,
-              com.codahale.metrics.Counter.class.getName(),
-              metrics.getClass().getName()));
+              sessionMetric, Counter.class.getName(), metrics.getClass().getName()));
     }
 
-    return ((com.codahale.metrics.Counter) metrics).getCount();
+    return ((Counter) metrics).getCount();
   }
 }

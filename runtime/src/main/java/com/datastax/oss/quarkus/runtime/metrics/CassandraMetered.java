@@ -15,9 +15,9 @@
  */
 package com.datastax.oss.quarkus.runtime.metrics;
 
-import com.codahale.metrics.Metric;
 import com.datastax.oss.driver.api.core.metrics.SessionMetric;
 import org.eclipse.microprofile.metrics.Metered;
+import org.eclipse.microprofile.metrics.Metric;
 
 public class CassandraMetered implements Metered {
   private SessionMetric sessionMetric;
@@ -54,17 +54,15 @@ public class CassandraMetered implements Metered {
     return getMetered().getOneMinuteRate();
   }
 
-  private com.codahale.metrics.Metered getMetered() {
+  private Metered getMetered() {
     Metric metrics = MetricsFinder.getMetrics(sessionMetric);
-    if (!(metrics instanceof com.codahale.metrics.Metered)) {
+    if (!(metrics instanceof Metered)) {
       throw new IllegalArgumentException(
           String.format(
               "The metric for metric name: %s should be of %s type, but is: %s.",
-              sessionMetric,
-              com.codahale.metrics.Metered.class.getName(),
-              metrics.getClass().getName()));
+              sessionMetric, Metered.class.getName(), metrics.getClass().getName()));
     }
-    return (com.codahale.metrics.Metered) metrics;
+    return (Metered) metrics;
   }
 
   public SessionMetric getSessionMetric() {

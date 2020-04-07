@@ -15,29 +15,27 @@
  */
 package com.datastax.oss.quarkus.runtime.metrics;
 
-import com.codahale.metrics.Metric;
 import com.datastax.oss.driver.api.core.CqlSession;
-import com.datastax.oss.driver.api.core.metrics.Metrics;
 import com.datastax.oss.driver.api.core.metrics.SessionMetric;
+import com.datastax.oss.quarkus.runtime.driver.QuarkusDriverContext;
 import io.quarkus.arc.Arc;
 import java.util.Optional;
+import org.eclipse.microprofile.metrics.Metric;
 
 public class MetricsFinder {
   public static Metric getMetrics(SessionMetric sessionMetric) {
     CqlSession cqlSession = Arc.container().instance(CqlSession.class).get();
-    Optional<Metrics> driverMetrics = cqlSession.getMetrics();
-    if (!driverMetrics.isPresent()) {
-      throw new IllegalArgumentException(
-          "The Metrics returned from CqlSession must be present but is not.");
-    }
+    QuarkusDriverContext context = (QuarkusDriverContext) cqlSession.getContext();
+    MicroProfileMetricsFactory metricsFactory =
+        (MicroProfileMetricsFactory) context.getMetricsFactory();
 
-    Optional<Metric> metric = driverMetrics.get().getSessionMetric(sessionMetric);
+    Optional<Metric> metric = metricsFactory.getSessionMetric(sessionMetric);
 
     if (!metric.isPresent()) {
       throw new IllegalArgumentException(
           String.format(
               "Session metric for name: %s is not present in the driver metrics, but should be.",
-              metric));
+              sessionMetric.getPath()));
     }
     return metric.get();
   }

@@ -98,10 +98,6 @@
           <groupId>com.github.jnr</groupId>
           <artifactId>jnr-ffi</artifactId>
         </exclusion>
-        <exclusion>
-          <groupId>io.dropwizard.metrics</groupId>
-          <artifactId>metrics-core</artifactId>
-        </exclusion>
       </exclusions>
     </dependency>
     <dependency>

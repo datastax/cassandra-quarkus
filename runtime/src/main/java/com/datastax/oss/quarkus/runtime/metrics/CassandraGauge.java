@@ -15,9 +15,9 @@
  */
 package com.datastax.oss.quarkus.runtime.metrics;
 
-import com.codahale.metrics.Metric;
 import com.datastax.oss.driver.api.core.metrics.SessionMetric;
 import org.eclipse.microprofile.metrics.Gauge;
+import org.eclipse.microprofile.metrics.Metric;
 
 public class CassandraGauge implements Gauge<Long> {
   private SessionMetric sessionMetric;
@@ -42,15 +42,13 @@ public class CassandraGauge implements Gauge<Long> {
   @SuppressWarnings("unchecked")
   public Long getValue() {
     Metric metrics = MetricsFinder.getMetrics(sessionMetric);
-    if (!(metrics instanceof com.codahale.metrics.Gauge)) {
+    if (!(metrics instanceof Gauge)) {
       throw new IllegalArgumentException(
           String.format(
               "The metric for metric name: %s should be of %s type, but is: %s.",
-              sessionMetric,
-              com.codahale.metrics.Gauge.class.getName(),
-              metrics.getClass().getName()));
+              sessionMetric, Gauge.class.getName(), metrics.getClass().getName()));
     }
 
-    return ((com.codahale.metrics.Gauge<Number>) metrics).getValue().longValue();
+    return ((Gauge<Number>) metrics).getValue().longValue();
   }
 }

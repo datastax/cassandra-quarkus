@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class MetricsConfig {
+  private boolean metricsEnabled;
   public List<String> metricsNodeEnabled;
   public List<String> metricsSessionEnabled;
 
@@ -27,16 +28,21 @@ public class MetricsConfig {
   public MetricsConfig() {}
 
   public MetricsConfig(
-      Optional<List<String>> metricsNodeEnabled, Optional<List<String>> metricsSessionEnabled) {
+      Optional<List<String>> metricsNodeEnabled,
+      Optional<List<String>> metricsSessionEnabled,
+      boolean metricsEnabled) {
 
     this(
         metricsNodeEnabled.orElse(Collections.emptyList()),
-        metricsSessionEnabled.orElse(Collections.emptyList()));
+        metricsSessionEnabled.orElse(Collections.emptyList()),
+        metricsEnabled);
   }
 
-  private MetricsConfig(List<String> metricsNodeEnabled, List<String> metricsSessionEnabled) {
+  private MetricsConfig(
+      List<String> metricsNodeEnabled, List<String> metricsSessionEnabled, boolean metricsEnabled) {
     this.metricsNodeEnabled = Collections.unmodifiableList(metricsNodeEnabled);
     this.metricsSessionEnabled = Collections.unmodifiableList(metricsSessionEnabled);
+    this.metricsEnabled = metricsEnabled;
   }
 
   public List<String> getMetricsNodeEnabled() {
@@ -53,5 +59,13 @@ public class MetricsConfig {
 
   public void setMetricsSessionEnabled(List<String> metricsSessionEnabled) {
     this.metricsSessionEnabled = metricsSessionEnabled;
+  }
+
+  public boolean isMetricsEnabled() {
+    return metricsEnabled;
+  }
+
+  public void setMetricsEnabled(boolean metricsEnabled) {
+    this.metricsEnabled = metricsEnabled;
   }
 }
