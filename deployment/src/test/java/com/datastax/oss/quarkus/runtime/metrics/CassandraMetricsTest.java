@@ -62,36 +62,45 @@ public class CassandraMetricsTest {
   @Test
   void testMetricsInitialization() {
     // when
-    cqlSession.execute("select * from system.local");
+    cqlSession.execute("select *  from system.local");
 
     // then
-    assertThat(getGaugeValue(CONNECTED_NODES.getPath())).isEqualTo(1L);
-    assertThat(getGaugeValue(THROTTLING_QUEUE_SIZE.getPath())).isEqualTo(0L);
-    assertThat(getMeteredValue(BYTES_RECEIVED.getPath()).getCount()).isGreaterThan(0L);
-    assertThat(getMeteredValue(BYTES_SENT.getPath()).getCount()).isGreaterThan(0L);
-    assertThat(getMeteredValue(CQL_REQUESTS.getPath()).getCount()).isEqualTo(1L);
-    assertThat(getMeteredValue(THROTTLING_DELAY.getPath()).getCount()).isEqualTo(0L);
-    assertThat(getCounterValue(CQL_CLIENT_TIMEOUTS.getPath())).isEqualTo(0L);
-    assertThat(getCounterValue(THROTTLING_ERRORS.getPath())).isEqualTo(0L);
-    assertThat(getGaugeValue(CQL_PREPARED_CACHE_SIZE.getPath())).isEqualTo(0L);
+    assertThat(getGaugeValue(cqlSession.getName(), CONNECTED_NODES.getPath())).isEqualTo(1L);
+    assertThat(getGaugeValue(cqlSession.getName(), THROTTLING_QUEUE_SIZE.getPath())).isEqualTo(0L);
+    assertThat(getMeteredValue(cqlSession.getName(), BYTES_RECEIVED.getPath()).getCount())
+        .isGreaterThan(0L);
+    assertThat(getMeteredValue(cqlSession.getName(), BYTES_SENT.getPath()).getCount())
+        .isGreaterThan(0L);
+    assertThat(getMeteredValue(cqlSession.getName(), CQL_REQUESTS.getPath()).getCount())
+        .isEqualTo(1L);
+    assertThat(getMeteredValue(cqlSession.getName(), THROTTLING_DELAY.getPath()).getCount())
+        .isEqualTo(0L);
+    assertThat(getCounterValue(cqlSession.getName(), CQL_CLIENT_TIMEOUTS.getPath())).isEqualTo(0L);
+    assertThat(getCounterValue(cqlSession.getName(), THROTTLING_ERRORS.getPath())).isEqualTo(0L);
+    assertThat(getGaugeValue(cqlSession.getName(), CQL_PREPARED_CACHE_SIZE.getPath()))
+        .isEqualTo(0L);
   }
 
   @SuppressWarnings("unchecked")
-  private Long getGaugeValue(String metricName) {
-    MetricID metricID = new MetricID(metricName);
+  private Number getGaugeValue(String sessionPrefix, String metricName) {
+    MetricID metricID = new MetricID(buildMetricName(sessionPrefix, metricName));
     Metric metric = registry.getMetrics().get(metricID);
-    return ((Gauge<Long>) metric).getValue();
+    return ((Gauge<Number>) metric).getValue().longValue();
   }
 
-  private Metered getMeteredValue(String metricName) {
-    MetricID metricID = new MetricID(metricName);
+  private Metered getMeteredValue(String sessionPrefix, String metricName) {
+    MetricID metricID = new MetricID(buildMetricName(sessionPrefix, metricName));
     Metric metric = registry.getMetrics().get(metricID);
     return ((Metered) metric);
   }
 
-  private long getCounterValue(String metricName) {
-    MetricID metricID = new MetricID(metricName);
+  private long getCounterValue(String sessionPrefix, String metricName) {
+    MetricID metricID = new MetricID(buildMetricName(sessionPrefix, metricName));
     Metric metric = registry.getMetrics().get(metricID);
     return ((Counter) metric).getCount();
+  }
+
+  private String buildMetricName(String sessionPrefix, String metricName) {
+    return String.format("%s.%s", sessionPrefix, metricName);
   }
 }

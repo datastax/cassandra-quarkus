@@ -20,25 +20,22 @@ import com.datastax.oss.driver.api.core.session.ProgrammaticArguments;
 import com.datastax.oss.driver.internal.core.context.DefaultDriverContext;
 import com.datastax.oss.driver.internal.core.metrics.MetricsFactory;
 import com.datastax.oss.quarkus.runtime.metrics.MicroProfileMetricsFactory;
-import com.datastax.oss.quarkus.runtime.metrics.NoopMetricsFactory;
+import org.eclipse.microprofile.metrics.MetricRegistry;
 
 public class QuarkusDriverContext extends DefaultDriverContext {
-  private final boolean metricsEnabled;
+
+  private final MetricRegistry metricRegistry;
 
   public QuarkusDriverContext(
       DriverConfigLoader configLoader,
       ProgrammaticArguments programmaticArguments,
-      boolean metricsEnabled) {
+      MetricRegistry metricRegistry) {
     super(configLoader, programmaticArguments);
-    this.metricsEnabled = metricsEnabled;
+    this.metricRegistry = metricRegistry;
   }
 
   @Override
   protected MetricsFactory buildMetricsFactory() {
-    if (metricsEnabled) {
-      return new MicroProfileMetricsFactory(this);
-    } else {
-      return new NoopMetricsFactory();
-    }
+    return new MicroProfileMetricsFactory(this, metricRegistry);
   }
 }

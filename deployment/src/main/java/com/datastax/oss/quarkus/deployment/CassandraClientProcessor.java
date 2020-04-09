@@ -47,6 +47,7 @@ import io.quarkus.arc.Unremovable;
 import io.quarkus.arc.deployment.BeanContainerListenerBuildItem;
 import io.quarkus.arc.deployment.GeneratedBeanBuildItem;
 import io.quarkus.arc.deployment.GeneratedBeanGizmoAdaptor;
+import io.quarkus.deployment.Capabilities;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.Record;
@@ -67,6 +68,7 @@ import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
+import org.eclipse.microprofile.metrics.MetricRegistry;
 
 class CassandraClientProcessor {
   public static final String CASSANDRA_CLIENT = "cassandra-client";
@@ -170,6 +172,14 @@ class CassandraClientProcessor {
                     AbstractCassandraClientProducer.class, "getMetricsConfig", MetricsConfig.class),
                 defaultCassandraClient.getThis());
 
+        ResultHandle metricRegistry =
+            defaultCassandraClient.invokeVirtualMethod(
+                MethodDescriptor.ofMethod(
+                    AbstractCassandraClientProducer.class,
+                    "getMetricRegistry",
+                    MetricRegistry.class),
+                defaultCassandraClient.getThis());
+
         defaultCassandraClient.returnValue(
             defaultCassandraClient.invokeVirtualMethod(
                 MethodDescriptor.ofMethod(
@@ -177,10 +187,12 @@ class CassandraClientProcessor {
                     "createCassandraClient",
                     CqlSession.class,
                     CassandraClientConfig.class,
-                    MetricsConfig.class),
+                    MetricsConfig.class,
+                    MetricRegistry.class),
                 defaultCassandraClient.getThis(),
                 cassandraClientConfig,
-                metricsConfig));
+                metricsConfig,
+                metricRegistry));
       }
     }
   }
@@ -189,17 +201,23 @@ class CassandraClientProcessor {
   @BuildStep
   void configureRuntimeProperties(
       CassandraClientRecorder recorder,
-      CassandraClientConfig cassandraRuntimeConfig,
-      CassandraClientBuildTimeConfig cassandraBuildTimeConfig) {
-    recorder.configureRuntimeProperties(cassandraRuntimeConfig);
-    if (cassandraBuildTimeConfig.metricsEnabled) {
+      CassandraClientConfig runtimeConfig,
+      CassandraClientBuildTimeConfig buildTimeConfig,
+      Capabilities capabilities) {
+    recorder.configureRuntimeProperties(runtimeConfig);
+
+    if (buildTimeConfig.metricsEnabled) {
       recorder.configureMetrics(
           new MetricsConfig(
-              cassandraBuildTimeConfig.metricsNodeEnabled,
-              cassandraBuildTimeConfig.metricsSessionEnabled,
-              true));
+              buildTimeConfig.metricsNodeEnabled, buildTimeConfig.metricsSessionEnabled, true));
     } else {
       recorder.configureMetrics(new MetricsConfig(Optional.empty(), Optional.empty(), false));
+    }
+
+    if (buildTimeConfig.metricsEnabled && capabilities.isCapabilityPresent(Capabilities.METRICS)) {
+      recorder.setInjectedMetricRegistry();
+    } else {
+      recorder.setNoopMetricsRegistry();
     }
   }
 

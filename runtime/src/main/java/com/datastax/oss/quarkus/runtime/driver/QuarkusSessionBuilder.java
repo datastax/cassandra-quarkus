@@ -21,14 +21,15 @@ import com.datastax.oss.driver.api.core.context.DriverContext;
 import com.datastax.oss.driver.api.core.session.ProgrammaticArguments;
 import com.datastax.oss.driver.api.core.session.SessionBuilder;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import org.eclipse.microprofile.metrics.MetricRegistry;
 
 public class QuarkusSessionBuilder extends SessionBuilder<QuarkusSessionBuilder, CqlSession> {
 
-  private boolean metricsEnabled;
+  private MetricRegistry metricRegistry;
 
-  public QuarkusSessionBuilder(boolean metricsEnabled) {
+  public QuarkusSessionBuilder(MetricRegistry metricRegistry) {
 
-    this.metricsEnabled = metricsEnabled;
+    this.metricRegistry = metricRegistry;
   }
 
   @Override
@@ -39,6 +40,6 @@ public class QuarkusSessionBuilder extends SessionBuilder<QuarkusSessionBuilder,
   @Override
   protected DriverContext buildContext(
       DriverConfigLoader configLoader, ProgrammaticArguments programmaticArguments) {
-    return new QuarkusDriverContext(configLoader, programmaticArguments, metricsEnabled);
+    return new QuarkusDriverContext(configLoader, programmaticArguments, metricRegistry);
   }
 }

@@ -18,12 +18,15 @@ package com.datastax.oss.quarkus.runtime;
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.quarkus.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.metrics.MetricsConfig;
+import com.datastax.oss.quarkus.runtime.metrics.NoopMetricRegistry;
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.runtime.BeanContainerListener;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.annotations.Recorder;
+import io.smallrye.metrics.MetricRegistries;
 import javax.enterprise.inject.Default;
 import javax.enterprise.util.AnnotationLiteral;
+import org.eclipse.microprofile.metrics.MetricRegistry;
 
 @Recorder
 public class CassandraClientRecorder {
@@ -51,5 +54,18 @@ public class CassandraClientRecorder {
     AbstractCassandraClientProducer producer =
         Arc.container().instance(AbstractCassandraClientProducer.class).get();
     producer.setMetricsConfig(metricsConfig);
+  }
+
+  public void setInjectedMetricRegistry() {
+    AbstractCassandraClientProducer producer =
+        Arc.container().instance(AbstractCassandraClientProducer.class).get();
+    MetricRegistry metricRegistry = MetricRegistries.get(MetricRegistry.Type.VENDOR);
+    producer.setMetricRegistry(metricRegistry);
+  }
+
+  public void setNoopMetricsRegistry() {
+    AbstractCassandraClientProducer producer =
+        Arc.container().instance(AbstractCassandraClientProducer.class).get();
+    producer.setMetricRegistry(new NoopMetricRegistry());
   }
 }
