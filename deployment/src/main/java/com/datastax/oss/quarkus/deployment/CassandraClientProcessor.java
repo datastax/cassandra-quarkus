@@ -217,7 +217,7 @@ class CassandraClientProcessor {
     if (buildTimeConfig.metricsEnabled && capabilities.isCapabilityPresent(Capabilities.METRICS)) {
       recorder.setInjectedMetricRegistry();
     } else {
-      recorder.setNoopMetricsRegistry();
+      recorder.setNoopMetricRegistry();
     }
   }
 

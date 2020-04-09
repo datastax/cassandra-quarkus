@@ -63,7 +63,7 @@ public class CassandraClientRecorder {
     producer.setMetricRegistry(metricRegistry);
   }
 
-  public void setNoopMetricsRegistry() {
+  public void setNoopMetricRegistry() {
     AbstractCassandraClientProducer producer =
         Arc.container().instance(AbstractCassandraClientProducer.class).get();
     producer.setMetricRegistry(new NoopMetricRegistry());

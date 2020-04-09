@@ -31,14 +31,12 @@ import com.datastax.oss.driver.internal.core.metrics.NodeMetricUpdater;
 import com.datastax.oss.driver.internal.core.metrics.NoopNodeMetricUpdater;
 import com.datastax.oss.driver.internal.core.metrics.NoopSessionMetricUpdater;
 import com.datastax.oss.driver.internal.core.metrics.SessionMetricUpdater;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.NotImplementedException;
-import org.eclipse.microprofile.metrics.Metric;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,15 +118,5 @@ public class MicroProfileMetricsFactory implements MetricsFactory {
       }
     }
     return Collections.unmodifiableSet(result);
-  }
-
-  @NonNull
-  public <T extends Metric> Optional<T> getSessionMetric(@NonNull SessionMetric metric) {
-    if (sessionUpdater instanceof MicroProfileSessionMetricUpdater) {
-      return Optional.ofNullable(
-          ((MicroProfileSessionMetricUpdater) sessionUpdater).getMetric(metric, null));
-    } else {
-      return Optional.empty();
-    }
   }
 }
