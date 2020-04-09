@@ -15,15 +15,6 @@
  */
 package com.datastax.oss.quarkus.runtime.metrics;
 
-import static com.datastax.oss.driver.api.core.metrics.DefaultSessionMetric.BYTES_RECEIVED;
-import static com.datastax.oss.driver.api.core.metrics.DefaultSessionMetric.BYTES_SENT;
-import static com.datastax.oss.driver.api.core.metrics.DefaultSessionMetric.CONNECTED_NODES;
-import static com.datastax.oss.driver.api.core.metrics.DefaultSessionMetric.CQL_CLIENT_TIMEOUTS;
-import static com.datastax.oss.driver.api.core.metrics.DefaultSessionMetric.CQL_PREPARED_CACHE_SIZE;
-import static com.datastax.oss.driver.api.core.metrics.DefaultSessionMetric.CQL_REQUESTS;
-import static com.datastax.oss.driver.api.core.metrics.DefaultSessionMetric.THROTTLING_DELAY;
-import static com.datastax.oss.driver.api.core.metrics.DefaultSessionMetric.THROTTLING_ERRORS;
-import static com.datastax.oss.driver.api.core.metrics.DefaultSessionMetric.THROTTLING_QUEUE_SIZE;
 import static com.datastax.oss.quarkus.runtime.metrics.MicroProfileMetricsUpdater.CASSANDRA_METRICS_PREFIX;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -61,25 +52,28 @@ public class CassandraMetricsTest {
           .withConfigurationResource("application-metrics.properties");
 
   @Test
-  void testMetricsInitialization() {
+  @SuppressWarnings("unchecked")
+  public void should_expose_driver_metrics_via_meter_registry() {
     // when
     cqlSession.execute("select *  from system.local");
 
     // then
-    assertThat(getGaugeValue(cqlSession.getName(), CONNECTED_NODES.getPath())).isEqualTo(1L);
-    assertThat(getGaugeValue(cqlSession.getName(), THROTTLING_QUEUE_SIZE.getPath())).isEqualTo(0L);
-    assertThat(getMeteredValue(cqlSession.getName(), BYTES_RECEIVED.getPath()).getCount())
-        .isGreaterThan(0L);
-    assertThat(getMeteredValue(cqlSession.getName(), BYTES_SENT.getPath()).getCount())
-        .isGreaterThan(0L);
-    assertThat(getMeteredValue(cqlSession.getName(), CQL_REQUESTS.getPath()).getCount())
-        .isGreaterThanOrEqualTo(1L);
-    assertThat(getMeteredValue(cqlSession.getName(), THROTTLING_DELAY.getPath()).getCount())
-        .isEqualTo(0L);
-    assertThat(getCounterValue(cqlSession.getName(), CQL_CLIENT_TIMEOUTS.getPath())).isEqualTo(0L);
-    assertThat(getCounterValue(cqlSession.getName(), THROTTLING_ERRORS.getPath())).isEqualTo(0L);
-    assertThat(getGaugeValue(cqlSession.getName(), CQL_PREPARED_CACHE_SIZE.getPath()))
-        .isEqualTo(0L);
+    registry.getMetrics().entrySet().stream()
+        .filter(v -> filterAllCassandraMetrics(v.getKey()))
+        .forEach(
+            m -> {
+              Metric metric = m.getValue();
+              if (metric instanceof Gauge) {
+                assertThat(((Gauge<Number>) metric).getValue().longValue())
+                    .isGreaterThanOrEqualTo(0L);
+              } else if (metric instanceof Metered) {
+                assertThat(((Metered) metric).getCount()).isGreaterThanOrEqualTo(0);
+              } else if (metric instanceof Counter) {
+                assertThat(((Counter) metric).getCount()).isGreaterThanOrEqualTo(0);
+              } else {
+                throw new IllegalArgumentException("unsupported metric type");
+              }
+            });
   }
 
   @Test
@@ -93,31 +87,12 @@ public class CassandraMetricsTest {
     assertThat(
             (int)
                 registry.getMetrics().keySet().stream()
-                    .filter(v -> v.getName().startsWith(CASSANDRA_METRICS_PREFIX))
+                    .filter(this::filterAllCassandraMetrics)
                     .count())
         .isEqualTo(numberOfRootMetrics);
   }
 
-  @SuppressWarnings("unchecked")
-  private Number getGaugeValue(String sessionPrefix, String metricName) {
-    MetricID metricID = new MetricID(buildMetricName(sessionPrefix, metricName));
-    Metric metric = registry.getMetrics().get(metricID);
-    return ((Gauge<Number>) metric).getValue().longValue();
-  }
-
-  private Metered getMeteredValue(String sessionPrefix, String metricName) {
-    MetricID metricID = new MetricID(buildMetricName(sessionPrefix, metricName));
-    Metric metric = registry.getMetrics().get(metricID);
-    return ((Metered) metric);
-  }
-
-  private long getCounterValue(String sessionPrefix, String metricName) {
-    MetricID metricID = new MetricID(buildMetricName(sessionPrefix, metricName));
-    Metric metric = registry.getMetrics().get(metricID);
-    return ((Counter) metric).getCount();
-  }
-
-  private String buildMetricName(String sessionPrefix, String metricName) {
-    return String.format("%s.%s.%s", CASSANDRA_METRICS_PREFIX, sessionPrefix, metricName);
+  private boolean filterAllCassandraMetrics(MetricID v) {
+    return v.getName().startsWith(CASSANDRA_METRICS_PREFIX);
   }
 }
