@@ -82,7 +82,7 @@ public class MicroProfileNodeMetricUpdater extends MicroProfileMetricsUpdater<No
 
   @Override
   public String buildFullName(NodeMetric metric, String profileName) {
-    return metricNamePrefix + metric.getPath();
+    return CASSANDRA_METRICS_PREFIX + "." + metricNamePrefix + metric.getPath();
   }
 
   private String buildPrefix(String sessionName, EndPoint endPoint) {

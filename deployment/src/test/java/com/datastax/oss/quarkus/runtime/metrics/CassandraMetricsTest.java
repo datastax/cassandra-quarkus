@@ -24,6 +24,7 @@ import static com.datastax.oss.driver.api.core.metrics.DefaultSessionMetric.CQL_
 import static com.datastax.oss.driver.api.core.metrics.DefaultSessionMetric.THROTTLING_DELAY;
 import static com.datastax.oss.driver.api.core.metrics.DefaultSessionMetric.THROTTLING_ERRORS;
 import static com.datastax.oss.driver.api.core.metrics.DefaultSessionMetric.THROTTLING_QUEUE_SIZE;
+import static com.datastax.oss.quarkus.runtime.metrics.MicroProfileMetricsUpdater.CASSANDRA_METRICS_PREFIX;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.datastax.oss.driver.api.core.CqlSession;
@@ -72,13 +73,29 @@ public class CassandraMetricsTest {
     assertThat(getMeteredValue(cqlSession.getName(), BYTES_SENT.getPath()).getCount())
         .isGreaterThan(0L);
     assertThat(getMeteredValue(cqlSession.getName(), CQL_REQUESTS.getPath()).getCount())
-        .isEqualTo(1L);
+        .isGreaterThanOrEqualTo(1L);
     assertThat(getMeteredValue(cqlSession.getName(), THROTTLING_DELAY.getPath()).getCount())
         .isEqualTo(0L);
     assertThat(getCounterValue(cqlSession.getName(), CQL_CLIENT_TIMEOUTS.getPath())).isEqualTo(0L);
     assertThat(getCounterValue(cqlSession.getName(), THROTTLING_ERRORS.getPath())).isEqualTo(0L);
     assertThat(getGaugeValue(cqlSession.getName(), CQL_PREPARED_CACHE_SIZE.getPath()))
         .isEqualTo(0L);
+  }
+
+  @Test
+  public void should_expose_correct_number_of_metrics() {
+    // when
+    cqlSession.execute("select *  from system.local");
+
+    // then
+    int numberOfRootMetrics =
+        37; // number of metrics from java-driver in application-metrics.properties
+    assertThat(
+            (int)
+                registry.getMetrics().keySet().stream()
+                    .filter(v -> v.getName().startsWith(CASSANDRA_METRICS_PREFIX))
+                    .count())
+        .isEqualTo(numberOfRootMetrics);
   }
 
   @SuppressWarnings("unchecked")
@@ -101,6 +118,6 @@ public class CassandraMetricsTest {
   }
 
   private String buildMetricName(String sessionPrefix, String metricName) {
-    return String.format("%s.%s", sessionPrefix, metricName);
+    return String.format("%s.%s.%s", CASSANDRA_METRICS_PREFIX, sessionPrefix, metricName);
   }
 }
