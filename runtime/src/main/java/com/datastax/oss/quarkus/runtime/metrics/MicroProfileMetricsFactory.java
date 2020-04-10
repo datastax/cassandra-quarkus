@@ -36,7 +36,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.lang3.NotImplementedException;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +72,8 @@ public class MicroProfileMetricsFactory implements MetricsFactory {
 
   @Override
   public Optional<Metrics> getMetrics() {
-    throw new NotImplementedException("getMetrics() is not supported by the MicroProfile");
+    throw new UnsupportedOperationException(
+        "getMetrics() is not supported in Quarkus. The driver publishes its metrics directly to the vendor MetricRegistry of the container.");
   }
 
   @Override
