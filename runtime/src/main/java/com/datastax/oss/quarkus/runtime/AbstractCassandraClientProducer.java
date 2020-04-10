@@ -16,7 +16,6 @@
 package com.datastax.oss.quarkus.runtime;
 
 import com.datastax.oss.driver.api.core.CqlSession;
-import com.datastax.oss.driver.api.core.CqlSessionBuilder;
 import com.datastax.oss.driver.api.core.config.DefaultDriverOption;
 import com.datastax.oss.driver.api.core.config.DriverConfig;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
@@ -27,16 +26,29 @@ import com.datastax.oss.driver.internal.core.config.typesafe.DefaultProgrammatic
 import com.datastax.oss.driver.internal.core.util.concurrent.CompletableFutures;
 import com.datastax.oss.quarkus.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.config.CassandraClientConnectionConfig;
+import com.datastax.oss.quarkus.runtime.driver.QuarkusSessionBuilder;
+import com.datastax.oss.quarkus.runtime.metrics.MetricsConfig;
 import com.typesafe.config.ConfigFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.concurrent.CompletionStage;
+import org.eclipse.microprofile.metrics.MetricRegistry;
 
 public abstract class AbstractCassandraClientProducer {
 
   private CassandraClientConfig config;
+  private MetricsConfig metricsConfig;
+  private MetricRegistry metricRegistry;
 
   public void setCassandraClientConfig(CassandraClientConfig config) {
     this.config = config;
+  }
+
+  public void setMetricsConfig(MetricsConfig metricsConfig) {
+    this.metricsConfig = metricsConfig;
+  }
+
+  public void setMetricRegistry(MetricRegistry metricRegistry) {
+    this.metricRegistry = metricRegistry;
   }
 
   private ProgrammaticDriverConfigLoaderBuilder createDriverConfigLoader() {
@@ -62,11 +74,30 @@ public abstract class AbstractCassandraClientProducer {
     return config;
   }
 
-  public CqlSession createCassandraClient(CassandraClientConfig config) {
+  MetricsConfig getMetricsConfig() {
+    return metricsConfig;
+  }
+
+  public MetricRegistry getMetricRegistry() {
+    return metricRegistry;
+  }
+
+  public CqlSession createCassandraClient(
+      CassandraClientConfig config, MetricsConfig metricsConfig, MetricRegistry metricRegistry) {
     ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder = createDriverConfigLoader();
     configureConnectionSettings(configLoaderBuilder, config.cassandraClientConnectionConfig);
-    CqlSessionBuilder builder = CqlSession.builder().withConfigLoader(configLoaderBuilder.build());
+    configureMetricsSettings(configLoaderBuilder, metricsConfig);
+    QuarkusSessionBuilder builder =
+        new QuarkusSessionBuilder(metricRegistry).withConfigLoader(configLoaderBuilder.build());
     return builder.build();
+  }
+
+  private void configureMetricsSettings(
+      ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder, MetricsConfig metricsConfig) {
+    configLoaderBuilder.withStringList(
+        DefaultDriverOption.METRICS_NODE_ENABLED, metricsConfig.metricsNodeEnabled);
+    configLoaderBuilder.withStringList(
+        DefaultDriverOption.METRICS_SESSION_ENABLED, metricsConfig.metricsSessionEnabled);
   }
 
   private void configureConnectionSettings(

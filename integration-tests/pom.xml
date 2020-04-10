@@ -48,6 +48,12 @@
     <dependency>
       <groupId>com.datastax.oss</groupId>
       <artifactId>java-driver-core</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>io.dropwizard.metrics</groupId>
+          <artifactId>metrics-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.datastax.oss</groupId>
@@ -94,10 +100,6 @@
         <exclusion>
           <groupId>com.github.jnr</groupId>
           <artifactId>jnr-ffi</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>io.dropwizard.metrics</groupId>
-          <artifactId>metrics-core</artifactId>
         </exclusion>
       </exclusions>
     </dependency>

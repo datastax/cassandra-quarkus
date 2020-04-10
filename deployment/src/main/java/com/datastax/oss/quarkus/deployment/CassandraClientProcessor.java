@@ -42,14 +42,15 @@ import com.datastax.oss.driver.internal.core.tracker.RequestLogger;
 import com.datastax.oss.quarkus.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.AbstractCassandraClientProducer;
 import com.datastax.oss.quarkus.runtime.CassandraClientRecorder;
+import com.datastax.oss.quarkus.runtime.metrics.MetricsConfig;
 import io.quarkus.arc.Unremovable;
 import io.quarkus.arc.deployment.BeanContainerListenerBuildItem;
 import io.quarkus.arc.deployment.GeneratedBeanBuildItem;
 import io.quarkus.arc.deployment.GeneratedBeanGizmoAdaptor;
+import io.quarkus.deployment.Capabilities;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.Record;
-import io.quarkus.deployment.builditem.ConfigurationBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.NativeImageResourceBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
@@ -63,9 +64,11 @@ import io.quarkus.gizmo.ResultHandle;
 import io.quarkus.smallrye.health.deployment.spi.HealthBuildItem;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
+import org.eclipse.microprofile.metrics.MetricRegistry;
 
 class CassandraClientProcessor {
   public static final String CASSANDRA_CLIENT = "cassandra-client";
@@ -163,26 +166,59 @@ class CassandraClientProcessor {
                     CassandraClientConfig.class),
                 defaultCassandraClient.getThis());
 
+        ResultHandle metricsConfig =
+            defaultCassandraClient.invokeVirtualMethod(
+                MethodDescriptor.ofMethod(
+                    AbstractCassandraClientProducer.class, "getMetricsConfig", MetricsConfig.class),
+                defaultCassandraClient.getThis());
+
+        ResultHandle metricRegistry =
+            defaultCassandraClient.invokeVirtualMethod(
+                MethodDescriptor.ofMethod(
+                    AbstractCassandraClientProducer.class,
+                    "getMetricRegistry",
+                    MetricRegistry.class),
+                defaultCassandraClient.getThis());
+
         defaultCassandraClient.returnValue(
             defaultCassandraClient.invokeVirtualMethod(
                 MethodDescriptor.ofMethod(
                     AbstractCassandraClientProducer.class,
                     "createCassandraClient",
                     CqlSession.class,
-                    CassandraClientConfig.class),
+                    CassandraClientConfig.class,
+                    MetricsConfig.class,
+                    MetricRegistry.class),
                 defaultCassandraClient.getThis(),
-                cassandraClientConfig));
+                cassandraClientConfig,
+                metricsConfig,
+                metricRegistry));
       }
     }
   }
 
   @Record(RUNTIME_INIT)
   @BuildStep
-  void configureRuntimePropertiesAndBuildClient(
+  void configureRuntimeProperties(
       CassandraClientRecorder recorder,
-      CassandraClientConfig cassandraConfig,
-      ConfigurationBuildItem config) {
-    recorder.configureRuntimeProperties(cassandraConfig);
+      CassandraClientConfig runtimeConfig,
+      CassandraClientBuildTimeConfig buildTimeConfig,
+      Capabilities capabilities) {
+    recorder.configureRuntimeProperties(runtimeConfig);
+
+    if (buildTimeConfig.metricsEnabled) {
+      recorder.configureMetrics(
+          new MetricsConfig(
+              buildTimeConfig.metricsNodeEnabled, buildTimeConfig.metricsSessionEnabled, true));
+    } else {
+      recorder.configureMetrics(new MetricsConfig(Optional.empty(), Optional.empty(), false));
+    }
+
+    if (buildTimeConfig.metricsEnabled && capabilities.isCapabilityPresent(Capabilities.METRICS)) {
+      recorder.setInjectedMetricRegistry();
+    } else {
+      recorder.setNoopMetricRegistry();
+    }
   }
 
   @BuildStep

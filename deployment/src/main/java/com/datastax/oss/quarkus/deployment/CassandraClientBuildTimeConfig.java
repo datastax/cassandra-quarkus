@@ -18,6 +18,8 @@ package com.datastax.oss.quarkus.deployment;
 import io.quarkus.runtime.annotations.ConfigItem;
 import io.quarkus.runtime.annotations.ConfigPhase;
 import io.quarkus.runtime.annotations.ConfigRoot;
+import java.util.List;
+import java.util.Optional;
 
 @ConfigRoot(name = "cassandra", phase = ConfigPhase.BUILD_TIME)
 public class CassandraClientBuildTimeConfig {
@@ -26,4 +28,24 @@ public class CassandraClientBuildTimeConfig {
    */
   @ConfigItem(name = "health.enabled", defaultValue = "true")
   public boolean healthEnabled;
+
+  /** Whether or not metrics are published in case the smallrye-metrics extension is present. */
+  @ConfigItem(name = "metrics.enabled", defaultValue = "false")
+  public boolean metricsEnabled;
+
+  /**
+   * List of enabled session-level metrics. They will be taken into account only, if metrics.enabled
+   * set to true. If not set, it will default to empty list. For more information, please see
+   * java-driver reference.conf.
+   */
+  @ConfigItem(name = "metrics.session-enabled")
+  public Optional<List<String>> metricsSessionEnabled;
+
+  /**
+   * List of enabled node-level metrics. They will be taken into account only, if metrics.enabled
+   * set to true. If not set, it will default to empty list. For more information, please see
+   * java-driver reference.conf.
+   */
+  @ConfigItem(name = "metrics.node-enabled", defaultValue = "")
+  public Optional<List<String>> metricsNodeEnabled;
 }
