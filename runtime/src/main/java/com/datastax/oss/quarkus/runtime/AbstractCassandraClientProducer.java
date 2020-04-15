@@ -70,11 +70,11 @@ public abstract class AbstractCassandraClientProducer {
     };
   }
 
-  CassandraClientConfig getCassandraClientConfig() {
+  public CassandraClientConfig getCassandraClientConfig() {
     return config;
   }
 
-  MetricsConfig getMetricsConfig() {
+  public MetricsConfig getMetricsConfig() {
     return metricsConfig;
   }
 
