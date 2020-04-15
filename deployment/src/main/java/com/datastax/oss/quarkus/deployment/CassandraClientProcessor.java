@@ -106,7 +106,13 @@ class CassandraClientProcessor {
         new ReflectiveClassBuildItem(true, true, RateLimitingRequestThrottler.class.getName()),
         // timestamp generators
         new ReflectiveClassBuildItem(true, true, AtomicTimestampGenerator.class.getName()),
-        new ReflectiveClassBuildItem(true, true, ThreadLocalTimestampGenerator.class.getName()));
+        new ReflectiveClassBuildItem(true, true, ThreadLocalTimestampGenerator.class.getName()),
+        new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4Compressor"),
+        new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4JavaSafeCompressor"),
+        new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4HCJavaSafeCompressor"),
+        new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4JavaSafeFastDecompressor"),
+        new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4JavaSafeSafeDecompressor"),
+        new ReflectiveClassBuildItem(true, true, "org.xerial.snappy.Snappy"));
   }
 
   @SuppressWarnings("unchecked")
@@ -180,6 +186,12 @@ class CassandraClientProcessor {
                     MetricRegistry.class),
                 defaultCassandraClient.getThis());
 
+        ResultHandle protocolCompression =
+            defaultCassandraClient.invokeVirtualMethod(
+                MethodDescriptor.ofMethod(
+                    AbstractCassandraClientProducer.class, "getProtocolCompression", String.class),
+                defaultCassandraClient.getThis());
+
         defaultCassandraClient.returnValue(
             defaultCassandraClient.invokeVirtualMethod(
                 MethodDescriptor.ofMethod(
@@ -188,11 +200,13 @@ class CassandraClientProcessor {
                     CqlSession.class,
                     CassandraClientConfig.class,
                     MetricsConfig.class,
-                    MetricRegistry.class),
+                    MetricRegistry.class,
+                    String.class),
                 defaultCassandraClient.getThis(),
                 cassandraClientConfig,
                 metricsConfig,
-                metricRegistry));
+                metricRegistry,
+                protocolCompression));
       }
     }
   }
@@ -205,7 +219,14 @@ class CassandraClientProcessor {
       CassandraClientBuildTimeConfig buildTimeConfig,
       Capabilities capabilities) {
     recorder.configureRuntimeProperties(runtimeConfig);
+    configureMetrics(recorder, buildTimeConfig, capabilities);
+    recorder.configureCompression(buildTimeConfig.protocolCompression);
+  }
 
+  private void configureMetrics(
+      CassandraClientRecorder recorder,
+      CassandraClientBuildTimeConfig buildTimeConfig,
+      Capabilities capabilities) {
     if (buildTimeConfig.metricsEnabled) {
       recorder.configureMetrics(
           new MetricsConfig(

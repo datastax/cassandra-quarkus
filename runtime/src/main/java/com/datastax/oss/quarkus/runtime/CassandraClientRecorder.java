@@ -68,4 +68,10 @@ public class CassandraClientRecorder {
         Arc.container().instance(AbstractCassandraClientProducer.class).get();
     producer.setMetricRegistry(new NoopMetricRegistry());
   }
+
+  public void configureCompression(String protocolCompression) {
+    AbstractCassandraClientProducer producer =
+        Arc.container().instance(AbstractCassandraClientProducer.class).get();
+    producer.setProtocolCompression(protocolCompression);
+  }
 }
