@@ -19,52 +19,36 @@ import com.datastax.oss.driver.api.core.context.DriverContext;
 import com.oracle.svm.core.annotate.Substitute;
 import com.oracle.svm.core.annotate.TargetClass;
 import io.netty.buffer.ByteBuf;
-import java.util.function.BooleanSupplier;
 
-@TargetClass(
-    className = "com.datastax.oss.driver.internal.core.protocol.Lz4Compressor",
-    onlyWith = Lz4MissingSelector.class)
-final class Lz4Compressor {
+@TargetClass(className = "com.datastax.oss.driver.internal.core.protocol.SnappyCompressor")
+final class SnappyCompressor {
 
   @Substitute
-  public Lz4Compressor(DriverContext context) {
+  public SnappyCompressor(DriverContext context) {
     // no-op
   }
 
   @Substitute
   protected ByteBuf compressHeap(ByteBuf input) {
     throw new UnsupportedOperationException(
-        "Lz4 compression is not supported when the org.lz4:lz4-java dependency is not present.");
+        "Snappy compression is not supported in the Native mode.");
   }
 
   @Substitute
   protected ByteBuf decompressDirect(ByteBuf input) {
     throw new UnsupportedOperationException(
-        "Lz4 compression is not supported when the org.lz4:lz4-java dependency is not present.");
+        "Snappy compression is not supported in the Native mode.");
   }
 
   @Substitute
   protected ByteBuf decompressHeap(ByteBuf input) {
     throw new UnsupportedOperationException(
-        "Lz4 compression is not supported when the org.lz4:lz4-java dependency is not present.");
+        "Snappy compression is not supported in the Native mode.");
   }
 
   @Substitute
   protected ByteBuf compressDirect(ByteBuf input) {
     throw new UnsupportedOperationException(
-        "Lz4 compression is not supported when the org.lz4:lz4-java dependency is not present.");
-  }
-}
-
-final class Lz4MissingSelector implements BooleanSupplier {
-
-  @Override
-  public boolean getAsBoolean() {
-    try {
-      Class.forName("net.jpountz.lz4.LZ4Compressor");
-      return false;
-    } catch (ClassNotFoundException e) {
-      return true;
-    }
+        "Snappy compression is not supported in the Native mode.");
   }
 }
