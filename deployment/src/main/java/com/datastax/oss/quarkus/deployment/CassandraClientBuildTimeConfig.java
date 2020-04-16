@@ -50,9 +50,14 @@ public class CassandraClientBuildTimeConfig {
   public Optional<List<String>> metricsNodeEnabled;
 
   /**
-   * The name of the algorithm used to compress protocol frames. - lz4: requires net.jpountz.lz4:lz4
-   * in the classpath. - snappy: requires org.xerial.snappy:snappy-java in the classpath. - the
-   * string "none" to indicate no compression
+   * The name of the algorithm used to compress protocol frames.
+   *
+   * <ul>
+   *   <li>lz4: requires net.jpountz.lz4:lz4 in the classpath.
+   *   <li>snappy: requires org.xerial.snappy:snappy-java in the classpath. Works only for not
+   *       Native mode.
+   *   <li>the string "none" to indicate no compression - this is a default value.
+   * </ul>
    */
   @ConfigItem(name = "protocol.compression", defaultValue = "none")
   public String protocolCompression;

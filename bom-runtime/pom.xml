@@ -58,6 +58,7 @@
         <groupId>org.lz4</groupId>
         <artifactId>lz4-java</artifactId>
         <version>1.6.0</version>
+        <optional>true</optional>
       </dependency>
       <dependency>
         <groupId>org.xerial.snappy</groupId>
