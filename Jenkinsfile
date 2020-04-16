@@ -81,7 +81,7 @@ pipeline {
 
   environment {
     OS_VERSION = 'ubuntu/bionic64/java-driver'
-    JABBA_SHELL = '/home/jenkins/.jabba/jabba.sh'
+    JABBA_SHELL = '/usr/lib/jabba/jabba.sh'
   }
 
   stages {
