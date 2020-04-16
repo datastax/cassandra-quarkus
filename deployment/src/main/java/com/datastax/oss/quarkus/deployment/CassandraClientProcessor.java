@@ -63,6 +63,7 @@ import io.quarkus.gizmo.MethodDescriptor;
 import io.quarkus.gizmo.ResultHandle;
 import io.quarkus.smallrye.health.deployment.spi.HealthBuildItem;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
@@ -74,7 +75,7 @@ class CassandraClientProcessor {
   public static final String CASSANDRA_CLIENT = "cassandra-client";
 
   @BuildStep
-  List<ReflectiveClassBuildItem> registerForReflection() {
+  List<ReflectiveClassBuildItem> registerDriverForReflection() {
     return Arrays.asList(
         // reconnection policies
         new ReflectiveClassBuildItem(true, true, ExponentialReconnectionPolicy.class.getName()),
@@ -106,12 +107,22 @@ class CassandraClientProcessor {
         new ReflectiveClassBuildItem(true, true, RateLimitingRequestThrottler.class.getName()),
         // timestamp generators
         new ReflectiveClassBuildItem(true, true, AtomicTimestampGenerator.class.getName()),
-        new ReflectiveClassBuildItem(true, true, ThreadLocalTimestampGenerator.class.getName()),
-        new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4Compressor"),
-        new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4JavaSafeCompressor"),
-        new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4HCJavaSafeCompressor"),
-        new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4JavaSafeFastDecompressor"),
-        new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4JavaSafeSafeDecompressor"));
+        new ReflectiveClassBuildItem(true, true, ThreadLocalTimestampGenerator.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerLz4ForReflection(
+      CassandraClientBuildTimeConfig buildTimeConfig) {
+    if (buildTimeConfig.protocolCompression.equalsIgnoreCase("lz4")) {
+      return Arrays.asList(
+          new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4Compressor"),
+          new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4JavaSafeCompressor"),
+          new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4HCJavaSafeCompressor"),
+          new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4JavaSafeFastDecompressor"),
+          new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4JavaSafeSafeDecompressor"));
+    } else {
+      return Collections.emptyList();
+    }
   }
 
   @SuppressWarnings("unchecked")
