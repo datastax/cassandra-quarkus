@@ -119,7 +119,12 @@ class CassandraClientProcessor {
           new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4JavaSafeCompressor"),
           new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4HCJavaSafeCompressor"),
           new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4JavaSafeFastDecompressor"),
-          new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4JavaSafeSafeDecompressor"));
+          new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4JavaSafeSafeDecompressor"),
+          new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4JavaUnsafeCompressor"),
+          new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4HCJavaUnsafeCompressor"),
+          new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4JavaUnsafeFastDecompressor"),
+          new ReflectiveClassBuildItem(
+              true, true, "net.jpountz.lz4.LZ4JavaUnsafeSafeDecompressor"));
     } else {
       return Collections.emptyList();
     }
