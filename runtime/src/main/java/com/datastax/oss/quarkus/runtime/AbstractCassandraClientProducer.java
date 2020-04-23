@@ -38,6 +38,7 @@ public abstract class AbstractCassandraClientProducer {
   private CassandraClientConfig config;
   private MetricsConfig metricsConfig;
   private MetricRegistry metricRegistry;
+  private String protocolCompression;
 
   public void setCassandraClientConfig(CassandraClientConfig config) {
     this.config = config;
@@ -49,6 +50,10 @@ public abstract class AbstractCassandraClientProducer {
 
   public void setMetricRegistry(MetricRegistry metricRegistry) {
     this.metricRegistry = metricRegistry;
+  }
+
+  public void setProtocolCompression(String protocolCompression) {
+    this.protocolCompression = protocolCompression;
   }
 
   private ProgrammaticDriverConfigLoaderBuilder createDriverConfigLoader() {
@@ -82,14 +87,27 @@ public abstract class AbstractCassandraClientProducer {
     return metricRegistry;
   }
 
+  public String getProtocolCompression() {
+    return protocolCompression;
+  }
+
   public CqlSession createCassandraClient(
-      CassandraClientConfig config, MetricsConfig metricsConfig, MetricRegistry metricRegistry) {
+      CassandraClientConfig config,
+      MetricsConfig metricsConfig,
+      MetricRegistry metricRegistry,
+      String protocolCompression) {
     ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder = createDriverConfigLoader();
     configureConnectionSettings(configLoaderBuilder, config.cassandraClientConnectionConfig);
     configureMetricsSettings(configLoaderBuilder, metricsConfig);
+    configureProtocolCompression(configLoaderBuilder, protocolCompression);
     QuarkusSessionBuilder builder =
         new QuarkusSessionBuilder(metricRegistry).withConfigLoader(configLoaderBuilder.build());
     return builder.build();
+  }
+
+  private void configureProtocolCompression(
+      ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder, String protocolCompression) {
+    configLoaderBuilder.withString(DefaultDriverOption.PROTOCOL_COMPRESSION, protocolCompression);
   }
 
   private void configureMetricsSettings(

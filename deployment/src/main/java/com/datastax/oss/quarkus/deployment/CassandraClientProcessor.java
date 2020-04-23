@@ -63,6 +63,7 @@ import io.quarkus.gizmo.MethodDescriptor;
 import io.quarkus.gizmo.ResultHandle;
 import io.quarkus.smallrye.health.deployment.spi.HealthBuildItem;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
@@ -74,7 +75,7 @@ class CassandraClientProcessor {
   public static final String CASSANDRA_CLIENT = "cassandra-client";
 
   @BuildStep
-  List<ReflectiveClassBuildItem> registerForReflection() {
+  List<ReflectiveClassBuildItem> registerDriverForReflection() {
     return Arrays.asList(
         // reconnection policies
         new ReflectiveClassBuildItem(true, true, ExponentialReconnectionPolicy.class.getName()),
@@ -107,6 +108,26 @@ class CassandraClientProcessor {
         // timestamp generators
         new ReflectiveClassBuildItem(true, true, AtomicTimestampGenerator.class.getName()),
         new ReflectiveClassBuildItem(true, true, ThreadLocalTimestampGenerator.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerLz4ForReflection(
+      CassandraClientBuildTimeConfig buildTimeConfig) {
+    if (buildTimeConfig.protocolCompression.equalsIgnoreCase("lz4")) {
+      return Arrays.asList(
+          new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4Compressor"),
+          new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4JavaSafeCompressor"),
+          new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4HCJavaSafeCompressor"),
+          new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4JavaSafeFastDecompressor"),
+          new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4JavaSafeSafeDecompressor"),
+          new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4JavaUnsafeCompressor"),
+          new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4HCJavaUnsafeCompressor"),
+          new ReflectiveClassBuildItem(true, true, "net.jpountz.lz4.LZ4JavaUnsafeFastDecompressor"),
+          new ReflectiveClassBuildItem(
+              true, true, "net.jpountz.lz4.LZ4JavaUnsafeSafeDecompressor"));
+    } else {
+      return Collections.emptyList();
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -180,6 +201,12 @@ class CassandraClientProcessor {
                     MetricRegistry.class),
                 defaultCassandraClient.getThis());
 
+        ResultHandle protocolCompression =
+            defaultCassandraClient.invokeVirtualMethod(
+                MethodDescriptor.ofMethod(
+                    AbstractCassandraClientProducer.class, "getProtocolCompression", String.class),
+                defaultCassandraClient.getThis());
+
         defaultCassandraClient.returnValue(
             defaultCassandraClient.invokeVirtualMethod(
                 MethodDescriptor.ofMethod(
@@ -188,11 +215,13 @@ class CassandraClientProcessor {
                     CqlSession.class,
                     CassandraClientConfig.class,
                     MetricsConfig.class,
-                    MetricRegistry.class),
+                    MetricRegistry.class,
+                    String.class),
                 defaultCassandraClient.getThis(),
                 cassandraClientConfig,
                 metricsConfig,
-                metricRegistry));
+                metricRegistry,
+                protocolCompression));
       }
     }
   }
@@ -205,7 +234,14 @@ class CassandraClientProcessor {
       CassandraClientBuildTimeConfig buildTimeConfig,
       Capabilities capabilities) {
     recorder.configureRuntimeProperties(runtimeConfig);
+    configureMetrics(recorder, buildTimeConfig, capabilities);
+    recorder.configureCompression(buildTimeConfig.protocolCompression);
+  }
 
+  private void configureMetrics(
+      CassandraClientRecorder recorder,
+      CassandraClientBuildTimeConfig buildTimeConfig,
+      Capabilities capabilities) {
     if (buildTimeConfig.metricsEnabled) {
       recorder.configureMetrics(
           new MetricsConfig(
