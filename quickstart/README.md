@@ -4,7 +4,7 @@ This example showcases how to use the Cassandra client with Quarkus.
 
 # Cassandra instance - Running with Docker
 
-Just run it as follows:
+Just run it as follows (only 9042 port is required for quickstart application):
 `docker run \
    --name local-cassandra-instance \
    -p 7000:7000 \
