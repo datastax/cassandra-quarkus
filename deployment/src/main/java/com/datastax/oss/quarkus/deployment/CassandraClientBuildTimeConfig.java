@@ -53,7 +53,7 @@ public class CassandraClientBuildTimeConfig {
    * The name of the algorithm used to compress protocol frames.
    *
    * <ul>
-   *   <li>lz4: requires net.jpountz.lz4:lz4 in the classpath.
+   *   <li>lz4: requires org.lz4:lz4-java in the classpath.
    *   <li>snappy: requires org.xerial.snappy:snappy-java in the classpath. Works only when not in
    *       Native mode.
    *   <li>the string "none" to indicate no compression - this is a default value.
