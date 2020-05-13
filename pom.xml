@@ -148,6 +148,7 @@
         <configuration>
           <excludes>
             <exclude>.idea/**</exclude>
+            <exclude>.github/**</exclude>
             <exclude>**/target/**</exclude>
           </excludes>
         </configuration>
