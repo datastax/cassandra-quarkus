@@ -16,6 +16,7 @@
 package com.datastax.oss.quarkus;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -33,8 +34,10 @@ public class FruitResource {
   @Inject FruitService fruitService;
 
   @GET
-  public List<Fruit> list() {
-    return fruitService.get(STORE_NAME);
+  public List<FruitDto> list() {
+    return fruitService.get(STORE_NAME).stream()
+        .map(fruit -> new FruitDto(fruit.getName(), fruit.getDescription()))
+        .collect(Collectors.toList());
   }
 
   @POST

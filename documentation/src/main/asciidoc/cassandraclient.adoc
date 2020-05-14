@@ -13,7 +13,7 @@ To complete this guide, you need:
 * JDK 1.8+ installed with `JAVA_HOME` configured appropriately
 * GraalVM installed with `GRAALVM_HOME` configured appropriately if you want to use the native mode.
 * Apache Maven 3.5.3+
-* Cassandra installed or Docker installed
+* Cassandra or Docker installed
 
 == Architecture
 
@@ -21,7 +21,7 @@ The application built in this guide is quite simple: the user can add elements i
 
 All the information between the browser and the server is formatted as JSON.
 
-The elements are stored in the Cassandra Database.
+The elements are stored in the Cassandra database.
 
 
 == Solution
@@ -73,7 +73,7 @@ public class Fruit {
 }
 ----
 We are using DataStax Java driver Object Mapper, which is why this class is annotated with an `@Entity`.
-Also, the Fruit `id` is a `@PartitionKey` and `name` is a `@ClusteringColumn` so we are using the corresponding annotations
+Also, the id field represents a Cassandra partition key and name represents a clustering column so we are using the corresponding annotations
 from the Object Mapper library. It will allow the Mapper to generate proper CQL queries underneath.
 
 One important thing to note is that having a default constructor is required by the Object Mapper.
@@ -146,9 +146,9 @@ public class FruitMapperProducer {
 }
 ----
 Please note the `CqlSession` instance injected automatically by the cassandra-quarkus extension in the `FruitMapperProducer` constructor.
-The `produceFruitMapper()` method is constructing `FruitMapper` that will be injected into the Di container by the Quarkus.
+The `produceFruitMapper()` method is constructing `FruitMapper` that will be injected into the Di container by the Quarkus framework.
 
-Now create a `com.datastax.oss.quarkus.FruitService` that will be the business layer of our application and store/load the fruits from the Cassandra database.
+Now create a `FruitService` that will be the business layer of our application and store/load the fruits from the Cassandra database.
 [source,java]
 ----
 @ApplicationScoped
@@ -184,8 +184,10 @@ public class FruitResource {
   @Inject FruitService fruitService;
 
   @GET
-  public List<Fruit> list() {
-    return fruitService.get(STORE_NAME);
+  public List<FruitDto> list() {
+    return fruitService.get(STORE_NAME).stream()
+        .map(fruit -> new FruitDto(fruit.getName(), fruit.getDescription()))
+        .collect(Collectors.toList());
   }
 
   @POST
@@ -258,7 +260,7 @@ To see the full list of settings, please refer to the {reference-conf-url}[refer
 == Running a Cassandra Database
 By default, `CassandraClient` is configured to access a local Cassandra database on port 9042 (the default Cassandra port).
 If you have a local running database on this port, you should assert that:
-`quarkus.cassandra.load-balancing-policy.local-datacenter` setting is equal to dc of your local cassandra instance.
+`quarkus.cassandra.load-balancing-policy.local-datacenter` setting is equal to dc of your local Cassandra instance.
 This value can be found with `SELECT data_center FROM system.local` query.
 
 If you want to use Docker to run a Cassandra database, you can use the following command to launch one:
