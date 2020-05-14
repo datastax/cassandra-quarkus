@@ -67,6 +67,24 @@
                   <tarLongFileMode>posix</tarLongFileMode>
                 </configuration>
               </execution>
+              <execution>
+                <id>assemble-pdf</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration>
+                  <descriptors>
+                    <descriptor>assembly-pdf.xml</descriptor>
+                  </descriptors>
+                  <recompressZippedFiles>true</recompressZippedFiles>
+                  <finalName>quarkus-documentation-${project.version}</finalName>
+                  <appendAssemblyId>true</appendAssemblyId>
+                  <outputDirectory>target/</outputDirectory>
+                  <workDirectory>target/assembly-pdf/work</workDirectory>
+                  <tarLongFileMode>posix</tarLongFileMode>
+                </configuration>
+              </execution>
             </executions>
           </plugin>
           <plugin>
@@ -147,30 +165,6 @@
                     <linkcss>true</linkcss>
                     <copycss>true</copycss>
                   </attributes>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>assemble-pdf</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>single</goal>
-                </goals>
-                <configuration>
-                  <descriptors>
-                    <descriptor>assembly-pdf.xml</descriptor>
-                  </descriptors>
-                  <recompressZippedFiles>true</recompressZippedFiles>
-                  <finalName>quarkus-documentation-${project.version}</finalName>
-                  <appendAssemblyId>true</appendAssemblyId>
-                  <outputDirectory>target/</outputDirectory>
-                  <workDirectory>target/assembly-pdf/work</workDirectory>
-                  <tarLongFileMode>posix</tarLongFileMode>
                 </configuration>
               </execution>
             </executions>
