@@ -1,5 +1,6 @@
 ### 1.0.0 (in progress)
 
+- [documentation] JAVA-2684: Add documentation and examples of Quarkus Cassandra extension
 - [new feature] JAVA-2683: Create a Quarkus Cassandra quick starter
 - [improvement] JAVA-2707: Substitute optional dependencies with Quarkus Substitiution
 - [new feature] JAVA-2694: Add Metrics to the extension

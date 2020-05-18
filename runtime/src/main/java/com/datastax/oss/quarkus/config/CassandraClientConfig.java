@@ -26,7 +26,4 @@ public class CassandraClientConfig {
   /** The Apache Cassandra (R) client config. */
   @ConfigItem(name = ConfigItem.PARENT)
   public CassandraClientConnectionConfig cassandraClientConnectionConfig;
-
-  // todo more low granular conf objects (i.e. ssl, cloud)
-
 }

@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright DataStax, Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>cassandra-quarkus-parent</artifactId>
+    <groupId>com.datastax.oss.quarkus</groupId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>cassandra-quarkus-documentation</artifactId>
+  <name>Cassandra-Quarkus :: Documentation</name>
+  <packaging>jar</packaging>
+  <properties>
+    <asciidoctorj.version>2.2.0</asciidoctorj.version>
+    <asciidoctorj-pdf.version>1.5.3</asciidoctorj-pdf.version>
+    <extension-url>https://github.com/datastax/cassandra-quarkus</extension-url>
+    <datastax-driver-documentation-url>https://docs.datastax.com/en/developer/java-driver/latest/manual</datastax-driver-documentation-url>
+    <skipDocs>false</skipDocs>
+  </properties>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <!-- http://stackoverflow.com/questions/13218313/unable-to-disable-generation-of-empty-jar-maven-jar-plugin -->
+        <executions>
+          <execution>
+            <id>default-jar</id>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+        <configuration>
+          <skipSource>true</skipSource>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-install-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <profiles>
+    <profile>
+      <id>release</id>
+      <activation>
+        <property>
+          <name>documentation-pdf</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.asciidoctor</groupId>
+            <artifactId>asciidoctor-maven-plugin</artifactId>
+            <dependencies>
+              <dependency>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctorj-pdf</artifactId>
+                <version>${asciidoctorj-pdf.version}</version>
+              </dependency>
+              <dependency>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctorj</artifactId>
+                <version>${asciidoctorj.version}</version>
+              </dependency>
+            </dependencies>
+            <configuration>
+              <skip>${skipDocs}</skip>
+              <enableVerbose>false</enableVerbose>
+              <logHandler>
+                <failIf>
+                  <severity>WARN</severity>
+                </failIf>
+              </logHandler>
+              <sourceDirectory>src/main/asciidoc</sourceDirectory>
+              <preserveDirectories>true</preserveDirectories>
+              <attributes>
+                <generated-dir>${project.basedir}/../target/asciidoc/generated</generated-dir>
+                <icons>font</icons>
+                <sectanchors>true</sectanchors>
+                <!-- set the idprefix to blank -->
+                <idprefix/>
+                <idseparator>-</idseparator>
+                <docinfo1>true</docinfo1>
+                <!-- avoid content security policy violations -->
+                <skip-front-matter>true</skip-front-matter>
+                <quickstart-clone-url>${extension-url}/tree/master/quickstart</quickstart-clone-url>
+                <reference-conf-url>${datastax-driver-documentation-url}/core/configuration/reference/</reference-conf-url>
+                <fruits-html-url>${extension-url}/tree/master/quickstart/src/main/resources/META-INF/resources/fruits.html</fruits-html-url>
+                <mapper-docs-url>${datastax-driver-documentation-url}/mapper</mapper-docs-url>
+              </attributes>
+            </configuration>
+            <executions>
+              <execution>
+                <id>output-html</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>process-asciidoc</goal>
+                </goals>
+                <configuration>
+                  <skip>${skipDocs}</skip>
+                  <backend>html5</backend>
+                  <outputDirectory>${project.build.directory}/generated-docs/html</outputDirectory>
+                  <attributes>
+                    <source-highlighter>coderay</source-highlighter>
+                    <!-- avoid content security policy violations -->
+                    <linkcss>true</linkcss>
+                    <copycss>true</copycss>
+                  </attributes>
+                </configuration>
+              </execution>
+              <execution>
+                <id>output-pdf</id>
+                <phase>process-resources</phase>
+                <goals>
+                  <goal>process-asciidoc</goal>
+                </goals>
+                <configuration>
+                  <skip>${skipDocs}</skip>
+                  <backend>pdf</backend>
+                  <outputDirectory>${project.build.directory}/generated-docs/pdf</outputDirectory>
+                  <sourceHighlighter>coderay</sourceHighlighter>
+                  <attributes>
+                    <pdf-stylesdir>${basedir}/src/main/resources/theme</pdf-stylesdir>
+                    <pdf-style>quarkus</pdf-style>
+                    <pdf-fontsdir>${basedir}/src/main/resources/theme/fonts</pdf-fontsdir>
+                    <icon-set>fas</icon-set>
+                    <pagenums/>
+                  </attributes>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>assemble-html</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration>
+                  <descriptors>
+                    <descriptor>src/main/assembly/assembly-html.xml</descriptor>
+                  </descriptors>
+                  <recompressZippedFiles>true</recompressZippedFiles>
+                  <finalName>${project.artifactId}-html-${project.version}</finalName>
+                  <appendAssemblyId>false</appendAssemblyId>
+                  <outputDirectory>target/</outputDirectory>
+                  <workDirectory>target/assembly-html/work</workDirectory>
+                  <tarLongFileMode>posix</tarLongFileMode>
+                </configuration>
+              </execution>
+              <execution>
+                <id>assemble-pdf</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration>
+                  <descriptors>
+                    <descriptor>src/main/assembly/assembly-pdf.xml</descriptor>
+                  </descriptors>
+                  <recompressZippedFiles>true</recompressZippedFiles>
+                  <finalName>${project.artifactId}-pdf-${project.version}</finalName>
+                  <appendAssemblyId>false</appendAssemblyId>
+                  <outputDirectory>target/</outputDirectory>
+                  <workDirectory>target/assembly-pdf/work</workDirectory>
+                  <tarLongFileMode>posix</tarLongFileMode>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

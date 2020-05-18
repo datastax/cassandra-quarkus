@@ -5,7 +5,8 @@ This example showcases how to use the Cassandra client with Quarkus.
 # Cassandra instance - Running with Docker
 
 Just run it as follows (only 9042 port is required for quickstart application):
-`docker run \
+```shell script
+docker run \
    --name local-cassandra-instance \
    -p 7000:7000 \
    -p 7001:7001 \
@@ -14,12 +15,17 @@ Just run it as follows (only 9042 port is required for quickstart application):
    -p 9160:9160 \
    -p 9404:9404 \
    -d \
-   launcher.gcr.io/google/cassandra3`
+   launcher.gcr.io/google/cassandra3
+```
 
 **Provision table**
 
-`docker exec -it local-cassandra-instance cqlsh -e "CREATE KEYSPACE IF NOT EXISTS k1 WITH replication = {'class':'SimpleStrategy', 'replication_factor':1}"`
-`docker exec -it local-cassandra-instance cqlsh -e "CREATE TABLE IF NOT EXISTS k1.fruit(id text, name text, description text, PRIMARY KEY((id), name))"`
+```shell script
+docker exec -it local-cassandra-instance cqlsh -e "CREATE KEYSPACE IF NOT EXISTS k1 WITH replication = {'class':'SimpleStrategy', 'replication_factor':1}"
+```
+```shell script
+docker exec -it local-cassandra-instance cqlsh -e "CREATE TABLE IF NOT EXISTS k1.fruit(id text, name text, description text, PRIMARY KEY((id), name))"
+```
                                                      
 
 # Run the demo on dev mode

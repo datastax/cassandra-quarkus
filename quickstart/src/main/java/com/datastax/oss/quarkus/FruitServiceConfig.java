@@ -15,16 +15,18 @@
  */
 package com.datastax.oss.quarkus;
 
-import com.datastax.oss.driver.api.core.PagingIterable;
-import com.datastax.oss.driver.api.mapper.annotations.Dao;
-import com.datastax.oss.driver.api.mapper.annotations.Select;
-import com.datastax.oss.driver.api.mapper.annotations.Update;
+import io.quarkus.arc.config.ConfigProperties;
 
-@Dao
-public interface FruitDao {
-  @Update
-  void update(Fruit fruit);
+@ConfigProperties(prefix = "fruit.dao")
+public class FruitServiceConfig {
+  /** Keyspace that should be used when creating a fruit dao. */
+  String keyspace;
 
-  @Select
-  PagingIterable<Fruit> findById(String id);
+  public String getKeyspace() {
+    return keyspace;
+  }
+
+  public void setKeyspace(String keyspace) {
+    this.keyspace = keyspace;
+  }
 }
