@@ -260,7 +260,7 @@ To see the full list of settings, please refer to the {reference-conf-url}[refer
 == Running a Cassandra Database
 By default, `CassandraClient` is configured to access a local Cassandra database on port 9042 (the default Cassandra port).
 If you have a local running database on this port, you should assert that:
-`quarkus.cassandra.load-balancing-policy.local-datacenter` setting is equal to dc of your local Cassandra instance.
+`quarkus.cassandra.load-balancing-policy.local-datacenter` setting is equal to the datacenter of your local Cassandra instance.
 This value can be found with `SELECT data_center FROM system.local` query.
 
 If you want to use Docker to run a Cassandra database, you can use the following command to launch one:
