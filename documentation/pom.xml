@@ -28,12 +28,49 @@
   <packaging>jar</packaging>
   <properties>
     <asciidoctorj.version>2.2.0</asciidoctorj.version>
-    <asciidoctor-maven-plugin.version>2.0.0-RC.1</asciidoctor-maven-plugin.version>
     <asciidoctorj-pdf.version>1.5.3</asciidoctorj-pdf.version>
     <extension-url>https://github.com/datastax/cassandra-quarkus</extension-url>
     <datastax-driver-documentation-url>https://docs.datastax.com/en/developer/java-driver/latest/manual</datastax-driver-documentation-url>
     <skipDocs>false</skipDocs>
   </properties>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <!-- http://stackoverflow.com/questions/13218313/unable-to-disable-generation-of-empty-jar-maven-jar-plugin -->
+        <executions>
+          <execution>
+            <id>default-jar</id>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+        <configuration>
+          <skipSource>true</skipSource>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-install-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
   <profiles>
     <profile>
       <id>release</id>
@@ -45,52 +82,8 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <version>3.1.0</version>
-            <executions>
-              <execution>
-                <id>assemble</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>single</goal>
-                </goals>
-                <configuration>
-                  <descriptors>
-                    <descriptor>assembly.xml</descriptor>
-                  </descriptors>
-                  <recompressZippedFiles>true</recompressZippedFiles>
-                  <finalName>documentation-${project.version}</finalName>
-                  <appendAssemblyId>false</appendAssemblyId>
-                  <outputDirectory>target/</outputDirectory>
-                  <workDirectory>target/assembly/work</workDirectory>
-                  <tarLongFileMode>posix</tarLongFileMode>
-                </configuration>
-              </execution>
-              <execution>
-                <id>assemble-pdf</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>single</goal>
-                </goals>
-                <configuration>
-                  <descriptors>
-                    <descriptor>assembly-pdf.xml</descriptor>
-                  </descriptors>
-                  <recompressZippedFiles>true</recompressZippedFiles>
-                  <finalName>quarkus-documentation-${project.version}</finalName>
-                  <appendAssemblyId>true</appendAssemblyId>
-                  <outputDirectory>target/</outputDirectory>
-                  <workDirectory>target/assembly-pdf/work</workDirectory>
-                  <tarLongFileMode>posix</tarLongFileMode>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctor-maven-plugin</artifactId>
-            <version>${asciidoctor-maven-plugin.version}</version>
             <dependencies>
               <dependency>
                 <groupId>org.asciidoctor</groupId>
@@ -105,7 +98,7 @@
             </dependencies>
             <configuration>
               <skip>${skipDocs}</skip>
-              <enableVerbose>true</enableVerbose>
+              <enableVerbose>false</enableVerbose>
               <logHandler>
                 <failIf>
                   <severity>WARN</severity>
@@ -131,6 +124,24 @@
             </configuration>
             <executions>
               <execution>
+                <id>output-html</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>process-asciidoc</goal>
+                </goals>
+                <configuration>
+                  <skip>${skipDocs}</skip>
+                  <backend>html5</backend>
+                  <outputDirectory>${project.build.directory}/generated-docs/html</outputDirectory>
+                  <attributes>
+                    <source-highlighter>coderay</source-highlighter>
+                    <!-- avoid content security policy violations -->
+                    <linkcss>true</linkcss>
+                    <copycss>true</copycss>
+                  </attributes>
+                </configuration>
+              </execution>
+              <execution>
                 <id>output-pdf</id>
                 <phase>process-resources</phase>
                 <goals>
@@ -139,7 +150,7 @@
                 <configuration>
                   <skip>${skipDocs}</skip>
                   <backend>pdf</backend>
-                  <outputDirectory>${project.build.directory}/generated-docs-pdf</outputDirectory>
+                  <outputDirectory>${project.build.directory}/generated-docs/pdf</outputDirectory>
                   <sourceHighlighter>coderay</sourceHighlighter>
                   <attributes>
                     <pdf-stylesdir>${basedir}/src/main/resources/theme</pdf-stylesdir>
@@ -150,21 +161,46 @@
                   </attributes>
                 </configuration>
               </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <executions>
               <execution>
-                <id>output-html</id>
-                <phase>prepare-package</phase>
+                <id>assemble-html</id>
+                <phase>package</phase>
                 <goals>
-                  <goal>process-asciidoc</goal>
+                  <goal>single</goal>
                 </goals>
                 <configuration>
-                  <skip>${skipDocs}</skip>
-                  <backend>html5</backend>
-                  <attributes>
-                    <source-highlighter>coderay</source-highlighter>
-                    <!-- avoid content security policy violations -->
-                    <linkcss>true</linkcss>
-                    <copycss>true</copycss>
-                  </attributes>
+                  <descriptors>
+                    <descriptor>src/main/assembly/assembly-html.xml</descriptor>
+                  </descriptors>
+                  <recompressZippedFiles>true</recompressZippedFiles>
+                  <finalName>${project.artifactId}-html-${project.version}</finalName>
+                  <appendAssemblyId>false</appendAssemblyId>
+                  <outputDirectory>target/</outputDirectory>
+                  <workDirectory>target/assembly-html/work</workDirectory>
+                  <tarLongFileMode>posix</tarLongFileMode>
+                </configuration>
+              </execution>
+              <execution>
+                <id>assemble-pdf</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>single</goal>
+                </goals>
+                <configuration>
+                  <descriptors>
+                    <descriptor>src/main/assembly/assembly-pdf.xml</descriptor>
+                  </descriptors>
+                  <recompressZippedFiles>true</recompressZippedFiles>
+                  <finalName>${project.artifactId}-pdf-${project.version}</finalName>
+                  <appendAssemblyId>false</appendAssemblyId>
+                  <outputDirectory>target/</outputDirectory>
+                  <workDirectory>target/assembly-pdf/work</workDirectory>
+                  <tarLongFileMode>posix</tarLongFileMode>
                 </configuration>
               </execution>
             </executions>
