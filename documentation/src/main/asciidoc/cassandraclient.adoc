@@ -277,7 +277,7 @@ docker run \
    -d \
    launcher.gcr.io/google/cassandra3
 ----
-Note that only the 9042 port is required. All others all optional but provide enhanced features like JMX monitoring of the C* instance.
+Note that only the 9042 port is required. All others all optional but provide enhanced features like JMX monitoring of the Cassandra instance.
 
 Next you need to create the keyspace and table that will be used by your application:
 [source,shell]
