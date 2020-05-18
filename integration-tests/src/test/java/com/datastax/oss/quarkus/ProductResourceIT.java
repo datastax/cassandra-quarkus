@@ -15,11 +15,12 @@
  */
 package com.datastax.oss.quarkus;
 
-import static io.restassured.RestAssured.given;
-import static org.junit.Assert.assertNotNull;
+import static io.restassured.RestAssured.when;
+import static org.hamcrest.Matchers.notNullValue;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import javax.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
@@ -28,59 +29,39 @@ public class ProductResourceIT {
 
   @Test
   public void testSaveAndRetrieveProduct() {
-    // create product
+
     String productId =
-        given()
-            .when()
+        when()
             .post("/cassandra/product/desc1")
             .then()
-            .statusCode(200)
+            .statusCode(Response.Status.OK.getStatusCode())
+            .body(notNullValue())
             .extract()
-            .response()
             .body()
             .asString();
-    assertNotNull(productId);
-
-    // retrieve product
-    String product =
-        given()
-            .when()
-            .get("/cassandra/product/" + productId)
-            .then()
-            .statusCode(200)
-            .extract()
-            .response()
-            .body()
-            .toString();
-    assertNotNull(product);
+    when()
+        .get("/cassandra/product/" + productId)
+        .then()
+        .statusCode(Response.Status.OK.getStatusCode())
+        .body(notNullValue());
   }
 
   @Test
   public void shouldSaveAndRetrieveUsingCustomNameConverterThatUsesReflection() {
-    // create product
+
     String productId =
-        given()
-            .when()
+        when()
             .post("/cassandra-name-converter/product/100")
             .then()
-            .statusCode(200)
+            .statusCode(Response.Status.OK.getStatusCode())
+            .body(notNullValue())
             .extract()
-            .response()
             .body()
             .asString();
-    assertNotNull(productId);
-
-    // retrieve product
-    String product =
-        given()
-            .when()
-            .get("/cassandra-name-converter/product/" + productId)
-            .then()
-            .statusCode(200)
-            .extract()
-            .response()
-            .body()
-            .toString();
-    assertNotNull(product);
+    when()
+        .get("/cassandra-name-converter/product/" + productId)
+        .then()
+        .statusCode(Response.Status.OK.getStatusCode())
+        .body(notNullValue());
   }
 }
