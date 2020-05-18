@@ -143,7 +143,7 @@
               </execution>
               <execution>
                 <id>output-pdf</id>
-                <phase>process-resources</phase>
+                <phase>prepare-package</phase>
                 <goals>
                   <goal>process-asciidoc</goal>
                 </goals>
