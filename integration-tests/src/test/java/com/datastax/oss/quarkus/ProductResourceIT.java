@@ -15,8 +15,8 @@
  */
 package com.datastax.oss.quarkus;
 
-import static io.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.*;
+import static io.restassured.RestAssured.when;
+import static org.hamcrest.Matchers.notNullValue;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
