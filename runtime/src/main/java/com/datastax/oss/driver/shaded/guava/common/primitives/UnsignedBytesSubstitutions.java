@@ -33,6 +33,8 @@ final class LexicographicalComparatorHolderSubstitutions {
   @RecomputeFieldValue(kind = RecomputeFieldValue.Kind.FromAlias)
   static Comparator<byte[]> BEST_COMPARATOR = UnsignedBytes.lexicographicalComparatorJavaImpl();
 
+  /* All known cases should be covered by the field substitution above... keeping this only
+   * for sake of completeness */
   @Substitute
   static Comparator<byte[]> getBestComparator() {
     return UnsignedBytes.lexicographicalComparatorJavaImpl();
