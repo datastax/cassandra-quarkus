@@ -34,7 +34,7 @@ final class NativeSubstitutions {
 
   @Substitute
   public static int getProcessId() {
-    throw new RuntimeException("Native operations are not supported on this platform");
+    throw new IllegalStateException("Native operations are not supported on this platform");
   }
 
   @Substitute
@@ -44,7 +44,7 @@ final class NativeSubstitutions {
 
   @Substitute
   public static long currentTimeMicros() {
-    throw new RuntimeException("Native operations are not supported on this platform");
+    throw new IllegalStateException("Native operations are not supported on this platform");
   }
 
   @KeepOriginal
