@@ -49,7 +49,9 @@ public class QuarkusNettyOptions implements NettyOptions {
   private final Timer timer;
 
   public QuarkusNettyOptions(
-      QuarkusDriverContext context, EventLoopGroup mainEventLoop, EventLoopGroup bossEventLoop) {
+      QuarkusDriverContext context,
+      EventLoopGroup ioEventLoopGroup,
+      EventLoopGroup adminEventLoopGroup) {
     this.config = context.getConfig().getDefaultProfile();
     boolean daemon = config.getBoolean(DefaultDriverOption.NETTY_DAEMON);
     // the NETTY_IO_SHUTDOWN_QUIET_PERIOD, NETTY_IO_SHUTDOWN_TIMEOUT, NETTY_IO_SHUTDOWN_UNIT,
@@ -59,8 +61,8 @@ public class QuarkusNettyOptions implements NettyOptions {
 
     ThreadFactory safeFactory = new BlockingOperation.SafeThreadFactory();
 
-    this.ioEventLoopGroup = mainEventLoop;
-    this.adminEventLoopGroup = bossEventLoop;
+    this.ioEventLoopGroup = ioEventLoopGroup;
+    this.adminEventLoopGroup = adminEventLoopGroup;
 
     // setup the Timer
     ThreadFactory timerThreadFactory =

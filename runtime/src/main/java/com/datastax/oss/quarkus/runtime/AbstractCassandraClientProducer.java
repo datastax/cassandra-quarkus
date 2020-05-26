@@ -40,7 +40,6 @@ public abstract class AbstractCassandraClientProducer {
   private MetricsConfig metricsConfig;
   private MetricRegistry metricRegistry;
   private String protocolCompression;
-  private EventLoopGroup bossEventLoop;
   private EventLoopGroup mainEventLoop;
 
   public void setCassandraClientConfig(CassandraClientConfig config) {
@@ -61,11 +60,6 @@ public abstract class AbstractCassandraClientProducer {
 
   public void setMainEventLoop(EventLoopGroup mainEventLoop) {
     this.mainEventLoop = mainEventLoop;
-  }
-
-  public void setBossEventLoop(EventLoopGroup bossEventLoop) {
-
-    this.bossEventLoop = bossEventLoop;
   }
 
   private ProgrammaticDriverConfigLoaderBuilder createDriverConfigLoader() {
@@ -103,10 +97,6 @@ public abstract class AbstractCassandraClientProducer {
     return protocolCompression;
   }
 
-  public EventLoopGroup getBossEventLoop() {
-    return bossEventLoop;
-  }
-
   public EventLoopGroup getMainEventLoop() {
     return mainEventLoop;
   }
@@ -121,7 +111,7 @@ public abstract class AbstractCassandraClientProducer {
     configureMetricsSettings(configLoaderBuilder, metricsConfig);
     configureProtocolCompression(configLoaderBuilder, protocolCompression);
     QuarkusSessionBuilder builder =
-        new QuarkusSessionBuilder(metricRegistry, mainEventLoop, bossEventLoop)
+        new QuarkusSessionBuilder(metricRegistry, mainEventLoop)
             .withConfigLoader(configLoaderBuilder.build());
     return builder.build();
   }

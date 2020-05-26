@@ -28,14 +28,11 @@ public class QuarkusSessionBuilder extends SessionBuilder<QuarkusSessionBuilder,
 
   private final MetricRegistry metricRegistry;
   private final EventLoopGroup mainEventLoop;
-  private final EventLoopGroup bossEventLoop;
 
-  public QuarkusSessionBuilder(
-      MetricRegistry metricRegistry, EventLoopGroup mainEventLoop, EventLoopGroup bossEventLoop) {
+  public QuarkusSessionBuilder(MetricRegistry metricRegistry, EventLoopGroup mainEventLoop) {
 
     this.metricRegistry = metricRegistry;
     this.mainEventLoop = mainEventLoop;
-    this.bossEventLoop = bossEventLoop;
   }
 
   @Override
@@ -47,6 +44,6 @@ public class QuarkusSessionBuilder extends SessionBuilder<QuarkusSessionBuilder,
   protected DriverContext buildContext(
       DriverConfigLoader configLoader, ProgrammaticArguments programmaticArguments) {
     return new QuarkusDriverContext(
-        configLoader, programmaticArguments, metricRegistry, mainEventLoop, bossEventLoop);
+        configLoader, programmaticArguments, metricRegistry, mainEventLoop);
   }
 }

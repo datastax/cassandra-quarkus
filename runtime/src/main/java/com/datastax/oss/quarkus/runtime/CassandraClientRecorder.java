@@ -22,7 +22,6 @@ import com.datastax.oss.quarkus.runtime.metrics.NoopMetricRegistry;
 import io.netty.channel.EventLoopGroup;
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.runtime.BeanContainerListener;
-import io.quarkus.netty.BossEventLoopGroup;
 import io.quarkus.netty.MainEventLoopGroup;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.annotations.Recorder;
@@ -81,13 +80,7 @@ public class CassandraClientRecorder {
             .instance(EventLoopGroup.class, new AnnotationLiteral<MainEventLoopGroup>() {})
             .get();
 
-    EventLoopGroup bossEventLoop =
-        Arc.container()
-            .instance(EventLoopGroup.class, new AnnotationLiteral<BossEventLoopGroup>() {})
-            .get();
-
     producer.setMainEventLoop(mainEventLoop);
-    producer.setBossEventLoop(bossEventLoop);
   }
 
   private AbstractCassandraClientProducer getProducerInstance() {
