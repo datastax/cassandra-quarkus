@@ -110,11 +110,7 @@ public abstract class AbstractCassandraClientProducer {
     return useQuarkusNettyEventLoop;
   }
 
-  public CqlSession createCassandraClient(
-      CassandraClientConfig config,
-      MetricsConfig metricsConfig,
-      MetricRegistry metricRegistry,
-      String protocolCompression) {
+  public CqlSession createCassandraClient() {
     ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder = createDriverConfigLoader();
     configureConnectionSettings(configLoaderBuilder, config.cassandraClientConnectionConfig);
     configureMetricsSettings(configLoaderBuilder, metricsConfig);

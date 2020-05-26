@@ -39,7 +39,7 @@ public class UseQuarkusNettyEventLoopDisabledTest {
           .withConfigurationResource("application-quarkus-netty-disabled.properties");
 
   @Test
-  public void should_use_quarkus_netty_event_loop() {
+  public void should_use_driver_netty_event_loop() {
     // when
     NettyOptions nettyOptions = ((QuarkusDriverContext) cqlSession.getContext()).getNettyOptions();
 
