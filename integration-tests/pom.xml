@@ -107,6 +107,7 @@
     <dependency>
       <groupId>io.rest-assured</groupId>
       <artifactId>rest-assured</artifactId>
+      <version>4.2.0</version>
       <scope>test</scope>
     </dependency>
     <!-- Health check -->
