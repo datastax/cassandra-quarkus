@@ -239,7 +239,7 @@ class CassandraClientProcessor {
     recorder.configureRuntimeProperties(runtimeConfig);
     configureMetrics(recorder, buildTimeConfig, capabilities);
     recorder.configureCompression(buildTimeConfig.protocolCompression);
-    recorder.setInjectedNettyEventLoop();
+    recorder.setInjectedNettyEventLoop(buildTimeConfig.useQuarkusNettyEventLoop);
   }
 
   private void configureMetrics(
@@ -259,8 +259,6 @@ class CassandraClientProcessor {
     } else {
       recorder.setNoopMetricRegistry();
     }
-
-    recorder.setInjectedNettyEventLoop();
   }
 
   @BuildStep

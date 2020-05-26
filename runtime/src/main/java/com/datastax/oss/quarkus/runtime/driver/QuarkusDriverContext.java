@@ -28,15 +28,18 @@ public class QuarkusDriverContext extends DefaultDriverContext {
 
   private final MetricRegistry metricRegistry;
   private final EventLoopGroup mainEventLoop;
+  private final boolean useQuarkusNettyEventLoop;
 
   public QuarkusDriverContext(
       DriverConfigLoader configLoader,
       ProgrammaticArguments programmaticArguments,
       MetricRegistry metricRegistry,
-      EventLoopGroup mainEventLoop) {
+      EventLoopGroup mainEventLoop,
+      boolean useQuarkusNettyEventLoop) {
     super(configLoader, programmaticArguments);
     this.metricRegistry = metricRegistry;
     this.mainEventLoop = mainEventLoop;
+    this.useQuarkusNettyEventLoop = useQuarkusNettyEventLoop;
   }
 
   @Override
@@ -46,6 +49,10 @@ public class QuarkusDriverContext extends DefaultDriverContext {
 
   @Override
   protected NettyOptions buildNettyOptions() {
-    return new QuarkusNettyOptions(this, mainEventLoop, mainEventLoop);
+    if (useQuarkusNettyEventLoop) {
+      return new QuarkusNettyOptions(this, mainEventLoop, mainEventLoop);
+    } else {
+      return super.buildNettyOptions();
+    }
   }
 }

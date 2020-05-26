@@ -72,15 +72,18 @@ public class CassandraClientRecorder {
     producer.setProtocolCompression(protocolCompression);
   }
 
-  public void setInjectedNettyEventLoop() {
+  public void setInjectedNettyEventLoop(Boolean useQuarkusNettyEventLoop) {
     AbstractCassandraClientProducer producer = getProducerInstance();
 
-    EventLoopGroup mainEventLoop =
-        Arc.container()
-            .instance(EventLoopGroup.class, new AnnotationLiteral<MainEventLoopGroup>() {})
-            .get();
+    if (useQuarkusNettyEventLoop) {
+      EventLoopGroup mainEventLoop =
+          Arc.container()
+              .instance(EventLoopGroup.class, new AnnotationLiteral<MainEventLoopGroup>() {})
+              .get();
 
-    producer.setMainEventLoop(mainEventLoop);
+      producer.setMainEventLoop(mainEventLoop);
+    }
+    producer.setUseQuarkusNettyEventLoop(useQuarkusNettyEventLoop);
   }
 
   private AbstractCassandraClientProducer getProducerInstance() {
