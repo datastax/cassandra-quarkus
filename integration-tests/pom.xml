@@ -125,7 +125,7 @@
             <path>
               <groupId>com.datastax.oss</groupId>
               <artifactId>java-driver-mapper-processor</artifactId>
-              <version>4.5.0</version>
+              <version>${datastax-java-driver.version}</version>
             </path>
             <path>
               <groupId>ch.qos.logback</groupId>
@@ -142,16 +142,6 @@
           <execution>
             <goals>
               <goal>build</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>test-jar</goal>
             </goals>
           </execution>
         </executions>

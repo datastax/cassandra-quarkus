@@ -15,36 +15,28 @@
  */
 package com.datastax.oss.quarkus;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static io.restassured.RestAssured.when;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.RestAssured;
-import io.restassured.common.mapper.TypeRef;
-import io.restassured.response.Response;
-import java.util.List;
-import java.util.Map;
 import javax.ws.rs.core.Response.Status;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 @QuarkusTestResource(CassandraTestResource.class)
 public class CassandraHealthCheckIT {
+
   @Test
   public void healthCheckShouldReportStatusUp() {
-    // when
-    Response response = RestAssured.with().get("/health/ready");
 
-    // then
-    assertThat(response.statusCode()).isEqualTo(Status.OK.getStatusCode());
-
-    Map<String, Object> body = response.as(new TypeRef<Map<String, Object>>() {});
-    assertThat(body.get("status")).isEqualTo("UP");
-
-    @SuppressWarnings("unchecked")
-    List<Map<String, Object>> checks = (List<Map<String, Object>>) body.get("checks");
-    assertThat(checks.size()).isOne();
-    assertThat(checks.get(0).get("name"))
-        .isEqualTo("DataStax Apache Cassandra Driver health check");
+    when()
+        .get("/health/ready")
+        .then()
+        .statusCode(Status.OK.getStatusCode())
+        .body("status", equalTo("UP"))
+        .body("checks", hasSize(1))
+        .body("checks[0].name", equalTo("DataStax Apache Cassandra Driver health check"));
   }
 }

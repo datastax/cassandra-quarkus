@@ -15,16 +15,22 @@
  */
 package com.datastax.oss.quarkus;
 
-import com.datastax.oss.driver.api.core.PagingIterable;
-import com.datastax.oss.driver.api.mapper.annotations.Dao;
-import com.datastax.oss.driver.api.mapper.annotations.Select;
-import com.datastax.oss.driver.api.mapper.annotations.Update;
+import com.datastax.oss.driver.api.core.CqlSession;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 
-@Dao
-public interface FruitDao {
-  @Update
-  void update(Fruit fruit);
+public class FruitMapperProducer {
+  private final CqlSession cqlSession;
 
-  @Select
-  PagingIterable<Fruit> findById(String id);
+  @Inject
+  public FruitMapperProducer(CqlSession cqlSession) {
+    this.cqlSession = cqlSession;
+  }
+
+  @Produces
+  @ApplicationScoped
+  FruitMapper produceFruitMapper() {
+    return new FruitMapperBuilder(cqlSession).build();
+  }
 }

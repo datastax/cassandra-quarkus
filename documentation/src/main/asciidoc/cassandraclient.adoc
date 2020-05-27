@@ -1,0 +1,349 @@
+= Quarkus - Using the Cassandra Client
+
+Apache Cassandra® is a free and open-source, distributed, wide column store, NoSQL database management system designed
+to handle large amounts of data across many commodity servers, providing high availability with no single point of failure.
+
+In this guide, we will see how you can get your REST services to use a Cassandra database.
+
+== Prerequisites
+
+To complete this guide, you need:
+
+* an IDE
+* JDK 1.8+ installed with `JAVA_HOME` configured appropriately
+* GraalVM installed with `GRAALVM_HOME` configured appropriately if you want to use the native mode.
+* Apache Maven 3.5.3+
+* Cassandra or Docker installed
+
+== Architecture
+
+The application built in this guide is quite simple: the user can add elements in a list using a form and the list is updated.
+
+All the information between the browser and the server is formatted as JSON.
+
+The elements are stored in the Cassandra database.
+
+
+== Solution
+
+We recommend that you follow the instructions in the next sections and create the application step by step.
+However, you can go right to the completed example.
+
+The solution is located in the `quickstart` {quickstart-clone-url}[directory].
+
+== Creating the Maven project
+
+First, we need a new project. Create a new maven project and copy the `pom.xml` file that is present in the `quickstart` directory.
+
+The `pom.xml` is importing the RESTEasy/JAX-RS, JSON-B, Context Propagation and Cassandra Client extensions.
+We will be building a REST application using the {mapper-docs-url}[DataStax Object Mapper].
+It will simplify the Data Access Layer code.
+
+The most important part of the `pom.xml` is adding the `cassandra-quarkus` extension:
+[source,xml]
+----
+<dependency>
+  <groupId>com.datastax.oss.quarkus</groupId>
+  <artifactId>cassandra-quarkus-client</artifactId>
+  <version>${quarkus.version}</version>
+</dependency>
+----
+
+== Creating JSON REST service
+In this example, we will create an application to manage a list of fruits.
+
+First, let's create the `Fruit` bean as follows:
+[source,java]
+----
+@Entity
+public class Fruit {
+
+  @ClusteringColumn private String name;
+  private String description;
+  @PartitionKey private String id;
+
+  public Fruit() {}
+
+  public Fruit(String name, String description, String id) {
+    this.name = name;
+    this.description = description;
+    this.id = id;
+  }
+  // getters, setters, hashCode and equals omitted for brevity
+}
+----
+We are using DataStax Java driver Object Mapper, which is why this class is annotated with an `@Entity`.
+Also, the id field represents a Cassandra partition key and name represents a clustering column so we are using the corresponding annotations
+from the Object Mapper library. It will allow the Mapper to generate proper CQL queries underneath.
+
+One important thing to note is that having a default constructor is required by the Object Mapper.
+
+To leverage the Mapper logic in this app we need to create a DAO:
+[source,java]
+----
+@Dao
+public interface FruitDao {
+  @Update
+  void update(Fruit fruit);
+
+  @Select
+  PagingIterable<Fruit> findById(String id);
+}
+----
+
+This class exposes operations that will be used in the REST service.
+
+Finally, the Mapper itself:
+[source,java]
+----
+@Mapper
+public interface FruitMapper {
+  @DaoFactory
+  FruitDao fruitDao(@DaoKeyspace CqlIdentifier keyspace);
+}
+----
+The mapper is responsible for constructing instances of `FruitDao`.
+
+The `FruitDao` should be created for a specific keyspace. We should make it parameterized by using the Quarkus `@ConfigProperties` mechanism.
+Firstly, let's define the `FruitServiceConfig` class that will contain the keyspace setting:
+[source,java]
+----
+
+@ConfigProperties(prefix = "fruit.dao")
+public class FruitServiceConfig {
+  /** Keyspace that should be used when creating a fruit dao. */
+  String keyspace;
+
+  // getter and setter omitted for brevity
+}
+----
+When starting the Quarkus app, it will try to fetch the `fruit.dao.keyspace` setting from the `application.properties` file.
+To make it work, we need to add this setting to the `application.properties` file:
+[source, properties]
+----
+fruit.dao.keyspace=k1
+----
+
+The instance of a `FruitMapper` should be shared between services that are using it within an application.
+We should leverage Quarkus Dependency Injection container and inject the instance of constructed `FruitMapper`:
+[source, java]
+----
+import javax.enterprise.inject.Produces;
+
+public class FruitMapperProducer {
+  private final CqlSession cqlSession;
+
+  @Inject
+  public FruitMapperProducer(CqlSession cqlSession) {
+    this.cqlSession = cqlSession;
+  }
+
+  @Produces
+  @ApplicationScoped
+  FruitMapper produceFruitMapper() {
+    return new FruitMapperBuilder(cqlSession).build();
+  }
+}
+----
+Please note the `CqlSession` instance injected automatically by the cassandra-quarkus extension in the `FruitMapperProducer` constructor.
+The `produceFruitMapper()` method is constructing `FruitMapper` that will be injected into the Di container by the Quarkus framework.
+
+Now create a `FruitService` that will be the business layer of our application and store/load the fruits from the Cassandra database.
+[source,java]
+----
+@ApplicationScoped
+public class FruitService {
+  private final FruitDao dao;
+
+  @Inject
+  public FruitService(FruitMapper fruitMapper, FruitServiceConfig fruitServiceConfig) {
+    dao = fruitMapper.fruitDao(CqlIdentifier.fromCql(fruitServiceConfig.keyspace));
+  }
+
+  public void save(Fruit fruit) {
+    dao.update(fruit);
+  }
+
+  public List<Fruit> get(String id) {
+    return dao.findById(id).all();
+  }
+}
+----
+Please note the construction of `FruitDao` instance in the constructor. It uses a `FruitMapper` instance injected automatically by the `FruitMapperProducer`.
+It is also using the injected `FruitServiceConfig` with the keyspace provided via the `application.properties` file.
+
+The last missing piece is the REST API that will expose GET and POST methods:
+[source,java]
+----
+@Path("/fruits")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+public class FruitResource {
+
+  private static final String STORE_NAME = "acme";
+  @Inject FruitService fruitService;
+
+  @GET
+  public List<FruitDto> list() {
+    return fruitService.get(STORE_NAME).stream()
+        .map(fruit -> new FruitDto(fruit.getName(), fruit.getDescription()))
+        .collect(Collectors.toList());
+  }
+
+  @POST
+  public void add(FruitDto fruit) {
+    fruitService.save(covertFromDto(fruit));
+  }
+
+  private Fruit covertFromDto(FruitDto fruitDto) {
+    return new Fruit(fruitDto.getName(), fruitDto.getDescription(), STORE_NAME);
+  }
+}
+----
+
+The `list` and `add` operations are executed for the `STORE_NAME` id. This is a partition key of the data model.
+We can easily retrieve all rows from cassandra using the partition key. They will be sorted by the clustering key.
+`FruitResource` is using `FruitService` which encapsulates the data access logic.
+
+When creating the REST API we should not share the same entity object between REST API and data access layers.
+They should not be coupled to allow the API to evolve independently of the storage layer.
+This is the reason why the API is using a `FruitDto` class.
+This class will be used by Quarkus to convert JSON to java object for client request and java object to JSON for the response.
+The translation is done by quarkus-resteasy extension.
+[source,java]
+----
+public class FruitDto {
+
+  private String name;
+  private String description;
+
+  public FruitDto() {}
+
+  public FruitDto(String name, String description) {
+    this.name = name;
+    this.description = description;
+  }
+  // getters and setters omitted for brevity
+}
+----
+
+One important thing to note is that having a default constructor is required by the JSON serialization layer.
+
+== Configuring the Cassandra database
+The main two properties to configure are `contact-points`, to access the Cassandra database, and `local-datacenter`, which is required by the driver.
+
+A sample configuration should look like this:
+
+[source,properties]
+----
+# configure the Cassandra client for a replica set of two nodes
+quarkus.cassandra.contact-points={cassandra_ip}:9042
+quarkus.cassandra.load-balancing-policy.local-datacenter={dc_name}
+----
+
+In this example, we are using a single instance running on localhost:
+
+[source,properties]
+----
+# configure the Cassandra client for a single instance on localhost
+quarkus.cassandra.contact-points=127.0.0.1:9042
+quarkus.cassandra.load-balancing-policy.local-datacenter=datacenter1
+----
+
+You can configure all Java driver settings using `application.conf` or `application.json` files.
+They need to be located in the resources directory of your application.
+They will be passed automatically to the underlying driver configuration mechanism.
+Settings defined in `application.properties` with the `quarkus.cassandra` prefix will have priority over settings defined in `application.conf` or `application.json`.
+
+To see the full list of settings, please refer to the {reference-conf-url}[reference.conf].
+
+== Running a Cassandra Database
+By default, `CassandraClient` is configured to access a local Cassandra database on port 9042 (the default Cassandra port).
+If you have a local running database on this port, you should assert that:
+`quarkus.cassandra.load-balancing-policy.local-datacenter` setting is equal to the datacenter of your local Cassandra instance.
+This value can be found with `SELECT data_center FROM system.local` query.
+
+If you want to use Docker to run a Cassandra database, you can use the following command to launch one:
+[source,shell]
+----
+docker run \
+   --name local-cassandra-instance \
+   -p 7000:7000 \
+   -p 7001:7001 \
+   -p 7199:7199 \
+   -p 9042:9042 \
+   -p 9160:9160 \
+   -p 9404:9404 \
+   -d \
+   launcher.gcr.io/google/cassandra3
+----
+Note that only the 9042 port is required. All others all optional but provide enhanced features like JMX monitoring of the Cassandra instance.
+
+Next you need to create the keyspace and table that will be used by your application:
+[source,shell]
+----
+docker exec -it local-cassandra-instance cqlsh -e "CREATE KEYSPACE IF NOT EXISTS k1 WITH replication = {'class':'SimpleStrategy', 'replication_factor':1}"
+docker exec -it local-cassandra-instance cqlsh -e "CREATE TABLE IF NOT EXISTS k1.fruit(id text, name text, description text, PRIMARY KEY((id), name))"
+----
+
+If you're running Cassandra locally you can execute the cqlsh commands directly:
+[source,shell]
+----
+cqlsh -e "CREATE KEYSPACE IF NOT EXISTS k1 WITH replication = {'class':'SimpleStrategy', 'replication_factor':1}
+cqlsh -e "CREATE TABLE IF NOT EXISTS k1.fruit(id text, name text, description text, PRIMARY KEY((id), name))
+----
+
+== Creating a frontend
+
+Now let's add a simple web page to interact with our `FruitResource`.
+Quarkus automatically serves static resources located under the `META-INF/resources` directory.
+In the `src/main/resources/META-INF/resources` directory, add a `fruits.html` file with the content from this {fruits-html-url}[fruits.html] file in it.
+
+You can now interact with your REST service:
+
+* start Quarkus with `mvn clean quarkus:dev`
+* open a browser to `http://localhost:8080/fruits.html`
+* add new fruits to the list via the form
+
+== Connection Health Check
+
+If you are using the `quarkus-smallrye-health` extension, `cassandra-quarkus` will automatically add a readiness health check
+to validate the connection to the cluster.
+
+So when you access the `/health/ready` endpoint of your application you will have information about the connection validation status.
+
+This behavior can be disabled by setting the `quarkus.cassandra.health.enabled` property to `false` in your `application.properties`.
+
+== Metrics
+
+If you are using the `quarkus-smallrye-metrics` extension, `cassandra-quarkus` can provide metrics about CqlSession and Cassandra nodes.
+This behavior must first be enabled by setting the `quarkus.cassandra.metrics.enabled` property to `true` in your `application.properties`.
+
+The next step that you need to do is set explicitly which metrics should be enabled.
+The `quarkus.cassandra.metrics.session-enabled` and `quarkus.cassandra.metrics.node-enabled` properties should be used for enabling metrics; the former should contain a list of session-level metrics to enable, while the latter should contain a list of node-level metrics to enable. Both properties accept a comma-separated list of valid metric names.
+So for example to enable `session.connected-nodes`, `session.bytes-sent`, and `node.pool.open-connections` you should add the following settings to your
+`application.properties`:
+[source, properties]
+----
+quarkus.cassandra.metrics.enabled=true
+quarkus.cassandra.metrics.session-enabled=connected-nodes,bytes-sent
+quarkus.cassandra.metrics.node-enabled=pool.open-connections
+----
+
+For the full list of available metrics, please refer to the {reference-conf-url}[reference.conf] and the `advanced.metrics` section.
+
+When metrics are properly enabled and when you access the `/metrics` endpoint of your application, you will see metric reports for all enabled metrics.
+
+== Building a native executable
+
+You can use the Cassandra client in a native executable.
+
+You can build a native executable with the `mvn clean package -Pnative` command.
+
+Running it is as simple as executing `./target/quickstart-1.0.0-SNAPSHOT-runner`.
+
+You can then point your browser to `http://localhost:8080/fruits.html` and use your application.
+
+== Conclusion
+
+Accessing a Cassandra database from a client application is easy with Quarkus and the Cassandra extension, which provides configuration and native support for the DataStax Java driver for Apache Cassandra.
