@@ -1,5 +1,6 @@
 ### 1.0.0 (in progress)
 
+- [new feature] JAVA-2719: Integrate with Netty event loop provided by Quarkus
 - [documentation] JAVA-2684: Add documentation and examples of Quarkus Cassandra extension
 - [new feature] JAVA-2683: Create a Quarkus Cassandra quick starter
 - [improvement] JAVA-2707: Substitute optional dependencies with Quarkus Substitution
