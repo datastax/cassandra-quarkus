@@ -21,6 +21,10 @@ import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.internal.core.context.NettyOptions;
 import com.datastax.oss.quarkus.CassandraTestBase;
 import io.quarkus.test.QuarkusUnitTest;
+import io.vertx.core.impl.VertxThread;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.inject.Inject;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -38,11 +42,27 @@ public class UseQuarkusNettyEventLoopEnabledTest {
           .withConfigurationResource("application-quarkus-netty-enabled.properties");
 
   @Test
-  public void should_use_quarkus_netty_event_loop() {
+  public void should_use_quarkus_netty_event_loop()
+      throws ExecutionException, InterruptedException {
     // when
     NettyOptions nettyOptions = ((QuarkusDriverContext) cqlSession.getContext()).getNettyOptions();
 
     // then
     assertThat(nettyOptions).isInstanceOf(QuarkusNettyOptions.class);
+
+    // when
+    AtomicReference<Class<? extends Thread>> threadClass = new AtomicReference<>();
+    CompletionStage<Void> asyncRequest =
+        cqlSession
+            .executeAsync("SELECT release_version FROM system.local")
+            .thenApply(
+                rs -> {
+                  threadClass.set(Thread.currentThread().getClass());
+                  return null;
+                });
+    asyncRequest.toCompletableFuture().get();
+
+    // then
+    assertThat(threadClass.get().getName()).isEqualTo(VertxThread.class.getName());
   }
 }
