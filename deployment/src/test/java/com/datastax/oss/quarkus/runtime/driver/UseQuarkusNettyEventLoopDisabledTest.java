@@ -20,8 +20,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.internal.core.context.DefaultNettyOptions;
 import com.datastax.oss.driver.internal.core.context.NettyOptions;
+import com.datastax.oss.driver.internal.core.util.concurrent.BlockingOperation;
 import com.datastax.oss.quarkus.CassandraTestBase;
 import io.quarkus.test.QuarkusUnitTest;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.inject.Inject;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -39,11 +43,27 @@ public class UseQuarkusNettyEventLoopDisabledTest {
           .withConfigurationResource("application-quarkus-netty-disabled.properties");
 
   @Test
-  public void should_use_driver_netty_event_loop() {
+  public void should_use_driver_netty_event_loop() throws ExecutionException, InterruptedException {
     // when
     NettyOptions nettyOptions = ((QuarkusDriverContext) cqlSession.getContext()).getNettyOptions();
 
     // then
     assertThat(nettyOptions).isInstanceOf(DefaultNettyOptions.class);
+
+    // when
+    AtomicReference<Class<? extends Thread>> threadClass = new AtomicReference<>();
+    CompletionStage<Void> asyncRequest =
+        cqlSession
+            .executeAsync("SELECT release_version FROM system.local")
+            .thenApply(
+                rs -> {
+                  threadClass.set(Thread.currentThread().getClass());
+                  return null;
+                });
+    asyncRequest.toCompletableFuture().get();
+
+    // then
+    assertThat(threadClass.get().getCanonicalName())
+        .isEqualTo(String.format("%s.%s", BlockingOperation.class.getName(), "InternalThread"));
   }
 }
