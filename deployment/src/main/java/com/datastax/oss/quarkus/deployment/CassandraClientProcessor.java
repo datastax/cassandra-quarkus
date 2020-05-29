@@ -54,6 +54,7 @@ import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.Consume;
 import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
+import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.NativeImageResourceBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.RuntimeInitializedClassBuildItem;
@@ -224,9 +225,10 @@ class CassandraClientProcessor {
   }
 
   @BuildStep
-  @Record(value = RUNTIME_INIT, optional = true)
-  CassandraClientBuildItem cassandraClient(CassandraClientRecorder recorder) {
-    return new CassandraClientBuildItem(recorder.getClient());
+  @Record(value = RUNTIME_INIT)
+  CassandraClientBuildItem cassandraClient(
+      CassandraClientRecorder recorder, ShutdownContextBuildItem shutdown) {
+    return new CassandraClientBuildItem(recorder.getClient(shutdown));
   }
 
   @BuildStep
