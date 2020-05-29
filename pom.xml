@@ -28,7 +28,7 @@
   <inceptionYear>2020</inceptionYear>
   <properties>
     <!-- Note: this property is used by the Quarkus CI to pass version info into the build.  See JAVA-2745 for details -->
-    <quarkus.version>1.3.0.Final</quarkus.version>
+    <quarkus.version>1.5.0.Final</quarkus.version>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.testTarget>${maven.compiler.target}</maven.compiler.testTarget>
