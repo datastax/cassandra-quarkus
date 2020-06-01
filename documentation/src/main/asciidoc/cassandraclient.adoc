@@ -307,7 +307,7 @@ You can now interact with your REST service:
 
 [[reactive]]
 == Reactive Cassandra Client
-When using `QuarkusCqlSession` you have access to reactive variant of methods that integrate with quarkus.
+When using `QuarkusCqlSession` you have access to reactive variant of methods that integrate with Quarkus.
 You can rewrite the previous example to use it like the following.
 
 [TIP]
@@ -321,15 +321,30 @@ If you're not familiar with them, read the https://quarkus.io/guides/getting-sta
 [NOTE]
 .DataStax Object Mapper: Publisher - Mutiny API Conversion
 ====
-We are using the DataStax mapper-processor customized for the Quarkus:
-[source,xml]
+We are using the specialized mapped producers for conversions between `CompletionStage` to `Uni`
+and `Publisher` to `Multi`. To make it work, you need to adapt the `FruitMapperProducer`:
+[source,java]
 ----
-<dependency>
-  <groupId>com.datastax.oss</groupId>
-  <artifactId>java-driver-mapper-processor</artifactId>
-</dependency>
+public class FruitMapperProducer {
+  private final QuarkusCqlSession cqlSession;
+
+  @Inject
+  public FruitMapperProducer(QuarkusCqlSession cqlSession) {
+    this.cqlSession = cqlSession;
+  }
+
+  @Produces
+  @ApplicationScoped
+  FruitMapper produceFruitMapper() {
+    return new FruitMapperBuilder(cqlSession)
+        .withResultProducers(new MutinyMappedResultProducer(), new UniMappedResultSetProducer())
+        .build();
+  }
+}
 ----
-it provides a `MutinyMappedReactiveResultSet` reactive type that can be used in the `@Dao`.
+Please note the `withResultProducers` method usage.
+The `MutinyMappedResultProducer` provides a `MutinyMappedReactiveResultSet` reactive type that can be used in the `@Dao`.
+The `UniMappedResultSetProducer` provides a conversion from `CompletionStage` to `Uni`.
 
 ====
 
@@ -340,7 +355,7 @@ Firstly, we need to implement the `@Dao` that works in a reactive way:
 public interface FruitDaoReactive {
 
   @Update
-  CompletionStage<Void> updateAsync(Fruit fruitDao);
+  Uni<Void> updateAsync(Fruit fruitDao);
 
   @Select
   MutinyMappedReactiveResultSet<Fruit> findByIdAsync(String id);
@@ -374,18 +389,19 @@ public class FruitReactiveService {
     fruitDao = fruitMapper.fruitDaoAsync(CqlIdentifier.fromCql(fruitServiceConfig.keyspace));
   }
 
-  public CompletionStage<Void> add(Fruit fruit) {
-    return fruitDao.updateAsync(fruit);
+  public Uni<Void> add(Fruit fruit) {
+    return fruitDao.update(fruit);
   }
 
   public Multi<Fruit> get(String id) {
-    return fruitDao.findByIdAsync(id);
+    return fruitDao.findById(id);
   }
 }
 ----
 The important thing to note here is that `get()` method returns `Multi` type that is compatible with Quarkus reactive REST API.
+The `add()` method returns the `Uni` that is also compatible with it.
 
-To integrated the reactive logic with REST API, you need to have a dependency to `quarkus-resteasy-mutiny`:
+To integrate the reactive logic with REST API, you need to have a dependency to `quarkus-resteasy-mutiny`:
 [source, xml]
 ----
 <dependency>
@@ -394,7 +410,7 @@ To integrated the reactive logic with REST API, you need to have a dependency to
 </dependency>
 ----
 
-It provides an integration layer between `Multi` and REST API.
+It provides an integration layer between `Multi`, `Uni` and REST API.
 
 Finally, we can create a `FruitReactiveResource`:
 [source, java]
@@ -416,7 +432,7 @@ public class FruitReactiveResource {
   @POST
   public Multi<FruitDto> add(FruitDto fruitDto) {
     Fruit fruit = covertFromDto(fruitDto);
-    return Uni.createFrom().completionStage(service.add(fruit)).then(ignored -> getAll());
+    return service.add(fruit).then(ignored -> getAll());
   }
 
   private Fruit covertFromDto(FruitDto fruitDto) {
