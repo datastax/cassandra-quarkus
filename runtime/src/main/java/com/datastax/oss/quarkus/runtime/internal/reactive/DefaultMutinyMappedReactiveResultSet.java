@@ -137,12 +137,6 @@ public class DefaultMutinyMappedReactiveResultSet<EntityT>
   }
 
   @Override
-  @Deprecated
-  public Multi<EntityT> subscribeOn(Executor executor) {
-    return multi.subscribeOn(executor);
-  }
-
-  @Override
   public Multi<EntityT> runSubscriptionOn(Executor executor) {
     return multi.runSubscriptionOn(executor);
   }
