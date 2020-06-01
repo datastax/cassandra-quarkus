@@ -32,7 +32,7 @@ public class FruitReactiveService {
   }
 
   public Uni<Void> add(Fruit fruit) {
-    return fruitDao.updateMutiny(fruit);
+    return fruitDao.update(fruit);
   }
 
   public Multi<Fruit> get(String id) {

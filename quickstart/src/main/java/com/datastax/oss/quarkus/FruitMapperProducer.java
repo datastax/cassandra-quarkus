@@ -18,6 +18,7 @@ package com.datastax.oss.quarkus;
 import com.datastax.oss.driver.api.core.type.reflect.GenericType;
 import com.datastax.oss.quarkus.runtime.api.reactive.MutinyMappedReactiveResultSet;
 import com.datastax.oss.quarkus.runtime.api.reactive.MutinyMappedResultProducer;
+import com.datastax.oss.quarkus.runtime.api.reactive.UniMappedResultSetProducer;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
@@ -37,7 +38,8 @@ public class FruitMapperProducer {
     return new FruitMapperBuilder(cqlSession)
         .withResultProducers(
             new MutinyMappedResultProducer<>(
-                new GenericType<MutinyMappedReactiveResultSet<Fruit>>() {}))
+                new GenericType<MutinyMappedReactiveResultSet<Fruit>>() {}),
+            new UniMappedResultSetProducer())
         .build();
   }
 }

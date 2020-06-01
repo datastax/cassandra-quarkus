@@ -44,6 +44,10 @@ public class Wrappers {
     return uni;
   }
 
+  public static <T> Uni<T> failedUni(Throwable error) {
+    return Uni.createFrom().failure(error);
+  }
+
   private static class VertexContextExecutor implements Executor {
 
     private final Context context;
