@@ -21,7 +21,7 @@ import com.datastax.oss.driver.api.core.context.DriverContext;
 import com.datastax.oss.driver.api.core.session.ProgrammaticArguments;
 import com.datastax.oss.driver.api.core.session.SessionBuilder;
 import com.datastax.oss.quarkus.runtime.internal.context.QuarkusDriverContext;
-import com.datastax.oss.quarkus.runtime.internal.reactive.DefaultQuarkusCqlSession;
+import com.datastax.oss.quarkus.runtime.internal.session.DefaultQuarkusCqlSession;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 
