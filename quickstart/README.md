@@ -76,4 +76,4 @@ You can compile the application into a native binary using:
 
 and run with:
 
-`./target/quickstart-1.0.0-SNAPSHOT-runner` 
+`./target/cassandra-quarkus-quickstart-1.0.0-SNAPSHOT-runner` 
