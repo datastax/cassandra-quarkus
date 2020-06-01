@@ -15,16 +15,19 @@
  */
 package com.datastax.oss.quarkus.dao;
 
-import com.datastax.oss.driver.api.core.CqlIdentifier;
-import com.datastax.oss.driver.api.mapper.annotations.DaoFactory;
-import com.datastax.oss.driver.api.mapper.annotations.DaoKeyspace;
-import com.datastax.oss.driver.api.mapper.annotations.Mapper;
+import com.datastax.oss.driver.api.mapper.annotations.Dao;
+import com.datastax.oss.driver.api.mapper.annotations.Select;
+import com.datastax.oss.driver.api.mapper.annotations.Update;
+import com.datastax.oss.quarkus.runtime.api.reactive.mapper.MutinyMappedReactiveResultSet;
+import io.smallrye.mutiny.Uni;
+import java.util.UUID;
 
-@Mapper
-public interface InventoryMapper {
-  @DaoFactory
-  ProductDao productDao(@DaoKeyspace CqlIdentifier keyspace);
+@Dao
+public interface ProductDaoReactive {
 
-  @DaoFactory
-  ProductDaoReactive productDaoReactive(@DaoKeyspace CqlIdentifier keyspace);
+  @Update
+  Uni<Void> update(Product product);
+
+  @Select
+  MutinyMappedReactiveResultSet<Product> findById(UUID productId);
 }

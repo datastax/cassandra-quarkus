@@ -64,4 +64,23 @@ public class ProductResourceIT {
         .statusCode(Response.Status.OK.getStatusCode())
         .body(notNullValue());
   }
+
+  @Test
+  public void testSaveAndRetrieveProductReactive() {
+
+    String productId =
+        when()
+            .post("/cassandra/product-reactive/desc1")
+            .then()
+            .statusCode(Response.Status.OK.getStatusCode())
+            .body(notNullValue())
+            .extract()
+            .body()
+            .asString();
+    when()
+        .get("/cassandra/product-reactive/" + productId)
+        .then()
+        .statusCode(Response.Status.OK.getStatusCode())
+        .body(notNullValue());
+  }
 }

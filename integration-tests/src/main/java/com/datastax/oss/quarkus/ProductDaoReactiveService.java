@@ -13,18 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.dao;
+package com.datastax.oss.quarkus;
 
 import com.datastax.oss.driver.api.core.CqlIdentifier;
-import com.datastax.oss.driver.api.mapper.annotations.DaoFactory;
-import com.datastax.oss.driver.api.mapper.annotations.DaoKeyspace;
-import com.datastax.oss.driver.api.mapper.annotations.Mapper;
+import com.datastax.oss.quarkus.dao.InventoryMapper;
+import com.datastax.oss.quarkus.dao.ProductDaoReactive;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
-@Mapper
-public interface InventoryMapper {
-  @DaoFactory
-  ProductDao productDao(@DaoKeyspace CqlIdentifier keyspace);
+@ApplicationScoped
+public class ProductDaoReactiveService {
 
-  @DaoFactory
-  ProductDaoReactive productDaoReactive(@DaoKeyspace CqlIdentifier keyspace);
+  private final ProductDaoReactive dao;
+
+  @Inject
+  public ProductDaoReactiveService(InventoryMapper inventoryMapper) {
+    dao = inventoryMapper.productDaoReactive(CqlIdentifier.fromCql("k1"));
+  }
+
+  ProductDaoReactive getDao() {
+    return dao;
+  }
 }
