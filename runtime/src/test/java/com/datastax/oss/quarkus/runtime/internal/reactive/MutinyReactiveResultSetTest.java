@@ -26,7 +26,7 @@ import com.datastax.dse.driver.internal.core.graph.reactive.DefaultReactiveGraph
 import com.datastax.dse.driver.internal.mapper.reactive.DefaultMappedReactiveResultSet;
 import com.datastax.oss.driver.api.core.cql.AsyncResultSet;
 import com.datastax.oss.driver.api.core.cql.Row;
-import com.datastax.oss.quarkus.runtime.api.reactive.MutinyMappedReactiveResultSet;
+import com.datastax.oss.quarkus.runtime.api.reactive.mapper.MutinyMappedReactiveResultSet;
 import io.reactivex.Flowable;
 import io.smallrye.mutiny.Multi;
 import java.util.ArrayList;

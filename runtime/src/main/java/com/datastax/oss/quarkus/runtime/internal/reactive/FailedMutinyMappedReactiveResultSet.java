@@ -17,7 +17,7 @@ package com.datastax.oss.quarkus.runtime.internal.reactive;
 
 import com.datastax.oss.driver.api.core.cql.ColumnDefinitions;
 import com.datastax.oss.driver.api.core.cql.ExecutionInfo;
-import com.datastax.oss.quarkus.runtime.api.reactive.MutinyMappedReactiveResultSet;
+import com.datastax.oss.quarkus.runtime.api.reactive.mapper.MutinyMappedReactiveResultSet;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.operators.multi.builders.FailedMulti;

@@ -15,8 +15,8 @@
  */
 package com.datastax.oss.quarkus;
 
-import com.datastax.oss.quarkus.runtime.api.reactive.MutinyMappedResultProducer;
-import com.datastax.oss.quarkus.runtime.api.reactive.UniMappedResultSetProducer;
+import com.datastax.oss.quarkus.runtime.api.reactive.mapper.MutinyMappedResultProducer;
+import com.datastax.oss.quarkus.runtime.api.reactive.mapper.UniMappedResultSetProducer;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;

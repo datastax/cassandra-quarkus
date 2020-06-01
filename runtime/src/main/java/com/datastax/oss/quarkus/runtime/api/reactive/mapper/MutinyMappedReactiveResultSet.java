@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.runtime.api.reactive;
+package com.datastax.oss.quarkus.runtime.api.reactive.mapper;
 
 import com.datastax.dse.driver.api.mapper.reactive.MappedReactiveResultSet;
 import com.datastax.oss.driver.api.mapper.annotations.Dao;
@@ -30,11 +30,7 @@ import io.smallrye.mutiny.Multi;
  * &#64;Dao
  * public interface FruitDaoReactive {
  *   &#64;Select
- *   MappedReactiveResultSet<Fruit> findByIdAsync(String id);
- *
- *   default MutinyMappedReactiveResultSet<Fruit> findByIdAsyncMutiny(String id) {
- *     return new DefaultMutinyMappedReactiveResultSet<>(findByIdAsync(id));
- *   }
+ *   MutinyMappedReactiveResultSet<Fruit> findByIdAsync(String id);
  * }
  * </pre>
  *
