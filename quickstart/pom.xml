@@ -30,7 +30,7 @@
     <surefire-plugin.version>2.22.0</surefire-plugin.version>
     <quarkus.version>1.5.0.Final</quarkus.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <datastax-java-driver.version>4.5.1</datastax-java-driver.version>
+    <datastax-java-driver.version>4.7.0-SNAPSHOT</datastax-java-driver.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -68,9 +68,9 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.datastax.oss.quarkus</groupId>
-      <artifactId>cassandra-quarkus-mapper-processor</artifactId>
-      <version>${project.version}</version>
+      <groupId>com.datastax.oss</groupId>
+      <artifactId>java-driver-mapper-processor</artifactId>
+      <version>${datastax-java-driver.version}</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -155,9 +155,9 @@
               <target>1.8</target>
               <annotationProcessorPaths>
                 <path>
-                  <groupId>com.datastax.oss.quarkus</groupId>
-                  <artifactId>cassandra-quarkus-mapper-processor</artifactId>
-                  <version>${project.version}</version>
+                  <groupId>com.datastax.oss</groupId>
+                  <artifactId>java-driver-mapper-processor</artifactId>
+                  <version>${datastax-java-driver.version}</version>
                 </path>
               </annotationProcessorPaths>
             </configuration>
