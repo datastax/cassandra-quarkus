@@ -25,13 +25,10 @@ import com.datastax.oss.driver.api.mapper.entity.EntityHelper;
 import com.datastax.oss.quarkus.runtime.internal.reactive.DefaultMutinyMappedReactiveResultSet;
 import com.datastax.oss.quarkus.runtime.internal.reactive.FailedMutinyMappedReactiveResultSet;
 
-public class MutinyMappedResultProducer<T> implements MappedResultProducer {
+public class MutinyMappedResultProducer implements MappedResultProducer {
 
-  private final GenericType<MutinyMappedReactiveResultSet<T>> producedType;
-
-  public MutinyMappedResultProducer(GenericType<MutinyMappedReactiveResultSet<T>> producedType) {
-    this.producedType = producedType;
-  }
+  private static final GenericType<MutinyMappedReactiveResultSet<?>> PRODUCED_TYPE =
+      new GenericType<MutinyMappedReactiveResultSet<?>>() {};
 
   private ReactiveResultSet executeReactive(Statement<?> statement, MapperContext context) {
     return context.getSession().executeReactive(statement);
@@ -39,7 +36,7 @@ public class MutinyMappedResultProducer<T> implements MappedResultProducer {
 
   @Override
   public boolean canProduce(GenericType<?> resultType) {
-    return resultType.equals(producedType);
+    return resultType.isSubtypeOf(PRODUCED_TYPE);
   }
 
   @Override
