@@ -19,13 +19,13 @@ import com.datastax.dse.driver.api.core.cql.reactive.ReactiveResultSet;
 import com.datastax.dse.driver.internal.mapper.reactive.DefaultMappedReactiveResultSet;
 import com.datastax.oss.driver.api.core.cql.Statement;
 import com.datastax.oss.driver.api.core.type.reflect.GenericType;
-import com.datastax.oss.driver.api.mapper.MappedResultProducer;
 import com.datastax.oss.driver.api.mapper.MapperContext;
+import com.datastax.oss.driver.api.mapper.MapperResultProducer;
 import com.datastax.oss.driver.api.mapper.entity.EntityHelper;
 import com.datastax.oss.quarkus.runtime.internal.reactive.DefaultMutinyMappedReactiveResultSet;
 import com.datastax.oss.quarkus.runtime.internal.reactive.FailedMutinyMappedReactiveResultSet;
 
-public class MutinyMappedResultProducer implements MappedResultProducer {
+public class MutinyMappedResultProducer implements MapperResultProducer {
 
   @Override
   public boolean canProduce(GenericType<?> resultType) {

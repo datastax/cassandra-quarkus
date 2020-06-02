@@ -17,13 +17,13 @@ package com.datastax.oss.quarkus.runtime.api.reactive.mapper;
 
 import com.datastax.oss.driver.api.core.cql.Statement;
 import com.datastax.oss.driver.api.core.type.reflect.GenericType;
-import com.datastax.oss.driver.api.mapper.MappedResultProducer;
 import com.datastax.oss.driver.api.mapper.MapperContext;
+import com.datastax.oss.driver.api.mapper.MapperResultProducer;
 import com.datastax.oss.driver.api.mapper.entity.EntityHelper;
 import com.datastax.oss.quarkus.runtime.internal.reactive.Wrappers;
 import io.smallrye.mutiny.Uni;
 
-public class UniMappedResultSetProducer implements MappedResultProducer {
+public class UniMappedResultSetProducer implements MapperResultProducer {
 
   @Override
   public boolean canProduce(GenericType<?> resultType) {

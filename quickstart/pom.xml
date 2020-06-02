@@ -30,7 +30,7 @@
     <surefire-plugin.version>2.22.0</surefire-plugin.version>
     <quarkus.version>1.5.0.Final</quarkus.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <datastax-java-driver.version>4.7.0-java2792+20200601</datastax-java-driver.version>
+    <datastax-java-driver.version>4.7.0-java2792+20200602064812</datastax-java-driver.version>
   </properties>
   <dependencyManagement>
     <dependencies>
