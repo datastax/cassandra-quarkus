@@ -290,11 +290,6 @@ class CassandraClientProcessor {
   }
 
   @BuildStep
-  RuntimeInitializedClassBuildItem cassandraClientRecorded() {
-    return new RuntimeInitializedClassBuildItem(CassandraClientRecorder.class.getCanonicalName());
-  }
-
-  @BuildStep
   NativeImageResourceBuildItem referenceConf() {
     return new NativeImageResourceBuildItem("reference.conf");
   }
