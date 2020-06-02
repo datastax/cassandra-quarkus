@@ -39,7 +39,7 @@ public class CassandraEndpoint {
   @Path("/product/{description}")
   public UUID saveProduct(@PathParam("description") String desc) {
     UUID id = UUID.randomUUID();
-    dao.getDao().update(new Product(id, desc));
+    dao.getDao().create(new Product(id, desc));
     return id;
   }
 
@@ -55,7 +55,7 @@ public class CassandraEndpoint {
   @Path("/product-reactive/{description}")
   public Uni<UUID> saveProductReactive(@PathParam("description") String desc) {
     UUID id = UUID.randomUUID();
-    return reactiveDao.getDao().update(new Product(id, desc)).then(i -> Uni.createFrom().item(id));
+    return reactiveDao.getDao().create(new Product(id, desc)).then(i -> Uni.createFrom().item(id));
   }
 
   @GET

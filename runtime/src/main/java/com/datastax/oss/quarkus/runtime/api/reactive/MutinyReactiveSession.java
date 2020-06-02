@@ -24,6 +24,12 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.smallrye.mutiny.Multi;
 import java.util.Objects;
 
+/**
+ * The reactive session type that supports the Reactive Mutiny API .
+ *
+ * <p>It provides user-friendly execution methods for executing reactive {@code String} and {@code
+ * Statement} queries.
+ */
 public interface MutinyReactiveSession extends ReactiveSession {
 
   /**

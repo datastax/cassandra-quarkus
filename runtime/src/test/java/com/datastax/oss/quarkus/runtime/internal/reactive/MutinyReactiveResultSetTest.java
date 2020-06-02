@@ -27,10 +27,8 @@ import com.datastax.dse.driver.internal.mapper.reactive.DefaultMappedReactiveRes
 import com.datastax.oss.driver.api.core.cql.AsyncResultSet;
 import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.quarkus.runtime.api.reactive.mapper.MutinyMappedReactiveResultSet;
-import io.reactivex.Flowable;
 import io.smallrye.mutiny.Multi;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Test;

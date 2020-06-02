@@ -24,6 +24,12 @@ import com.datastax.oss.quarkus.runtime.internal.reactive.DefaultMutinyGraphReac
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Objects;
 
+/**
+ * The graph reactive session type that supports the Reactive Mutiny API .
+ *
+ * <p>It provides user-friendly execution methods for executing reactive {@code GraphStatement}
+ * queries.
+ */
 public interface MutinyGraphReactiveSession extends CqlSession, MutinyReactiveSession {
 
   /**
