@@ -27,22 +27,15 @@ import com.datastax.oss.quarkus.runtime.internal.reactive.FailedMutinyMappedReac
 
 public class MutinyMappedResultProducer implements MappedResultProducer {
 
-  private static final GenericType<MutinyMappedReactiveResultSet<?>> PRODUCED_TYPE =
-      new GenericType<MutinyMappedReactiveResultSet<?>>() {};
-
-  private ReactiveResultSet executeReactive(Statement<?> statement, MapperContext context) {
-    return context.getSession().executeReactive(statement);
-  }
-
   @Override
   public boolean canProduce(GenericType<?> resultType) {
-    return resultType.isSubtypeOf(PRODUCED_TYPE);
+    return resultType.getRawType().equals(MutinyMappedReactiveResultSet.class);
   }
 
   @Override
   public <EntityT> Object execute(
       Statement<?> statement, MapperContext context, EntityHelper<EntityT> entityHelper) {
-    ReactiveResultSet source = executeReactive(statement, context);
+    ReactiveResultSet source = context.getSession().executeReactive(statement);
     return new DefaultMutinyMappedReactiveResultSet<>(
         new DefaultMappedReactiveResultSet<>(source, entityHelper::get));
   }

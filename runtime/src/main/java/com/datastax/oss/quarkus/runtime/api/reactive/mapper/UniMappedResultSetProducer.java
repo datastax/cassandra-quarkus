@@ -24,11 +24,10 @@ import com.datastax.oss.quarkus.runtime.internal.reactive.Wrappers;
 import io.smallrye.mutiny.Uni;
 
 public class UniMappedResultSetProducer implements MappedResultProducer {
-  private static final GenericType<Uni<?>> PRODUCED_TYPE = new GenericType<Uni<?>>() {};
 
   @Override
   public boolean canProduce(GenericType<?> resultType) {
-    return resultType.isSubtypeOf(PRODUCED_TYPE);
+    return resultType.getRawType().equals(Uni.class);
   }
 
   @Override
