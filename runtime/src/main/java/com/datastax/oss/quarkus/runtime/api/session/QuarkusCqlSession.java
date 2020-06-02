@@ -15,86 +15,13 @@
  */
 package com.datastax.oss.quarkus.runtime.api.session;
 
-import com.datastax.dse.driver.api.core.cql.continuous.ContinuousSession;
-import com.datastax.dse.driver.api.core.graph.GraphStatement;
-import com.datastax.dse.driver.api.core.graph.reactive.ReactiveGraphNode;
-import com.datastax.dse.driver.api.core.graph.reactive.ReactiveGraphResultSet;
 import com.datastax.oss.driver.api.core.CqlSession;
-import com.datastax.oss.driver.api.core.cql.Statement;
-import com.datastax.oss.quarkus.runtime.api.reactive.MutinyContinuousReactiveResultSet;
-import com.datastax.oss.quarkus.runtime.api.reactive.MutinyGraphReactiveResultSet;
-import com.datastax.oss.quarkus.runtime.api.reactive.MutinyReactiveResultSet;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import io.smallrye.mutiny.Multi;
+import com.datastax.oss.quarkus.runtime.api.reactive.MutinyContinuousReactiveSession;
+import com.datastax.oss.quarkus.runtime.api.reactive.MutinyGraphReactiveSession;
+import com.datastax.oss.quarkus.runtime.api.reactive.MutinyReactiveSession;
 
-public interface QuarkusCqlSession extends CqlSession {
-  /**
-   * Returns a {@link Multi} that, once subscribed to, executes the given query and emits all the
-   * results.
-   *
-   * @param query the query to execute.
-   * @return The {@link Multi} that will publish the returned results.
-   */
-  @NonNull
-  @Override
-  MutinyReactiveResultSet executeReactive(@NonNull String query);
-
-  /**
-   * Returns a {@link Multi} that, once subscribed to, executes the given query and emits all the
-   * results.
-   *
-   * @param statement the statement to execute.
-   * @return The {@link Multi} that will publish the returned results.
-   */
-  @NonNull
-  @Override
-  MutinyReactiveResultSet executeReactive(@NonNull Statement<?> statement);
-
-  /**
-   * Returns a {@link MutinyGraphReactiveResultSet} that, once subscribed to, executes the given
-   * query and emits all the results.
-   *
-   * <p>See the javadocs of {@link ReactiveGraphResultSet} for important remarks anc caveats
-   * regarding the subscription to and consumption of reactive graph result sets.
-   *
-   * @param statement the statement to execute.
-   * @return The {@link MutinyGraphReactiveResultSet} that will publish the returned results.
-   * @see ReactiveGraphResultSet
-   * @see ReactiveGraphNode
-   */
-  @NonNull
-  @Override
-  MutinyGraphReactiveResultSet executeReactive(@NonNull GraphStatement<?> statement);
-
-  /**
-   * Returns a {@link Multi} that, once subscribed to, executes the given query continuously and
-   * emits all the results.
-   *
-   * <p>See {@link ContinuousSession} for more explanations about continuous paging.
-   *
-   * <p>This feature is only available with Datastax Enterprise. Executing continuous queries
-   * against an Apache Cassandra&reg; cluster will result in a runtime error.
-   *
-   * @param query the query to execute.
-   * @return The {@link Multi} that will publish the returned results.
-   */
-  @NonNull
-  @Override
-  MutinyContinuousReactiveResultSet executeContinuouslyReactive(@NonNull String query);
-
-  /**
-   * Returns a {@link Multi} that, once subscribed to, executes the given query continuously and
-   * emits all the results.
-   *
-   * <p>See {@link ContinuousSession} for more explanations about continuous paging.
-   *
-   * <p>This feature is only available with Datastax Enterprise. Executing continuous queries
-   * against an Apache Cassandra&reg; cluster will result in a runtime error.
-   *
-   * @param statement the statement to execute.
-   * @return The {@link Multi} that will publish the returned results.
-   */
-  @NonNull
-  @Override
-  MutinyContinuousReactiveResultSet executeContinuouslyReactive(@NonNull Statement<?> statement);
-}
+public interface QuarkusCqlSession
+    extends CqlSession,
+        MutinyReactiveSession,
+        MutinyContinuousReactiveSession,
+        MutinyGraphReactiveSession {}

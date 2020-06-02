@@ -15,53 +15,14 @@
  */
 package com.datastax.oss.quarkus.runtime.internal.session;
 
-import com.datastax.dse.driver.api.core.graph.GraphStatement;
 import com.datastax.oss.driver.api.core.CqlSession;
-import com.datastax.oss.driver.api.core.cql.Statement;
 import com.datastax.oss.driver.internal.core.session.SessionWrapper;
-import com.datastax.oss.quarkus.runtime.api.reactive.MutinyContinuousReactiveResultSet;
-import com.datastax.oss.quarkus.runtime.api.reactive.MutinyGraphReactiveResultSet;
-import com.datastax.oss.quarkus.runtime.api.reactive.MutinyReactiveResultSet;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
-import com.datastax.oss.quarkus.runtime.internal.reactive.DefaultMutinyGraphReactiveResultSet;
-import com.datastax.oss.quarkus.runtime.internal.reactive.DefaultMutinyReactiveResultSet;
 import edu.umd.cs.findbugs.annotations.NonNull;
 
 public class DefaultQuarkusCqlSession extends SessionWrapper implements QuarkusCqlSession {
 
-  private final CqlSession delegate;
-
   public DefaultQuarkusCqlSession(@NonNull CqlSession delegate) {
     super(delegate);
-    this.delegate = delegate;
-  }
-
-  @NonNull
-  @Override
-  public MutinyContinuousReactiveResultSet executeContinuouslyReactive(@NonNull String query) {
-    return new DefaultMutinyReactiveResultSet(delegate.executeContinuouslyReactive(query));
-  }
-
-  @NonNull
-  public MutinyContinuousReactiveResultSet executeContinuouslyReactive(
-      @NonNull Statement<?> statement) {
-    return new DefaultMutinyReactiveResultSet(delegate.executeContinuouslyReactive(statement));
-  }
-
-  @NonNull
-  public MutinyGraphReactiveResultSet executeReactive(@NonNull GraphStatement<?> statement) {
-    return new DefaultMutinyGraphReactiveResultSet(delegate.executeReactive(statement));
-  }
-
-  @NonNull
-  @Override
-  public MutinyReactiveResultSet executeReactive(@NonNull String query) {
-    return new DefaultMutinyReactiveResultSet(delegate.executeReactive(query));
-  }
-
-  @NonNull
-  @Override
-  public MutinyReactiveResultSet executeReactive(@NonNull Statement<?> statement) {
-    return new DefaultMutinyReactiveResultSet(delegate.executeReactive(statement));
   }
 }
