@@ -104,21 +104,14 @@ class MutinyReactiveResultSetTest {
 
   private static CompletableFuture<AsyncResultSet> createResults() {
     CompletableFuture<AsyncResultSet> previous = null;
-    // create pages of 5 elements each to exercise pagination
-    List<Integer> pages =
-        Flowable.range(0, NUMBER_OF_ELEMENTS).buffer(5).map(List::size).toList().blockingGet();
-    Collections.reverse(pages);
-    for (Integer size : pages) {
-      List<Row> rows =
-          Flowable.range(0, size)
-              .map(
-                  i -> {
-                    Row row = mock(Row.class);
-                    when(row.getInt(0)).thenReturn(i);
-                    return row;
-                  })
-              .toList()
-              .blockingGet();
+    // create 4 pages of 5 elements each to exercise pagination
+    for (int i = 0; i < 4; i++) {
+      List<Row> rows = new ArrayList<>();
+      for (int j = 0; j < 5; j++) {
+        Row row = mock(Row.class);
+        when(row.getInt(0)).thenReturn(i);
+        rows.add(row);
+      }
       CompletableFuture<AsyncResultSet> future = new CompletableFuture<>();
       future.complete(new MockAsyncResultSet(rows, previous));
       previous = future;
@@ -128,23 +121,16 @@ class MutinyReactiveResultSetTest {
 
   private static CompletableFuture<AsyncGraphResultSet> createGraphResults() {
     CompletableFuture<AsyncGraphResultSet> previous = null;
-    // create pages of 5 elements each to exercise pagination
-    List<Integer> pages =
-        Flowable.range(0, NUMBER_OF_ELEMENTS).buffer(5).map(List::size).toList().blockingGet();
-    Collections.reverse(pages);
-    for (Integer size : pages) {
-      List<GraphNode> rows =
-          Flowable.range(0, size)
-              .map(
-                  i -> {
-                    GraphNode node = mock(GraphNode.class);
-                    when(node.asInt()).thenReturn(i);
-                    return node;
-                  })
-              .toList()
-              .blockingGet();
+    // create 4 pages of 5 elements each to exercise pagination
+    for (int i = 0; i < 4; i++) {
+      List<GraphNode> nodes = new ArrayList<>();
+      for (int j = 0; j < 5; j++) {
+        GraphNode node = mock(GraphNode.class);
+        when(node.asInt()).thenReturn(i);
+        nodes.add(node);
+      }
       CompletableFuture<AsyncGraphResultSet> future = new CompletableFuture<>();
-      future.complete(new MockAsyncGraphResultSet(rows, previous));
+      future.complete(new MockAsyncGraphResultSet(nodes, previous));
       previous = future;
     }
     return previous;
