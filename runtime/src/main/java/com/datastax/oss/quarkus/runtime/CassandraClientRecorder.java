@@ -22,9 +22,9 @@ import com.datastax.oss.quarkus.runtime.metrics.NoopMetricRegistry;
 import io.netty.channel.EventLoopGroup;
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.runtime.BeanContainerListener;
-import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
 import io.quarkus.netty.MainEventLoopGroup;
 import io.quarkus.runtime.RuntimeValue;
+import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
 import io.smallrye.metrics.MetricRegistries;
 import javax.enterprise.inject.Default;
@@ -48,7 +48,7 @@ public class CassandraClientRecorder {
     return Default.Literal.INSTANCE;
   }
 
-  public RuntimeValue<CqlSession> getClient(ShutdownContextBuildItem shutdown) {
+  public RuntimeValue<CqlSession> getClient(ShutdownContext shutdown) {
     CqlSession cqlSession = Arc.container().instance(CqlSession.class, defaultName()).get();
     shutdown.addShutdownTask(cqlSession::close);
     return new RuntimeValue<>(cqlSession);
