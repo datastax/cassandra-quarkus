@@ -70,6 +70,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
 import org.eclipse.microprofile.metrics.MetricRegistry;
+import org.reactivestreams.Publisher;
 
 class CassandraClientProcessor {
   public static final String CASSANDRA_CLIENT = "cassandra-client";
@@ -107,7 +108,8 @@ class CassandraClientProcessor {
         new ReflectiveClassBuildItem(true, true, RateLimitingRequestThrottler.class.getName()),
         // timestamp generators
         new ReflectiveClassBuildItem(true, true, AtomicTimestampGenerator.class.getName()),
-        new ReflectiveClassBuildItem(true, true, ThreadLocalTimestampGenerator.class.getName()));
+        new ReflectiveClassBuildItem(true, true, ThreadLocalTimestampGenerator.class.getName()),
+        new ReflectiveClassBuildItem(true, true, Publisher.class.getName()));
   }
 
   @BuildStep
