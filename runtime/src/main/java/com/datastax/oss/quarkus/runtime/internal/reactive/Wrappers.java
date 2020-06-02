@@ -39,7 +39,7 @@ public class Wrappers {
     Context context = Vertx.currentContext();
     Uni<T> uni = Uni.createFrom().completionStage(completionStage);
     if (context != null) {
-      return uni.emitOn(command -> context.runOnContext(x -> command.run()));
+      uni = uni.emitOn(new VertexContextExecutor(context));
     }
     return uni;
   }
