@@ -15,7 +15,6 @@
  */
 package com.datastax.oss.quarkus.runtime;
 
-import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.config.DefaultDriverOption;
 import com.datastax.oss.driver.api.core.config.DriverConfig;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
@@ -26,7 +25,8 @@ import com.datastax.oss.driver.internal.core.config.typesafe.DefaultProgrammatic
 import com.datastax.oss.driver.internal.core.util.concurrent.CompletableFutures;
 import com.datastax.oss.quarkus.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.config.CassandraClientConnectionConfig;
-import com.datastax.oss.quarkus.runtime.driver.QuarkusSessionBuilder;
+import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
+import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSessionBuilder;
 import com.datastax.oss.quarkus.runtime.metrics.MetricsConfig;
 import com.typesafe.config.ConfigFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -116,7 +116,8 @@ public abstract class AbstractCassandraClientProducer {
     configureMetricsSettings(configLoaderBuilder, metricsConfig);
     configureProtocolCompression(configLoaderBuilder, protocolCompression);
     QuarkusCqlSessionBuilder builder =
-        new QuarkusCqlSessionBuilder(metricRegistry, mainEventLoop, useQuarkusNettyEventLoop).withConfigLoader(configLoaderBuilder.build());
+        new QuarkusCqlSessionBuilder(metricRegistry, mainEventLoop, useQuarkusNettyEventLoop)
+            .withConfigLoader(configLoaderBuilder.build());
     return builder.build();
   }
 

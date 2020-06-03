@@ -17,9 +17,10 @@ package com.datastax.oss.quarkus.runtime.driver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.internal.core.context.NettyOptions;
 import com.datastax.oss.quarkus.CassandraTestBase;
+import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
+import com.datastax.oss.quarkus.runtime.internal.context.QuarkusDriverContext;
 import io.quarkus.test.QuarkusUnitTest;
 import io.vertx.core.impl.VertxThread;
 import java.util.concurrent.CompletionStage;
@@ -32,7 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class UseQuarkusNettyEventLoopEnabledTest {
-  @Inject CqlSession cqlSession;
+  @Inject QuarkusCqlSession cqlSession;
 
   @RegisterExtension
   static QuarkusUnitTest runner =

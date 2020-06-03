@@ -48,8 +48,9 @@ public class CassandraClientRecorder {
     return Default.Literal.INSTANCE;
   }
 
-  public RuntimeValue<QuarkusCqlSession> getClient() {
-    QuarkusCqlSession cqlSession = Arc.container().instance(QuarkusCqlSession.class, defaultName()).get();
+  public RuntimeValue<QuarkusCqlSession> getClient(ShutdownContext shutdown) {
+    QuarkusCqlSession cqlSession =
+        Arc.container().instance(QuarkusCqlSession.class, defaultName()).get();
     shutdown.addShutdownTask(cqlSession::close);
     return new RuntimeValue<>(cqlSession);
   }
