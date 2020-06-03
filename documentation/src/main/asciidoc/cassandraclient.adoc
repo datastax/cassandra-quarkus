@@ -318,36 +318,6 @@ Because of that, the `CqlQuarkusSession` converts `Publisher` API to `Mutiny` re
 If you're not familiar with them, read the https://quarkus.io/guides/getting-started-reactive#mutiny[Getting Started with Reactive guide] first.
 ====
 
-[NOTE]
-.DataStax Object Mapper: Publisher - Mutiny API Conversion
-====
-We are using the specialized mapped producers for conversions between `CompletionStage` to `Uni`
-and `Publisher` to `Multi`. To make it work, you need to adapt the `FruitMapperProducer`:
-[source,java]
-----
-public class FruitMapperProducer {
-  private final QuarkusCqlSession cqlSession;
-
-  @Inject
-  public FruitMapperProducer(QuarkusCqlSession cqlSession) {
-    this.cqlSession = cqlSession;
-  }
-
-  @Produces
-  @ApplicationScoped
-  FruitMapper produceFruitMapper() {
-    return new FruitMapperBuilder(cqlSession)
-        .withResultProducers(new MutinyMappedResultProducer(), new UniMappedResultSetProducer())
-        .build();
-  }
-}
-----
-Please note the `withResultProducers` method usage.
-The `MutinyMappedResultProducer` provides a `MutinyMappedReactiveResultSet` reactive type that can be used in the `@Dao`.
-The `UniMappedResultSetProducer` provides a conversion from `CompletionStage` to `Uni`.
-
-====
-
 Firstly, we need to implement the `@Dao` that works in a reactive way:
 [source,java]
 ----
@@ -362,6 +332,9 @@ public interface FruitDaoReactive {
 }
 
 ----
+
+Please note the usage of `MutinyMappedReactiveResultSet` - it is a specialized `Mutiny` type converted from the `Publisher`.
+The `Uni` used in the `updateAsync` is automatically converted from the `CompletionStage`.
 
 Next, we need to adapt the `FruitMapper` to construct the `FruitDaoReactive`:
 [source, java]
