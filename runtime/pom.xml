@@ -91,9 +91,8 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-smallrye-metrics-spi</artifactId>
-      <version>${quarkus.version}</version>
+      <groupId>org.eclipse.microprofile.metrics</groupId>
+      <artifactId>microprofile-metrics-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>

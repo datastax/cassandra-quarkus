@@ -253,6 +253,11 @@ class CassandraClientProcessor {
   }
 
   @BuildStep
+  RuntimeInitializedClassBuildItem runtimeMetricRegistry() {
+    return new RuntimeInitializedClassBuildItem(MetricRegistry.class.getCanonicalName());
+  }
+
+  @BuildStep
   NativeImageResourceBuildItem referenceConf() {
     return new NativeImageResourceBuildItem("reference.conf");
   }
