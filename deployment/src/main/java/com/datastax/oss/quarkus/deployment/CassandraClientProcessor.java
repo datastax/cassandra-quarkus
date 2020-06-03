@@ -41,17 +41,19 @@ import com.datastax.oss.driver.internal.core.tracker.RequestLogger;
 import com.datastax.oss.quarkus.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.AbstractCassandraClientProducer;
 import com.datastax.oss.quarkus.runtime.CassandraClientRecorder;
-import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.runtime.metrics.MetricsConfig;
 import io.quarkus.arc.Unremovable;
 import io.quarkus.arc.deployment.BeanContainerListenerBuildItem;
 import io.quarkus.arc.deployment.GeneratedBeanBuildItem;
 import io.quarkus.arc.deployment.GeneratedBeanGizmoAdaptor;
+import io.quarkus.arc.deployment.SyntheticBeansRuntimeInitBuildItem;
 import io.quarkus.deployment.Capabilities;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
+import io.quarkus.deployment.annotations.Consume;
 import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
+import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.NativeImageResourceBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.RuntimeInitializedClassBuildItem;
@@ -60,7 +62,6 @@ import io.quarkus.gizmo.ClassCreator;
 import io.quarkus.gizmo.ClassOutput;
 import io.quarkus.gizmo.MethodCreator;
 import io.quarkus.gizmo.MethodDescriptor;
-import io.quarkus.gizmo.ResultHandle;
 import io.quarkus.smallrye.health.deployment.spi.HealthBuildItem;
 import java.util.Arrays;
 import java.util.Collections;
@@ -177,57 +178,26 @@ class CassandraClientProcessor {
         defaultCassandraClient.addAnnotation(ApplicationScoped.class);
         defaultCassandraClient.addAnnotation(Produces.class);
         defaultCassandraClient.addAnnotation(Default.class);
+
+        // mark QuarkusCqlSession as Unremovable bean
         defaultCassandraClient.addAnnotation(Unremovable.class);
-
-        ResultHandle cassandraClientConfig =
-            defaultCassandraClient.invokeVirtualMethod(
-                MethodDescriptor.ofMethod(
-                    AbstractCassandraClientProducer.class,
-                    "getCassandraClientConfig",
-                    CassandraClientConfig.class),
-                defaultCassandraClient.getThis());
-
-        ResultHandle metricsConfig =
-            defaultCassandraClient.invokeVirtualMethod(
-                MethodDescriptor.ofMethod(
-                    AbstractCassandraClientProducer.class, "getMetricsConfig", MetricsConfig.class),
-                defaultCassandraClient.getThis());
-
-        ResultHandle metricRegistry =
-            defaultCassandraClient.invokeVirtualMethod(
-                MethodDescriptor.ofMethod(
-                    AbstractCassandraClientProducer.class,
-                    "getMetricRegistry",
-                    MetricRegistry.class),
-                defaultCassandraClient.getThis());
-
-        ResultHandle protocolCompression =
-            defaultCassandraClient.invokeVirtualMethod(
-                MethodDescriptor.ofMethod(
-                    AbstractCassandraClientProducer.class, "getProtocolCompression", String.class),
-                defaultCassandraClient.getThis());
 
         defaultCassandraClient.returnValue(
             defaultCassandraClient.invokeVirtualMethod(
                 MethodDescriptor.ofMethod(
                     AbstractCassandraClientProducer.class,
                     "createCassandraClient",
-                    QuarkusCqlSession.class,
-                    CassandraClientConfig.class,
-                    MetricsConfig.class,
-                    MetricRegistry.class,
-                    String.class),
-                defaultCassandraClient.getThis(),
-                cassandraClientConfig,
-                metricsConfig,
-                metricRegistry,
-                protocolCompression));
+                     QuarkusCqlSession.class,
+                  ),
+                defaultCassandraClient.getThis()
+            ));
       }
     }
   }
 
   @Record(RUNTIME_INIT)
   @BuildStep
+  @Consume(SyntheticBeansRuntimeInitBuildItem.class)
   void configureRuntimeProperties(
       CassandraClientRecorder recorder,
       CassandraClientConfig runtimeConfig,
@@ -236,6 +206,7 @@ class CassandraClientProcessor {
     recorder.configureRuntimeProperties(runtimeConfig);
     configureMetrics(recorder, buildTimeConfig, capabilities);
     recorder.configureCompression(buildTimeConfig.protocolCompression);
+    recorder.setInjectedNettyEventLoop(buildTimeConfig.useQuarkusNettyEventLoop);
   }
 
   private void configureMetrics(
@@ -258,9 +229,10 @@ class CassandraClientProcessor {
   }
 
   @BuildStep
-  @Record(value = RUNTIME_INIT, optional = true)
-  CassandraClientBuildItem cassandraClient(CassandraClientRecorder recorder) {
-    return new CassandraClientBuildItem(recorder.getClient());
+  @Record(value = RUNTIME_INIT)
+  CassandraClientBuildItem cassandraClient(
+      CassandraClientRecorder recorder, ShutdownContextBuildItem shutdown) {
+    return new CassandraClientBuildItem(recorder.getClient(shutdown));
   }
 
   @BuildStep
@@ -282,6 +254,11 @@ class CassandraClientProcessor {
   @BuildStep
   RuntimeInitializedClassBuildItem runtimeMetadataManager() {
     return new RuntimeInitializedClassBuildItem(MetadataManager.class.getCanonicalName());
+  }
+
+  @BuildStep
+  RuntimeInitializedClassBuildItem runtimeMetricRegistry() {
+    return new RuntimeInitializedClassBuildItem(MetricRegistry.class.getCanonicalName());
   }
 
   @BuildStep

@@ -15,6 +15,7 @@
  */
 package com.datastax.oss.quarkus.runtime;
 
+import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.config.DefaultDriverOption;
 import com.datastax.oss.driver.api.core.config.DriverConfig;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
@@ -25,11 +26,11 @@ import com.datastax.oss.driver.internal.core.config.typesafe.DefaultProgrammatic
 import com.datastax.oss.driver.internal.core.util.concurrent.CompletableFutures;
 import com.datastax.oss.quarkus.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.config.CassandraClientConnectionConfig;
-import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
-import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSessionBuilder;
+import com.datastax.oss.quarkus.runtime.driver.QuarkusSessionBuilder;
 import com.datastax.oss.quarkus.runtime.metrics.MetricsConfig;
 import com.typesafe.config.ConfigFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.netty.channel.EventLoopGroup;
 import java.util.concurrent.CompletionStage;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 
@@ -39,6 +40,8 @@ public abstract class AbstractCassandraClientProducer {
   private MetricsConfig metricsConfig;
   private MetricRegistry metricRegistry;
   private String protocolCompression;
+  private EventLoopGroup mainEventLoop;
+  private boolean useQuarkusNettyEventLoop;
 
   public void setCassandraClientConfig(CassandraClientConfig config) {
     this.config = config;
@@ -54,6 +57,14 @@ public abstract class AbstractCassandraClientProducer {
 
   public void setProtocolCompression(String protocolCompression) {
     this.protocolCompression = protocolCompression;
+  }
+
+  public void setMainEventLoop(EventLoopGroup mainEventLoop) {
+    this.mainEventLoop = mainEventLoop;
+  }
+
+  public void setUseQuarkusNettyEventLoop(boolean useQuarkusNettyEventLoop) {
+    this.useQuarkusNettyEventLoop = useQuarkusNettyEventLoop;
   }
 
   private ProgrammaticDriverConfigLoaderBuilder createDriverConfigLoader() {
@@ -91,17 +102,21 @@ public abstract class AbstractCassandraClientProducer {
     return protocolCompression;
   }
 
-  public QuarkusCqlSession createCassandraClient(
-      CassandraClientConfig config,
-      MetricsConfig metricsConfig,
-      MetricRegistry metricRegistry,
-      String protocolCompression) {
+  public EventLoopGroup getMainEventLoop() {
+    return mainEventLoop;
+  }
+
+  public boolean isUseQuarkusNettyEventLoop() {
+    return useQuarkusNettyEventLoop;
+  }
+
+  public QuarkusCqlSession createCassandraClient() {
     ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder = createDriverConfigLoader();
     configureConnectionSettings(configLoaderBuilder, config.cassandraClientConnectionConfig);
     configureMetricsSettings(configLoaderBuilder, metricsConfig);
     configureProtocolCompression(configLoaderBuilder, protocolCompression);
     QuarkusCqlSessionBuilder builder =
-        new QuarkusCqlSessionBuilder(metricRegistry).withConfigLoader(configLoaderBuilder.build());
+        new QuarkusCqlSessionBuilder(metricRegistry, mainEventLoop, useQuarkusNettyEventLoop).withConfigLoader(configLoaderBuilder.build());
     return builder.build();
   }
 

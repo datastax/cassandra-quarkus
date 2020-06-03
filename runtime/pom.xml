@@ -95,9 +95,8 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-smallrye-metrics-spi</artifactId>
-      <version>${quarkus.version}</version>
+      <groupId>org.eclipse.microprofile.metrics</groupId>
+      <artifactId>microprofile-metrics-api</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -128,6 +127,10 @@
       <artifactId>mutiny-test-utils</artifactId>
       <version>0.5.0</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-netty</artifactId>
     </dependency>
   </dependencies>
   <build>
