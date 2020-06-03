@@ -19,9 +19,12 @@ import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.quarkus.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.metrics.MetricsConfig;
 import com.datastax.oss.quarkus.runtime.metrics.NoopMetricRegistry;
+import io.netty.channel.EventLoopGroup;
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.runtime.BeanContainerListener;
+import io.quarkus.netty.MainEventLoopGroup;
 import io.quarkus.runtime.RuntimeValue;
+import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
 import io.smallrye.metrics.MetricRegistries;
 import javax.enterprise.inject.Default;
@@ -37,8 +40,7 @@ public class CassandraClientRecorder {
   }
 
   public void configureRuntimeProperties(CassandraClientConfig config) {
-    AbstractCassandraClientProducer producer =
-        Arc.container().instance(AbstractCassandraClientProducer.class).get();
+    AbstractCassandraClientProducer producer = getProducerInstance();
     producer.setCassandraClientConfig(config);
   }
 
@@ -46,32 +48,48 @@ public class CassandraClientRecorder {
     return Default.Literal.INSTANCE;
   }
 
-  public RuntimeValue<CqlSession> getClient() {
-    return new RuntimeValue<>(Arc.container().instance(CqlSession.class, defaultName()).get());
+  public RuntimeValue<CqlSession> getClient(ShutdownContext shutdown) {
+    CqlSession cqlSession = Arc.container().instance(CqlSession.class, defaultName()).get();
+    shutdown.addShutdownTask(cqlSession::close);
+    return new RuntimeValue<>(cqlSession);
   }
 
   public void configureMetrics(MetricsConfig metricsConfig) {
-    AbstractCassandraClientProducer producer =
-        Arc.container().instance(AbstractCassandraClientProducer.class).get();
+    AbstractCassandraClientProducer producer = getProducerInstance();
     producer.setMetricsConfig(metricsConfig);
   }
 
   public void setInjectedMetricRegistry() {
-    AbstractCassandraClientProducer producer =
-        Arc.container().instance(AbstractCassandraClientProducer.class).get();
+    AbstractCassandraClientProducer producer = getProducerInstance();
     MetricRegistry metricRegistry = MetricRegistries.get(MetricRegistry.Type.VENDOR);
     producer.setMetricRegistry(metricRegistry);
   }
 
   public void setNoopMetricRegistry() {
-    AbstractCassandraClientProducer producer =
-        Arc.container().instance(AbstractCassandraClientProducer.class).get();
+    AbstractCassandraClientProducer producer = getProducerInstance();
     producer.setMetricRegistry(new NoopMetricRegistry());
   }
 
   public void configureCompression(String protocolCompression) {
-    AbstractCassandraClientProducer producer =
-        Arc.container().instance(AbstractCassandraClientProducer.class).get();
+    AbstractCassandraClientProducer producer = getProducerInstance();
     producer.setProtocolCompression(protocolCompression);
+  }
+
+  public void setInjectedNettyEventLoop(boolean useQuarkusNettyEventLoop) {
+    AbstractCassandraClientProducer producer = getProducerInstance();
+
+    if (useQuarkusNettyEventLoop) {
+      EventLoopGroup mainEventLoop =
+          Arc.container()
+              .instance(EventLoopGroup.class, new AnnotationLiteral<MainEventLoopGroup>() {})
+              .get();
+
+      producer.setMainEventLoop(mainEventLoop);
+    }
+    producer.setUseQuarkusNettyEventLoop(useQuarkusNettyEventLoop);
+  }
+
+  private AbstractCassandraClientProducer getProducerInstance() {
+    return Arc.container().instance(AbstractCassandraClientProducer.class).get();
   }
 }

@@ -21,15 +21,23 @@ import com.datastax.oss.driver.api.core.context.DriverContext;
 import com.datastax.oss.driver.api.core.session.ProgrammaticArguments;
 import com.datastax.oss.driver.api.core.session.SessionBuilder;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.netty.channel.EventLoopGroup;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 
 public class QuarkusSessionBuilder extends SessionBuilder<QuarkusSessionBuilder, CqlSession> {
 
-  private MetricRegistry metricRegistry;
+  private final MetricRegistry metricRegistry;
+  private final EventLoopGroup mainEventLoop;
+  private boolean useQuarkusNettyEventLoop;
 
-  public QuarkusSessionBuilder(MetricRegistry metricRegistry) {
+  public QuarkusSessionBuilder(
+      MetricRegistry metricRegistry,
+      EventLoopGroup mainEventLoop,
+      boolean useQuarkusNettyEventLoop) {
 
     this.metricRegistry = metricRegistry;
+    this.mainEventLoop = mainEventLoop;
+    this.useQuarkusNettyEventLoop = useQuarkusNettyEventLoop;
   }
 
   @Override
@@ -40,6 +48,11 @@ public class QuarkusSessionBuilder extends SessionBuilder<QuarkusSessionBuilder,
   @Override
   protected DriverContext buildContext(
       DriverConfigLoader configLoader, ProgrammaticArguments programmaticArguments) {
-    return new QuarkusDriverContext(configLoader, programmaticArguments, metricRegistry);
+    return new QuarkusDriverContext(
+        configLoader,
+        programmaticArguments,
+        metricRegistry,
+        mainEventLoop,
+        useQuarkusNettyEventLoop);
   }
 }
