@@ -55,11 +55,7 @@ public class UseQuarkusNettyEventLoopEnabledTest {
     CompletionStage<Void> asyncRequest =
         cqlSession
             .executeAsync("SELECT release_version FROM system.local")
-            .thenApply(
-                rs -> {
-                  threadClass.set(Thread.currentThread().getClass());
-                  return null;
-                });
+            .thenAccept(rs -> threadClass.set(Thread.currentThread().getClass()));
     asyncRequest.toCompletableFuture().get();
 
     // then
