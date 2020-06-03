@@ -54,10 +54,13 @@ public class QuarkusNettyOptions implements NettyOptions {
       EventLoopGroup adminEventLoopGroup) {
     this.config = context.getConfig().getDefaultProfile();
     boolean daemon = config.getBoolean(DefaultDriverOption.NETTY_DAEMON);
-    // the NETTY_IO_SHUTDOWN_QUIET_PERIOD, NETTY_IO_SHUTDOWN_TIMEOUT, NETTY_IO_SHUTDOWN_UNIT,
-    // NETTY_ADMIN_SHUTDOWN_QUIET_PERIOD,
-    // NETTY_ADMIN_SHUTDOWN_TIMEOUT, NETTY_ADMIN_SHUTDOWN_UNIT
-    // are ignored when using quarkus netty even loops
+    // The following options are ignored when using Quarkus Netty event loops:
+    // NETTY_IO_SHUTDOWN_QUIET_PERIOD
+    // NETTY_IO_SHUTDOWN_TIMEOUT
+    // NETTY_IO_SHUTDOWN_UNIT
+    // NETTY_ADMIN_SHUTDOWN_QUIET_PERIOD
+    // NETTY_ADMIN_SHUTDOWN_TIMEOUT
+    // NETTY_ADMIN_SHUTDOWN_UNIT
 
     ThreadFactory safeFactory = new BlockingOperation.SafeThreadFactory();
 
