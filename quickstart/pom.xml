@@ -76,7 +76,7 @@
     </dependency>
     <dependency>
       <groupId>com.datastax.oss</groupId>
-      <artifactId>java-driver-mapper-processor</artifactId>
+      <artifactId>java-driver-mapper-runtime</artifactId>
       <version>${datastax-java-driver.version}</version>
     </dependency>
     <dependency>
@@ -102,8 +102,31 @@
           </execution>
         </executions>
       </plugin>
+<plugin>
+  <artifactId>maven-compiler-plugin</artifactId>
+  <configuration>
+    <source>1.8</source>
+    <target>1.8</target>
+    <annotationProcessorPaths>
+      <path>
+        <groupId>com.datastax.oss</groupId>
+        <artifactId>java-driver-mapper-processor</artifactId>
+        <version>${datastax-java-driver.version}</version>
+      </path>
+    </annotationProcessorPaths>
+  </configuration>
+</plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>${surefire-plugin.version}</version>
+        <configuration>
+          <systemProperties>
+            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+          </systemProperties>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
         <version>${surefire-plugin.version}</version>
         <configuration>
           <systemProperties>
@@ -137,37 +160,6 @@
                 </configuration>
               </execution>
             </executions>
-          </plugin>
-          <plugin>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <version>${surefire-plugin.version}</version>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>integration-test</goal>
-                  <goal>verify</goal>
-                </goals>
-                <configuration>
-                  <systemProperties>
-                    <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
-                  </systemProperties>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-              <source>1.8</source>
-              <target>1.8</target>
-              <annotationProcessorPaths>
-                <path>
-                  <groupId>com.datastax.oss</groupId>
-                  <artifactId>java-driver-mapper-processor</artifactId>
-                  <version>${datastax-java-driver.version}</version>
-                </path>
-              </annotationProcessorPaths>
-            </configuration>
           </plugin>
         </plugins>
       </build>
