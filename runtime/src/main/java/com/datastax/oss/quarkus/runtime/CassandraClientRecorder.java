@@ -75,7 +75,7 @@ public class CassandraClientRecorder {
     producer.setProtocolCompression(protocolCompression);
   }
 
-  public void setInjectedNettyEventLoop(Boolean useQuarkusNettyEventLoop) {
+  public void setInjectedNettyEventLoop(boolean useQuarkusNettyEventLoop) {
     AbstractCassandraClientProducer producer = getProducerInstance();
 
     if (useQuarkusNettyEventLoop) {

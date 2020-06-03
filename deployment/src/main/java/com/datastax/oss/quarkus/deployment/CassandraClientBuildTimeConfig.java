@@ -68,5 +68,5 @@ public class CassandraClientBuildTimeConfig {
    * itself. When set to true, the {@code QuarkusCqlSession} uses the Quarkus MainEventLoop.
    */
   @ConfigItem(name = "use-quarkus-netty-event-loop", defaultValue = "true")
-  public Boolean useQuarkusNettyEventLoop;
+  public boolean useQuarkusNettyEventLoop;
 }
