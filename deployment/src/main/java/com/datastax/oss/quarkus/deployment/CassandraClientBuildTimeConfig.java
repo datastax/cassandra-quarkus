@@ -64,7 +64,7 @@ public class CassandraClientBuildTimeConfig {
 
   /**
    * Whether or not the DataStax Java driver should use the Netty event loop provided by the Quarkus
-   * framework. The default is true, meaning that the java-driver will not construct event loops
+   * framework. The default is true, meaning that the Java driver will not create event loops
    * itself. When set to true, the {@code QuarkusCqlSession} uses the Quarkus MainEventLoop.
    */
   @ConfigItem(name = "use-quarkus-netty-event-loop", defaultValue = "true")
