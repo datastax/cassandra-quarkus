@@ -177,7 +177,7 @@ class CassandraClientProcessor {
         defaultCassandraClient.addAnnotation(Produces.class);
         defaultCassandraClient.addAnnotation(Default.class);
 
-        // make CqlSession as Unremovable bean
+        // mark CqlSession as Unremovable bean
         defaultCassandraClient.addAnnotation(Unremovable.class);
 
         defaultCassandraClient.returnValue(
