@@ -17,12 +17,12 @@ package com.datastax.oss.quarkus.runtime.api.reactive.mapper;
 
 import com.datastax.oss.driver.api.mapper.result.MapperResultProducer;
 import com.datastax.oss.driver.api.mapper.result.MapperResultProducerService;
-import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
 
 public class MutinyProducerService implements MapperResultProducerService {
 
   @Override
   public Iterable<MapperResultProducer> getProducers() {
-    return ImmutableList.of(new MutinyMapperResultProducer(), new UniMapperResultSetProducer());
+    return Arrays.asList(new MutinyMapperResultProducer(), new UniMapperResultSetProducer());
   }
 }
