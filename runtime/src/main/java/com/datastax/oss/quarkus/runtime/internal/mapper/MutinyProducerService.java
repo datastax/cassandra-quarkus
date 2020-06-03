@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.runtime.api.reactive.mapper;
+package com.datastax.oss.quarkus.runtime.internal.mapper;
 
 import com.datastax.oss.driver.api.mapper.result.MapperResultProducer;
 import com.datastax.oss.driver.api.mapper.result.MapperResultProducerService;
@@ -23,6 +23,7 @@ public class MutinyProducerService implements MapperResultProducerService {
 
   @Override
   public Iterable<MapperResultProducer> getProducers() {
-    return Arrays.asList(new MutinyMapperResultProducer(), new UniMapperResultSetProducer());
+    return Arrays.asList(
+        new MutinyMappedReactiveResultSetProducer(), new MutinyUniResultProducer());
   }
 }
