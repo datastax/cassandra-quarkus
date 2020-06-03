@@ -15,33 +15,30 @@
  */
 package com.datastax.oss.quarkus.runtime.api.reactive.mapper;
 
-import com.datastax.dse.driver.api.core.cql.reactive.ReactiveResultSet;
-import com.datastax.dse.driver.internal.mapper.reactive.DefaultMappedReactiveResultSet;
 import com.datastax.oss.driver.api.core.cql.Statement;
 import com.datastax.oss.driver.api.core.type.reflect.GenericType;
 import com.datastax.oss.driver.api.mapper.MapperContext;
-import com.datastax.oss.driver.api.mapper.MapperResultProducer;
 import com.datastax.oss.driver.api.mapper.entity.EntityHelper;
-import com.datastax.oss.quarkus.runtime.internal.reactive.DefaultMutinyMappedReactiveResultSet;
-import com.datastax.oss.quarkus.runtime.internal.reactive.FailedMutinyMappedReactiveResultSet;
+import com.datastax.oss.driver.api.mapper.result.MapperResultProducer;
+import com.datastax.oss.quarkus.runtime.internal.reactive.Wrappers;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.smallrye.mutiny.Uni;
 
-public class MutinyMappedResultProducer implements MapperResultProducer {
+public class UniMapperResultSetProducer implements MapperResultProducer {
 
   @Override
   public boolean canProduce(GenericType<?> resultType) {
-    return resultType.getRawType().equals(MutinyMappedReactiveResultSet.class);
+    return resultType.getRawType().equals(Uni.class);
   }
 
   @Override
   public <EntityT> Object execute(
-      Statement<?> statement, MapperContext context, EntityHelper<EntityT> entityHelper) {
-    ReactiveResultSet source = context.getSession().executeReactive(statement);
-    return new DefaultMutinyMappedReactiveResultSet<>(
-        new DefaultMappedReactiveResultSet<>(source, entityHelper::get));
+      @NonNull Statement<?> statement, MapperContext context, EntityHelper<EntityT> entityHelper) {
+    return Wrappers.toUni(context.getSession().executeAsync(statement));
   }
 
   @Override
-  public Object wrapError(Throwable error) {
-    return new FailedMutinyMappedReactiveResultSet<>(error);
+  public Object wrapError(@NonNull Throwable error) {
+    return Wrappers.failedUni(error);
   }
 }

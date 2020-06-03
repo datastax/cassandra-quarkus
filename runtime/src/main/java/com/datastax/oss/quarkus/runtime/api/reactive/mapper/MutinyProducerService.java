@@ -13,24 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus;
+package com.datastax.oss.quarkus.runtime.api.reactive.mapper;
 
-import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
+import com.datastax.oss.driver.api.mapper.result.MapperResultProducer;
+import com.datastax.oss.driver.api.mapper.result.MapperResultProducerService;
+import com.google.common.collect.ImmutableList;
 
-public class FruitMapperProducer {
-  private final QuarkusCqlSession cqlSession;
+public class MutinyProducerService implements MapperResultProducerService {
 
-  @Inject
-  public FruitMapperProducer(QuarkusCqlSession cqlSession) {
-    this.cqlSession = cqlSession;
-  }
-
-  @Produces
-  @ApplicationScoped
-  FruitMapper produceFruitMapper() {
-    return new FruitMapperBuilder(cqlSession).build();
+  @Override
+  public Iterable<MapperResultProducer> getProducers() {
+    return ImmutableList.of(new MutinyMapperResultProducer(), new UniMapperResultSetProducer());
   }
 }

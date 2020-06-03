@@ -15,8 +15,6 @@
  */
 package com.datastax.oss.quarkus.dao;
 
-import com.datastax.oss.quarkus.runtime.api.reactive.mapper.MutinyMappedResultProducer;
-import com.datastax.oss.quarkus.runtime.api.reactive.mapper.UniMappedResultSetProducer;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
@@ -43,8 +41,6 @@ public class InventoryMapperProducer {
     cqlSession.execute(
         "CREATE TABLE IF NOT EXISTS k1.test_NameConverterEntity(test_entityId int primary key)");
 
-    return new InventoryMapperBuilder(cqlSession)
-        .withResultProducers(new MutinyMappedResultProducer(), new UniMappedResultSetProducer())
-        .build();
+    return new InventoryMapperBuilder(cqlSession).build();
   }
 }
