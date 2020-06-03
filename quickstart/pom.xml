@@ -102,20 +102,20 @@
           </execution>
         </executions>
       </plugin>
-<plugin>
-  <artifactId>maven-compiler-plugin</artifactId>
-  <configuration>
-    <source>1.8</source>
-    <target>1.8</target>
-    <annotationProcessorPaths>
-      <path>
-        <groupId>com.datastax.oss</groupId>
-        <artifactId>java-driver-mapper-processor</artifactId>
-        <version>${datastax-java-driver.version}</version>
-      </path>
-    </annotationProcessorPaths>
-  </configuration>
-</plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>com.datastax.oss</groupId>
+              <artifactId>java-driver-mapper-processor</artifactId>
+              <version>${datastax-java-driver.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${surefire-plugin.version}</version>
