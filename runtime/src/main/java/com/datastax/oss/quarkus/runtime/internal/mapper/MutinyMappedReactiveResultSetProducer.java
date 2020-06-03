@@ -26,18 +26,21 @@ import com.datastax.oss.quarkus.runtime.api.reactive.mapper.MutinyMappedReactive
 import com.datastax.oss.quarkus.runtime.internal.reactive.DefaultMutinyMappedReactiveResultSet;
 import com.datastax.oss.quarkus.runtime.internal.reactive.FailedMutinyMappedReactiveResultSet;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import java.util.Objects;
 
 public class MutinyMappedReactiveResultSetProducer implements MapperResultProducer {
 
   @Override
-  public boolean canProduce(GenericType<?> resultType) {
+  public boolean canProduce(@NonNull GenericType<?> resultType) {
     return resultType.getRawType().equals(MutinyMappedReactiveResultSet.class);
   }
 
   @Override
   public <EntityT> Object execute(
-      @NonNull Statement<?> statement, MapperContext context, EntityHelper<EntityT> entityHelper) {
+      @NonNull Statement<?> statement,
+      @NonNull MapperContext context,
+      @Nullable EntityHelper<EntityT> entityHelper) {
     Objects.requireNonNull(entityHelper);
     ReactiveResultSet source = context.getSession().executeReactive(statement);
     return new DefaultMutinyMappedReactiveResultSet<>(

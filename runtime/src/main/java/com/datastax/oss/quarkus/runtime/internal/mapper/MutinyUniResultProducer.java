@@ -22,18 +22,21 @@ import com.datastax.oss.driver.api.mapper.entity.EntityHelper;
 import com.datastax.oss.driver.api.mapper.result.MapperResultProducer;
 import com.datastax.oss.quarkus.runtime.internal.reactive.Wrappers;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.smallrye.mutiny.Uni;
 
 public class MutinyUniResultProducer implements MapperResultProducer {
 
   @Override
-  public boolean canProduce(GenericType<?> resultType) {
+  public boolean canProduce(@NonNull GenericType<?> resultType) {
     return resultType.getRawType().equals(Uni.class);
   }
 
   @Override
   public <EntityT> Object execute(
-      @NonNull Statement<?> statement, MapperContext context, EntityHelper<EntityT> entityHelper) {
+      @NonNull Statement<?> statement,
+      @NonNull MapperContext context,
+      @Nullable EntityHelper<EntityT> entityHelper) {
     return Wrappers.toUni(context.getSession().executeAsync(statement));
   }
 
