@@ -123,12 +123,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>io.smallrye.reactive</groupId>
-      <artifactId>mutiny-test-utils</artifactId>
-      <version>0.5.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-netty</artifactId>
     </dependency>
