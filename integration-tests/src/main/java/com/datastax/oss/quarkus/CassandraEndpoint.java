@@ -16,6 +16,8 @@
 package com.datastax.oss.quarkus;
 
 import com.datastax.oss.quarkus.dao.Product;
+import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.Uni;
 import java.util.UUID;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -30,12 +32,14 @@ public class CassandraEndpoint {
 
   @Inject ProductDaoService dao;
 
+  @Inject ProductDaoReactiveService reactiveDao;
+
   @POST
   @Produces(MediaType.TEXT_PLAIN)
   @Path("/product/{description}")
   public UUID saveProduct(@PathParam("description") String desc) {
     UUID id = UUID.randomUUID();
-    dao.getDao().update(new Product(id, desc));
+    dao.getDao().create(new Product(id, desc));
     return id;
   }
 
@@ -44,5 +48,20 @@ public class CassandraEndpoint {
   @Path("/product/{id}")
   public Product getProduct(@PathParam("id") UUID id) {
     return dao.getDao().findById(id);
+  }
+
+  @POST
+  @Produces(MediaType.TEXT_PLAIN)
+  @Path("/product-reactive/{description}")
+  public Uni<UUID> saveProductReactive(@PathParam("description") String desc) {
+    UUID id = UUID.randomUUID();
+    return reactiveDao.getDao().create(new Product(id, desc)).then(i -> Uni.createFrom().item(id));
+  }
+
+  @GET
+  @Produces(MediaType.TEXT_PLAIN)
+  @Path("/product-reactive/{id}")
+  public Multi<Product> getProductReactive(@PathParam("id") UUID id) {
+    return reactiveDao.getDao().findById(id);
   }
 }

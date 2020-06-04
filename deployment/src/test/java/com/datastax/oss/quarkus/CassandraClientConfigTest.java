@@ -20,8 +20,8 @@ import static com.datastax.oss.driver.api.core.config.DefaultDriverOption.REQUES
 import static com.datastax.oss.driver.api.core.config.DefaultDriverOption.REQUEST_TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.config.DriverExecutionProfile;
+import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import io.quarkus.test.QuarkusUnitTest;
 import io.quarkus.test.common.QuarkusTestResource;
 import java.time.Duration;
@@ -46,7 +46,7 @@ public class CassandraClientConfigTest {
                       .addAsResource("application.json")
                       .addAsResource("application.conf"));
 
-  @Inject CqlSession cqlSession;
+  @Inject QuarkusCqlSession cqlSession;
 
   @Test
   public void testDataSourceViaCqlSession() {

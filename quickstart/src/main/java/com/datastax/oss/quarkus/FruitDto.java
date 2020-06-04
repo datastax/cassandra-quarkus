@@ -15,6 +15,8 @@
  */
 package com.datastax.oss.quarkus;
 
+import java.util.Objects;
+
 public class FruitDto {
 
   private String name;
@@ -41,5 +43,21 @@ public class FruitDto {
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    FruitDto fruitDto = (FruitDto) o;
+
+    if (!Objects.equals(name, fruitDto.name)) return false;
+    return Objects.equals(description, fruitDto.description);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(description, name);
   }
 }

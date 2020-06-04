@@ -36,7 +36,7 @@
     <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <datastax-java-driver.version>4.6.1</datastax-java-driver.version>
+    <datastax-java-driver.version>4.7.0-SNAPSHOT</datastax-java-driver.version>
     <!--suppress UnresolvedMavenProperty -->
     <graalvmHome>${env.GRAALVM_HOME}</graalvmHome>
   </properties>
@@ -176,6 +176,7 @@
           <excludes>
             <exclude>.idea/**</exclude>
             <exclude>.github/**</exclude>
+            <exclude>**/dependency-reduced-pom.xml</exclude>
             <exclude>**/target/**</exclude>
           </excludes>
         </configuration>

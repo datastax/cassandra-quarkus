@@ -15,18 +15,18 @@
  */
 package com.datastax.oss.quarkus.deployment;
 
-import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import io.quarkus.builder.item.SimpleBuildItem;
 import io.quarkus.runtime.RuntimeValue;
 
 public final class CassandraClientBuildItem extends SimpleBuildItem {
-  private final RuntimeValue<CqlSession> cqlSession;
+  private final RuntimeValue<QuarkusCqlSession> cqlSession;
 
-  public CassandraClientBuildItem(RuntimeValue<CqlSession> cqlSession) {
+  public CassandraClientBuildItem(RuntimeValue<QuarkusCqlSession> cqlSession) {
     this.cqlSession = cqlSession;
   }
 
-  public RuntimeValue<CqlSession> getCqlSession() {
+  public RuntimeValue<QuarkusCqlSession> getCqlSession() {
     return cqlSession;
   }
 }

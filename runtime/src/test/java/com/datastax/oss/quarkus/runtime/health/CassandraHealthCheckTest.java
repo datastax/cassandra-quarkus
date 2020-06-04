@@ -19,12 +19,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.driver.api.core.metadata.Metadata;
 import com.datastax.oss.driver.api.core.metadata.Node;
 import com.datastax.oss.driver.shaded.guava.common.collect.ImmutableMap;
+import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -45,7 +45,7 @@ public class CassandraHealthCheckTest {
   public void should_report_status_up_with_data_center_details(
       String dc, String releaseVersion, String clusterName, String cqlVersion, Long numberOfNodes) {
     // given
-    CqlSession session =
+    QuarkusCqlSession session =
         mockCqlSessionWithResultSet(dc, releaseVersion, clusterName, cqlVersion, numberOfNodes);
 
     // when
@@ -67,7 +67,7 @@ public class CassandraHealthCheckTest {
   @Test
   public void should_return_status_down_when_cql_session_throws() {
     // given
-    CqlSession session = mock(CqlSession.class);
+    QuarkusCqlSession session = mock(QuarkusCqlSession.class);
     when(session.execute(CassandraHealthCheck.HEALTH_CHECK_QUERY))
         .thenThrow(new RuntimeException("problem"));
 
@@ -84,7 +84,7 @@ public class CassandraHealthCheckTest {
   @Test
   public void should_return_status_down_when_cql_session_query_returns_null() {
     // given
-    CqlSession session = mockCqlSessionWithOneNullResult();
+    QuarkusCqlSession session = mockCqlSessionWithOneNullResult();
 
     // when
     CassandraHealthCheck cassandraHealthIndicator = new CassandraHealthCheckMock(session);
@@ -98,8 +98,8 @@ public class CassandraHealthCheckTest {
   }
 
   @NonNull
-  private CqlSession mockCqlSessionWithOneNullResult() {
-    CqlSession session = mock(CqlSession.class);
+  private QuarkusCqlSession mockCqlSessionWithOneNullResult() {
+    QuarkusCqlSession session = mock(QuarkusCqlSession.class);
     ResultSet resultSet = mock(ResultSet.class);
     when(resultSet.one()).thenReturn(null);
     when(session.execute(CassandraHealthCheck.HEALTH_CHECK_QUERY)).thenReturn(resultSet);
@@ -107,9 +107,9 @@ public class CassandraHealthCheckTest {
   }
 
   @NonNull
-  private CqlSession mockCqlSessionWithResultSet(
+  private QuarkusCqlSession mockCqlSessionWithResultSet(
       String dc, String releaseVersion, String clusterName, String cqlVersion, Long numberOfNodes) {
-    CqlSession session = mock(CqlSession.class);
+    QuarkusCqlSession session = mock(QuarkusCqlSession.class);
     ResultSet resultSet = mock(ResultSet.class);
     Row row = mock(Row.class);
     when(row.getString("data_center")).thenReturn(dc);
@@ -137,15 +137,15 @@ public class CassandraHealthCheckTest {
 
   private static class CassandraHealthCheckMock extends CassandraHealthCheck {
 
-    private CqlSession cqlSession;
+    private QuarkusCqlSession quarkusCqlSession;
 
-    public CassandraHealthCheckMock(CqlSession cqlSession) {
-      this.cqlSession = cqlSession;
+    public CassandraHealthCheckMock(QuarkusCqlSession quarkusCqlSession) {
+      this.quarkusCqlSession = quarkusCqlSession;
     }
 
     @Override
-    public CqlSession beanProvider() {
-      return cqlSession;
+    public QuarkusCqlSession beanProvider() {
+      return quarkusCqlSession;
     }
   }
 }

@@ -16,15 +16,15 @@
 package com.datastax.oss.quarkus.dao;
 
 import com.datastax.oss.driver.api.mapper.annotations.Dao;
+import com.datastax.oss.driver.api.mapper.annotations.Insert;
 import com.datastax.oss.driver.api.mapper.annotations.Select;
-import com.datastax.oss.driver.api.mapper.annotations.Update;
 import java.util.UUID;
 
 @Dao
 public interface ProductDao {
 
-  @Update
-  void update(Product product);
+  @Insert
+  void create(Product product);
 
   @Select
   Product findById(UUID productId);

@@ -18,8 +18,8 @@ package com.datastax.oss.quarkus.runtime.metrics;
 import static com.datastax.oss.quarkus.runtime.metrics.MicroProfileMetricsUpdater.CASSANDRA_METRICS_PREFIX;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.quarkus.CassandraTestBase;
+import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import io.quarkus.test.QuarkusUnitTest;
 import io.quarkus.test.common.QuarkusTestResource;
 import javax.inject.Inject;
@@ -38,7 +38,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 @QuarkusTestResource(CassandraTestBase.class)
 public class CassandraMetricsTest {
 
-  @Inject CqlSession cqlSession;
+  @Inject QuarkusCqlSession cqlSession;
 
   @Inject
   @RegistryType(type = MetricRegistry.Type.VENDOR)

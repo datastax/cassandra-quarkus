@@ -15,7 +15,7 @@
  */
 package com.datastax.oss.quarkus.config;
 
-import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import io.quarkus.runtime.annotations.ConfigGroup;
 import io.quarkus.runtime.annotations.ConfigItem;
 import java.time.Duration;
@@ -32,7 +32,7 @@ public class CassandraClientConnectionConfig {
   @ConfigItem(name = "contact-points", defaultValue = "127.0.0.1:9042")
   public List<String> contactPoints;
 
-  /** Local datacenter used when creating a {@link CqlSession}. */
+  /** Local datacenter used when creating a {@link QuarkusCqlSession}. */
   @ConfigItem(name = "load-balancing-policy.local-datacenter")
   public String localDatacenter;
 

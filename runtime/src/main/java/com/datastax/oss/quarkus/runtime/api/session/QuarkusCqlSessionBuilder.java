@@ -13,46 +13,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.runtime.driver;
+package com.datastax.oss.quarkus.runtime.api.session;
 
+import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
+import com.datastax.oss.driver.api.core.context.DriverContext;
 import com.datastax.oss.driver.api.core.session.ProgrammaticArguments;
-import com.datastax.oss.driver.internal.core.context.DefaultDriverContext;
-import com.datastax.oss.driver.internal.core.context.NettyOptions;
-import com.datastax.oss.driver.internal.core.metrics.MetricsFactory;
-import com.datastax.oss.quarkus.runtime.metrics.MicroProfileMetricsFactory;
+import com.datastax.oss.driver.api.core.session.SessionBuilder;
+import com.datastax.oss.quarkus.runtime.internal.context.QuarkusDriverContext;
+import com.datastax.oss.quarkus.runtime.internal.session.DefaultQuarkusCqlSession;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.netty.channel.EventLoopGroup;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 
-public class QuarkusDriverContext extends DefaultDriverContext {
+public class QuarkusCqlSessionBuilder
+    extends SessionBuilder<QuarkusCqlSessionBuilder, QuarkusCqlSession> {
 
   private final MetricRegistry metricRegistry;
   private final EventLoopGroup mainEventLoop;
-  private final boolean useQuarkusNettyEventLoop;
+  private boolean useQuarkusNettyEventLoop;
 
-  public QuarkusDriverContext(
-      DriverConfigLoader configLoader,
-      ProgrammaticArguments programmaticArguments,
+  public QuarkusCqlSessionBuilder(
       MetricRegistry metricRegistry,
       EventLoopGroup mainEventLoop,
       boolean useQuarkusNettyEventLoop) {
-    super(configLoader, programmaticArguments);
+
     this.metricRegistry = metricRegistry;
     this.mainEventLoop = mainEventLoop;
     this.useQuarkusNettyEventLoop = useQuarkusNettyEventLoop;
   }
 
   @Override
-  protected MetricsFactory buildMetricsFactory() {
-    return new MicroProfileMetricsFactory(this, metricRegistry);
+  protected QuarkusCqlSession wrap(@NonNull CqlSession cqlSession) {
+    return new DefaultQuarkusCqlSession(cqlSession);
   }
 
   @Override
-  protected NettyOptions buildNettyOptions() {
-    if (useQuarkusNettyEventLoop) {
-      return new QuarkusNettyOptions(this, mainEventLoop, mainEventLoop);
-    } else {
-      return super.buildNettyOptions();
-    }
+  protected DriverContext buildContext(
+      DriverConfigLoader configLoader, ProgrammaticArguments programmaticArguments) {
+    return new QuarkusDriverContext(
+        configLoader,
+        programmaticArguments,
+        metricRegistry,
+        mainEventLoop,
+        useQuarkusNettyEventLoop);
   }
 }

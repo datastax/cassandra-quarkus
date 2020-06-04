@@ -24,4 +24,7 @@ import com.datastax.oss.driver.api.mapper.annotations.Mapper;
 public interface FruitMapper {
   @DaoFactory
   FruitDao fruitDao(@DaoKeyspace CqlIdentifier keyspace);
+
+  @DaoFactory
+  FruitDaoReactive fruitDaoReactive(@DaoKeyspace CqlIdentifier keyspace);
 }

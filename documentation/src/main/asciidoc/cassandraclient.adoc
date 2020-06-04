@@ -131,21 +131,21 @@ We should leverage Quarkus Dependency Injection container and inject the instanc
 import javax.enterprise.inject.Produces;
 
 public class FruitMapperProducer {
-  private final CqlSession cqlSession;
+  private final QuarkusCqlSession quarkusCqlSession;
 
   @Inject
-  public FruitMapperProducer(CqlSession cqlSession) {
-    this.cqlSession = cqlSession;
+  public FruitMapperProducer(QuarkusCqlSession quarkusCqlSession) {
+    this.quarkusCqlSession = quarkusCqlSession;
   }
 
   @Produces
   @ApplicationScoped
   FruitMapper produceFruitMapper() {
-    return new FruitMapperBuilder(cqlSession).build();
+    return new FruitMapperBuilder(quarkusCqlSession).build();
   }
 }
 ----
-Please note the `CqlSession` instance injected automatically by the cassandra-quarkus extension in the `FruitMapperProducer` constructor.
+Please note the `QuarkusCqlSession` instance injected automatically by the cassandra-quarkus extension in the `FruitMapperProducer` constructor.
 The `produceFruitMapper()` method is constructing `FruitMapper` that will be injected into the Di container by the Quarkus framework.
 
 Now create a `FruitService` that will be the business layer of our application and store/load the fruits from the Cassandra database.
@@ -305,6 +305,128 @@ You can now interact with your REST service:
 * open a browser to `http://localhost:8080/fruits.html`
 * add new fruits to the list via the form
 
+[[reactive]]
+== Reactive Cassandra Client
+When using `QuarkusCqlSession` you have access to reactive variant of methods that integrate with Quarkus.
+You can rewrite the previous example to use it like the following.
+
+[TIP]
+.Mutiny
+====
+The underlying datastax-java-driver `CqlSession` uses the `Publisher` API for reactive calls. The Quarkus framework uses Mutiny API.
+Because of that, the `CqlQuarkusSession` converts `Publisher` API to `Mutiny` reactive types.
+If you're not familiar with them, read the https://quarkus.io/guides/getting-started-reactive#mutiny[Getting Started with Reactive guide] first.
+====
+
+Firstly, we need to implement the `@Dao` that works in a reactive way:
+[source,java]
+----
+@Dao
+public interface FruitDaoReactive {
+
+  @Update
+  Uni<Void> updateAsync(Fruit fruitDao);
+
+  @Select
+  MutinyMappedReactiveResultSet<Fruit> findByIdAsync(String id);
+}
+
+----
+
+Please note the usage of `MutinyMappedReactiveResultSet` - it is a specialized `Mutiny` type converted from the `Publisher`.
+The `Uni` used in the `updateAsync` is automatically converted from the `CompletionStage`.
+
+Next, we need to adapt the `FruitMapper` to construct the `FruitDaoReactive`:
+[source, java]
+----
+@Mapper
+public interface FruitMapper {
+  // the existing method omitted
+
+  @DaoFactory
+  FruitDaoReactive fruitDaoReactive(@DaoKeyspace CqlIdentifier keyspace);
+}
+
+----
+
+Now, we can create a `FruitReactiveService` that leverages the reactive `@Dao`:
+[source, java]
+----
+@ApplicationScoped
+public class FruitReactiveService {
+
+  private final FruitDaoReactive fruitDao;
+
+  @Inject
+  public FruitReactiveService(FruitMapper fruitMapper, FruitServiceConfig fruitServiceConfig) {
+    fruitDao = fruitMapper.fruitDaoAsync(CqlIdentifier.fromCql(fruitServiceConfig.keyspace));
+  }
+
+  public Uni<Void> add(Fruit fruit) {
+    return fruitDao.update(fruit);
+  }
+
+  public Multi<Fruit> get(String id) {
+    return fruitDao.findById(id);
+  }
+}
+----
+The important thing to note here is that `get()` method returns `Multi` type that is compatible with Quarkus reactive REST API.
+The `add()` method returns the `Uni` that is also compatible with it.
+
+To integrate the reactive logic with REST API, you need to have a dependency to `quarkus-resteasy-mutiny`:
+[source, xml]
+----
+<dependency>
+  <groupId>io.quarkus</groupId>
+  <artifactId>quarkus-resteasy-mutiny</artifactId>
+</dependency>
+----
+
+It provides an integration layer between `Multi`, `Uni` and REST API.
+
+Finally, we can create a `FruitReactiveResource`:
+[source, java]
+----
+@Path("/reactive-fruits")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+public class FruitReactiveResource {
+  private static final String STORE_NAME = "acme";
+  @Inject FruitReactiveService service;
+
+  @GET
+  public Multi<FruitDto> getAll() {
+    return service
+        .get(STORE_NAME)
+        .map(fruit -> new FruitDto(fruit.getName(), fruit.getDescription()));
+  }
+
+  @POST
+  public Multi<FruitDto> add(FruitDto fruitDto) {
+    Fruit fruit = covertFromDto(fruitDto);
+    return service.add(fruit).then(ignored -> getAll());
+  }
+
+  private Fruit covertFromDto(FruitDto fruitDto) {
+    return new Fruit(fruitDto.getName(), fruitDto.getDescription(), STORE_NAME);
+  }
+}
+----
+Please note that all methods exposed via REST interface are returning reactive types from the mutiny API.
+
+== Creating a reactive frontend
+
+Now let's add a simple web page to interact with our `FruitReactiveResource`.
+In the `src/main/resources/META-INF/resources` directory, add a `reactive-fruits.html` file with the content from this {reactive-fruits-html-url}[reactive-fruits.html] file in it.
+
+You can now interact with your reactive REST service:
+
+* start Quarkus with `mvn clean quarkus:dev`
+* open a browser to `http://localhost:8080/reactive-fruits.html`
+* add new fruits to the list via the form
+
+
 == Connection Health Check
 
 If you are using the `quarkus-smallrye-health` extension, `cassandra-quarkus` will automatically add a readiness health check
@@ -316,7 +438,7 @@ This behavior can be disabled by setting the `quarkus.cassandra.health.enabled` 
 
 == Metrics
 
-If you are using the `quarkus-smallrye-metrics` extension, `cassandra-quarkus` can provide metrics about CqlSession and Cassandra nodes.
+If you are using the `quarkus-smallrye-metrics` extension, `cassandra-quarkus` can provide metrics about QuarkusCqlSession and Cassandra nodes.
 This behavior must first be enabled by setting the `quarkus.cassandra.metrics.enabled` property to `true` in your `application.properties`.
 
 The next step that you need to do is set explicitly which metrics should be enabled.

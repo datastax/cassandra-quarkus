@@ -19,7 +19,6 @@ import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
 import static io.quarkus.deployment.annotations.ExecutionTime.STATIC_INIT;
 
 import com.datastax.dse.driver.internal.core.tracker.MultiplexingRequestTracker;
-import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.internal.core.addresstranslation.Ec2MultiRegionAddressTranslator;
 import com.datastax.oss.driver.internal.core.addresstranslation.PassThroughAddressTranslator;
 import com.datastax.oss.driver.internal.core.connection.ConstantReconnectionPolicy;
@@ -42,6 +41,7 @@ import com.datastax.oss.driver.internal.core.tracker.RequestLogger;
 import com.datastax.oss.quarkus.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.AbstractCassandraClientProducer;
 import com.datastax.oss.quarkus.runtime.CassandraClientRecorder;
+import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.runtime.metrics.MetricsConfig;
 import io.quarkus.arc.Unremovable;
 import io.quarkus.arc.deployment.BeanContainerListenerBuildItem;
@@ -72,6 +72,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
 import org.eclipse.microprofile.metrics.MetricRegistry;
+import org.reactivestreams.Publisher;
 
 class CassandraClientProcessor {
   public static final String CASSANDRA_CLIENT = "cassandra-client";
@@ -109,7 +110,8 @@ class CassandraClientProcessor {
         new ReflectiveClassBuildItem(true, true, RateLimitingRequestThrottler.class.getName()),
         // timestamp generators
         new ReflectiveClassBuildItem(true, true, AtomicTimestampGenerator.class.getName()),
-        new ReflectiveClassBuildItem(true, true, ThreadLocalTimestampGenerator.class.getName()));
+        new ReflectiveClassBuildItem(true, true, ThreadLocalTimestampGenerator.class.getName()),
+        new ReflectiveClassBuildItem(true, true, Publisher.class.getName()));
   }
 
   @BuildStep
@@ -173,12 +175,12 @@ class CassandraClientProcessor {
       classCreator.addAnnotation(ApplicationScoped.class);
 
       try (MethodCreator defaultCassandraClient =
-          classCreator.getMethodCreator("createDefaultCassandraClient", CqlSession.class)) {
+          classCreator.getMethodCreator("createDefaultCassandraClient", QuarkusCqlSession.class)) {
         defaultCassandraClient.addAnnotation(ApplicationScoped.class);
         defaultCassandraClient.addAnnotation(Produces.class);
         defaultCassandraClient.addAnnotation(Default.class);
 
-        // mark CqlSession as Unremovable bean
+        // mark QuarkusCqlSession as Unremovable bean
         defaultCassandraClient.addAnnotation(Unremovable.class);
 
         defaultCassandraClient.returnValue(
@@ -186,7 +188,7 @@ class CassandraClientProcessor {
                 MethodDescriptor.ofMethod(
                     AbstractCassandraClientProducer.class,
                     "createCassandraClient",
-                    CqlSession.class),
+                    QuarkusCqlSession.class),
                 defaultCassandraClient.getThis()));
       }
     }

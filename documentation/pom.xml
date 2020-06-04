@@ -119,6 +119,7 @@
                 <quickstart-clone-url>${extension-url}/tree/master/quickstart</quickstart-clone-url>
                 <reference-conf-url>${datastax-driver-documentation-url}/core/configuration/reference/</reference-conf-url>
                 <fruits-html-url>${extension-url}/tree/master/quickstart/src/main/resources/META-INF/resources/fruits.html</fruits-html-url>
+                <reactive-fruits-html-url>${extension-url}/tree/master/quickstart/src/main/resources/META-INF/resources/reactive-fruits.html</reactive-fruits-html-url>
                 <mapper-docs-url>${datastax-driver-documentation-url}/mapper</mapper-docs-url>
               </attributes>
             </configuration>

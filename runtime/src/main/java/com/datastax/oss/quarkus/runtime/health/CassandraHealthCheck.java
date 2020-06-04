@@ -15,8 +15,8 @@
  */
 package com.datastax.oss.quarkus.runtime.health;
 
-import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.cql.Row;
+import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import io.quarkus.arc.Arc;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,10 +36,10 @@ public class CassandraHealthCheck implements HealthCheck {
   static final String HEALTH_CHECK_QUERY =
       "SELECT data_center, release_version, cluster_name, cql_version FROM system.local";
 
-  private CqlSession cqlSession;
+  private QuarkusCqlSession cqlSession;
 
-  public CqlSession beanProvider() {
-    return Arc.container().instance(CqlSession.class).get();
+  public QuarkusCqlSession beanProvider() {
+    return Arc.container().instance(QuarkusCqlSession.class).get();
   }
 
   @PostConstruct
