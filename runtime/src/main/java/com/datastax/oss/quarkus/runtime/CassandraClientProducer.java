@@ -31,10 +31,14 @@ import com.datastax.oss.quarkus.runtime.metrics.MetricsConfig;
 import com.typesafe.config.ConfigFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.netty.channel.EventLoopGroup;
+import io.quarkus.arc.Unremovable;
 import java.util.concurrent.CompletionStage;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 
-public abstract class AbstractCassandraClientProducer {
+@ApplicationScoped
+public class CassandraClientProducer {
 
   private CassandraClientConfig config;
   private MetricsConfig metricsConfig;
@@ -42,6 +46,20 @@ public abstract class AbstractCassandraClientProducer {
   private String protocolCompression;
   private EventLoopGroup mainEventLoop;
   private boolean useQuarkusNettyEventLoop;
+
+  @Produces
+  @ApplicationScoped
+  @Unremovable
+  public QuarkusCqlSession createCassandraClient() {
+    ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder = createDriverConfigLoader();
+    configureConnectionSettings(configLoaderBuilder, config.cassandraClientConnectionConfig);
+    configureMetricsSettings(configLoaderBuilder, metricsConfig);
+    configureProtocolCompression(configLoaderBuilder, protocolCompression);
+    QuarkusCqlSessionBuilder builder =
+        new QuarkusCqlSessionBuilder(metricRegistry, mainEventLoop, useQuarkusNettyEventLoop)
+            .withConfigLoader(configLoaderBuilder.build());
+    return builder.build();
+  }
 
   public void setCassandraClientConfig(CassandraClientConfig config) {
     this.config = config;
@@ -108,17 +126,6 @@ public abstract class AbstractCassandraClientProducer {
 
   public boolean isUseQuarkusNettyEventLoop() {
     return useQuarkusNettyEventLoop;
-  }
-
-  public QuarkusCqlSession createCassandraClient() {
-    ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder = createDriverConfigLoader();
-    configureConnectionSettings(configLoaderBuilder, config.cassandraClientConnectionConfig);
-    configureMetricsSettings(configLoaderBuilder, metricsConfig);
-    configureProtocolCompression(configLoaderBuilder, protocolCompression);
-    QuarkusCqlSessionBuilder builder =
-        new QuarkusCqlSessionBuilder(metricRegistry, mainEventLoop, useQuarkusNettyEventLoop)
-            .withConfigLoader(configLoaderBuilder.build());
-    return builder.build();
   }
 
   private void configureProtocolCompression(
