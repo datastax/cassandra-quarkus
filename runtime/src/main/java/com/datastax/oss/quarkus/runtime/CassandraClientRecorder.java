@@ -15,7 +15,7 @@
  */
 package com.datastax.oss.quarkus.runtime;
 
-import com.datastax.oss.quarkus.config.CassandraClientConfig;
+import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.runtime.internal.metrics.MetricsConfig;
 import com.datastax.oss.quarkus.runtime.internal.metrics.NoopMetricRegistry;
