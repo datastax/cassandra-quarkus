@@ -20,8 +20,8 @@ import com.datastax.oss.driver.api.core.session.ProgrammaticArguments;
 import com.datastax.oss.driver.internal.core.context.DefaultDriverContext;
 import com.datastax.oss.driver.internal.core.context.NettyOptions;
 import com.datastax.oss.driver.internal.core.metrics.MetricsFactory;
-import com.datastax.oss.quarkus.runtime.driver.QuarkusNettyOptions;
-import com.datastax.oss.quarkus.runtime.metrics.MicroProfileMetricsFactory;
+import com.datastax.oss.quarkus.runtime.internal.driver.QuarkusNettyOptions;
+import com.datastax.oss.quarkus.runtime.internal.metrics.MicroProfileMetricsFactory;
 import io.netty.channel.EventLoopGroup;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 

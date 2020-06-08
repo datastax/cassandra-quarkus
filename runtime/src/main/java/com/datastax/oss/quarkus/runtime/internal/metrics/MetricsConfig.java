@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.runtime.metrics;
+package com.datastax.oss.quarkus.runtime.internal.metrics;
 
 import java.util.Collections;
 import java.util.List;

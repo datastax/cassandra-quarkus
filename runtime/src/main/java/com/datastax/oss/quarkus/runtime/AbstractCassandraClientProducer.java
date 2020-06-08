@@ -27,7 +27,7 @@ import com.datastax.oss.quarkus.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.config.CassandraClientConnectionConfig;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSessionBuilder;
-import com.datastax.oss.quarkus.runtime.metrics.MetricsConfig;
+import com.datastax.oss.quarkus.runtime.internal.metrics.MetricsConfig;
 import com.typesafe.config.ConfigFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.netty.channel.EventLoopGroup;

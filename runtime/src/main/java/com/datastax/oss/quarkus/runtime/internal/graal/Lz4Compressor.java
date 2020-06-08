@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.runtime.graal;
+package com.datastax.oss.quarkus.runtime.internal.graal;
 
 import com.datastax.oss.driver.api.core.context.DriverContext;
 import com.oracle.svm.core.annotate.Substitute;

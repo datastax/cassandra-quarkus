@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.runtime.metrics;
+package com.datastax.oss.quarkus.runtime.internal.metrics;
 
-import static com.datastax.oss.quarkus.runtime.metrics.MicroProfileMetricsUpdater.CASSANDRA_METRICS_PREFIX;
+import static com.datastax.oss.quarkus.runtime.internal.metrics.MicroProfileMetricsUpdater.CASSANDRA_METRICS_PREFIX;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.datastax.oss.quarkus.CassandraTestBase;

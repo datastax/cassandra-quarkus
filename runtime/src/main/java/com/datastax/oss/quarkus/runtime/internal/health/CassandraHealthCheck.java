@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.runtime.health;
+package com.datastax.oss.quarkus.runtime.internal.health;
 
 import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;

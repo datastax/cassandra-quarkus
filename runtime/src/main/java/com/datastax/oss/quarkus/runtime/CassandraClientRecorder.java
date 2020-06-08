@@ -17,8 +17,8 @@ package com.datastax.oss.quarkus.runtime;
 
 import com.datastax.oss.quarkus.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
-import com.datastax.oss.quarkus.runtime.metrics.MetricsConfig;
-import com.datastax.oss.quarkus.runtime.metrics.NoopMetricRegistry;
+import com.datastax.oss.quarkus.runtime.internal.metrics.MetricsConfig;
+import com.datastax.oss.quarkus.runtime.internal.metrics.NoopMetricRegistry;
 import io.netty.channel.EventLoopGroup;
 import io.quarkus.arc.Arc;
 import io.quarkus.arc.runtime.BeanContainerListener;

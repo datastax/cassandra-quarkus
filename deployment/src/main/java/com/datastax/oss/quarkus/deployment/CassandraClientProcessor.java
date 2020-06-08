@@ -42,7 +42,7 @@ import com.datastax.oss.quarkus.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.AbstractCassandraClientProducer;
 import com.datastax.oss.quarkus.runtime.CassandraClientRecorder;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
-import com.datastax.oss.quarkus.runtime.metrics.MetricsConfig;
+import com.datastax.oss.quarkus.runtime.internal.metrics.MetricsConfig;
 import io.quarkus.arc.Unremovable;
 import io.quarkus.arc.deployment.BeanContainerListenerBuildItem;
 import io.quarkus.arc.deployment.GeneratedBeanBuildItem;
@@ -237,7 +237,7 @@ class CassandraClientProcessor {
   @BuildStep
   HealthBuildItem addHealthCheck(CassandraClientBuildTimeConfig buildTimeConfig) {
     return new HealthBuildItem(
-        "com.datastax.oss.quarkus.runtime.health.CassandraHealthCheck",
+        "com.datastax.oss.quarkus.runtime.internal.health.CassandraHealthCheck",
         buildTimeConfig.healthEnabled,
         "cassandra");
   }

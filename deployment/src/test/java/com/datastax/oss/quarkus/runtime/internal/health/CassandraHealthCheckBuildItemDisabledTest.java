@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.runtime.health;
+package com.datastax.oss.quarkus.runtime.internal.health;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,17 +27,17 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class CassandraHealthBuildItemEnabledTest {
+public class CassandraHealthCheckBuildItemDisabledTest {
   @RegisterExtension
   static QuarkusUnitTest runner =
       new QuarkusUnitTest()
           .setArchiveProducer(
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestBase.class))
-          .withConfigurationResource("application-health-enabled.properties");
+          .withConfigurationResource("application-health-disabled.properties");
 
   @Test
-  public void shouldHaveHealthCheckInTheContainer() {
+  public void shouldNotHaveHealthCheckInTheContainer() {
     Set<Bean<?>> beans = Arc.container().beanManager().getBeans(CassandraHealthCheck.class);
-    assertThat(beans.size()).isEqualTo(1);
+    assertThat(beans.size()).isZero();
   }
 }
