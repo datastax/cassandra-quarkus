@@ -38,6 +38,8 @@ import com.datastax.oss.driver.internal.core.time.AtomicTimestampGenerator;
 import com.datastax.oss.driver.internal.core.time.ThreadLocalTimestampGenerator;
 import com.datastax.oss.driver.internal.core.tracker.NoopRequestTracker;
 import com.datastax.oss.driver.internal.core.tracker.RequestLogger;
+import com.datastax.oss.quarkus.deployment.api.CassandraClientBuildTimeConfig;
+import com.datastax.oss.quarkus.deployment.internal.CassandraClientBuildItem;
 import com.datastax.oss.quarkus.runtime.AbstractCassandraClientProducer;
 import com.datastax.oss.quarkus.runtime.CassandraClientRecorder;
 import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;

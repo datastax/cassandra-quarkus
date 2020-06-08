@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus;
+package com.datastax.oss.quarkus.deployment.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.datastax.oss.quarkus.deployment.CassandraClientBuildItem;
+import com.datastax.oss.quarkus.CassandraTestBase;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import io.quarkus.arc.Arc;
 import io.quarkus.builder.BuildChainBuilder;

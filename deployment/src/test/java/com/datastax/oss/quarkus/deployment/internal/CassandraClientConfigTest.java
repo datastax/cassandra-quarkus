@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus;
+package com.datastax.oss.quarkus.deployment.internal;
 
 import static com.datastax.oss.driver.api.core.config.DefaultDriverOption.LOAD_BALANCING_LOCAL_DATACENTER;
 import static com.datastax.oss.driver.api.core.config.DefaultDriverOption.REQUEST_PAGE_SIZE;
@@ -21,6 +21,7 @@ import static com.datastax.oss.driver.api.core.config.DefaultDriverOption.REQUES
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.datastax.oss.driver.api.core.config.DriverExecutionProfile;
+import com.datastax.oss.quarkus.CassandraTestBase;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import io.quarkus.test.QuarkusUnitTest;
 import io.quarkus.test.common.QuarkusTestResource;
