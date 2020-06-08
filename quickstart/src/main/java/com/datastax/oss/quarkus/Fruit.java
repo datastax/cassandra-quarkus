@@ -23,16 +23,24 @@ import java.util.Objects;
 @Entity
 public class Fruit {
 
+  @PartitionKey private String storeId;
   @ClusteringColumn private String name;
   private String description;
-  @PartitionKey private String id;
 
   public Fruit() {}
 
-  public Fruit(String name, String description, String id) {
+  public Fruit(String storeId, String name, String description) {
     this.name = name;
     this.description = description;
-    this.id = id;
+    this.storeId = storeId;
+  }
+
+  public String getStoreId() {
+    return storeId;
+  }
+
+  public void setStoreId(String storeId) {
+    this.storeId = storeId;
   }
 
   public String getName() {
@@ -51,28 +59,20 @@ public class Fruit {
     this.description = description;
   }
 
-  public String getId() {
-    return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
-  }
-
   @Override
   public boolean equals(Object o) {
 
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Fruit that = (Fruit) o;
-    return Objects.equals(id, that.id)
+    return Objects.equals(storeId, that.storeId)
         && Objects.equals(description, that.description)
         && Objects.equals(name, that.name);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, description, name);
+    return Objects.hash(storeId, description, name);
   }
 
   @Override
@@ -84,8 +84,8 @@ public class Fruit {
         + ", description='"
         + description
         + '\''
-        + ", id='"
-        + id
+        + ", storeId='"
+        + storeId
         + '\''
         + '}';
   }

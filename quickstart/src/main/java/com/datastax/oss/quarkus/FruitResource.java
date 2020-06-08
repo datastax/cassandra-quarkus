@@ -42,10 +42,10 @@ public class FruitResource {
 
   @POST
   public void add(FruitDto fruit) {
-    fruitService.save(covertFromDto(fruit));
+    fruitService.save(convertFromDto(fruit));
   }
 
-  private Fruit covertFromDto(FruitDto fruitDto) {
-    return new Fruit(fruitDto.getName(), fruitDto.getDescription(), STORE_NAME);
+  private Fruit convertFromDto(FruitDto fruitDto) {
+    return new Fruit(STORE_NAME, fruitDto.getName(), fruitDto.getDescription());
   }
 }

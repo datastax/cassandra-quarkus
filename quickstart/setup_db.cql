@@ -1,2 +1,2 @@
 CREATE KEYSPACE IF NOT EXISTS k1 WITH replication = {'class':'SimpleStrategy', 'replication_factor':1};
-CREATE TABLE IF NOT EXISTS k1.fruit(id text, name text, description text, PRIMARY KEY((id), name));
+CREATE TABLE IF NOT EXISTS k1.fruit(store_id, name text, description text, PRIMARY KEY((store_id), name));
