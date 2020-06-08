@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.deployment;
+package com.datastax.oss.quarkus.deployment.internal;
 
 import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
 import static io.quarkus.deployment.annotations.ExecutionTime.STATIC_INIT;
@@ -39,12 +39,11 @@ import com.datastax.oss.driver.internal.core.time.ThreadLocalTimestampGenerator;
 import com.datastax.oss.driver.internal.core.tracker.NoopRequestTracker;
 import com.datastax.oss.driver.internal.core.tracker.RequestLogger;
 import com.datastax.oss.quarkus.deployment.api.CassandraClientBuildTimeConfig;
-import com.datastax.oss.quarkus.deployment.internal.CassandraClientBuildItem;
-import com.datastax.oss.quarkus.runtime.AbstractCassandraClientProducer;
-import com.datastax.oss.quarkus.runtime.CassandraClientRecorder;
 import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.runtime.internal.metrics.MetricsConfig;
+import com.datastax.oss.quarkus.runtime.internal.quarkus.AbstractCassandraClientProducer;
+import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientRecorder;
 import io.quarkus.arc.Unremovable;
 import io.quarkus.arc.deployment.BeanContainerListenerBuildItem;
 import io.quarkus.arc.deployment.GeneratedBeanBuildItem;
