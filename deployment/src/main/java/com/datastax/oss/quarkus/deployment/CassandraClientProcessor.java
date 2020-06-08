@@ -16,7 +16,6 @@
 package com.datastax.oss.quarkus.deployment;
 
 import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
-import static io.quarkus.deployment.annotations.ExecutionTime.STATIC_INIT;
 
 import com.datastax.dse.driver.internal.core.tracker.MultiplexingRequestTracker;
 import com.datastax.oss.driver.internal.core.addresstranslation.Ec2MultiRegionAddressTranslator;
@@ -39,14 +38,11 @@ import com.datastax.oss.driver.internal.core.time.ThreadLocalTimestampGenerator;
 import com.datastax.oss.driver.internal.core.tracker.NoopRequestTracker;
 import com.datastax.oss.driver.internal.core.tracker.RequestLogger;
 import com.datastax.oss.quarkus.config.CassandraClientConfig;
-import com.datastax.oss.quarkus.runtime.AbstractCassandraClientProducer;
+import com.datastax.oss.quarkus.runtime.CassandraClientProducer;
 import com.datastax.oss.quarkus.runtime.CassandraClientRecorder;
-import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.runtime.metrics.MetricsConfig;
-import io.quarkus.arc.Unremovable;
-import io.quarkus.arc.deployment.BeanContainerListenerBuildItem;
-import io.quarkus.arc.deployment.GeneratedBeanBuildItem;
-import io.quarkus.arc.deployment.GeneratedBeanGizmoAdaptor;
+import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
+import io.quarkus.arc.deployment.BeanContainerBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeansRuntimeInitBuildItem;
 import io.quarkus.deployment.Capabilities;
 import io.quarkus.deployment.annotations.BuildProducer;
@@ -58,19 +54,11 @@ import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.NativeImageResourceBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.RuntimeInitializedClassBuildItem;
-import io.quarkus.deployment.recording.RecorderContext;
-import io.quarkus.gizmo.ClassCreator;
-import io.quarkus.gizmo.ClassOutput;
-import io.quarkus.gizmo.MethodCreator;
-import io.quarkus.gizmo.MethodDescriptor;
 import io.quarkus.smallrye.health.deployment.spi.HealthBuildItem;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Default;
-import javax.enterprise.inject.Produces;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 import org.reactivestreams.Publisher;
 
@@ -134,64 +122,9 @@ class CassandraClientProcessor {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  @Record(STATIC_INIT)
   @BuildStep
-  BeanContainerListenerBuildItem build(
-      RecorderContext recorderContext,
-      CassandraClientRecorder recorder,
-      BuildProducer<FeatureBuildItem> feature,
-      BuildProducer<GeneratedBeanBuildItem> generatedBean) {
-
+  void build(BuildProducer<FeatureBuildItem> feature) {
     feature.produce(new FeatureBuildItem(CASSANDRA_CLIENT));
-
-    String cassandraClientProducerClassName = getCassandraClientProducerClassName();
-    createCassandraClientProducerBean(generatedBean, cassandraClientProducerClassName);
-
-    return new BeanContainerListenerBuildItem(
-        recorder.addCassandraClient(
-            (Class<? extends AbstractCassandraClientProducer>)
-                recorderContext.classProxy(cassandraClientProducerClassName)));
-  }
-
-  private String getCassandraClientProducerClassName() {
-    return AbstractCassandraClientProducer.class.getPackage().getName()
-        + "."
-        + "CassandraClientProducer";
-  }
-
-  private void createCassandraClientProducerBean(
-      BuildProducer<GeneratedBeanBuildItem> generatedBean,
-      String cassandraClientProducerClassName) {
-
-    ClassOutput classOutput = new GeneratedBeanGizmoAdaptor(generatedBean);
-
-    try (ClassCreator classCreator =
-        ClassCreator.builder()
-            .classOutput(classOutput)
-            .className(cassandraClientProducerClassName)
-            .superClass(AbstractCassandraClientProducer.class)
-            .build()) {
-      classCreator.addAnnotation(ApplicationScoped.class);
-
-      try (MethodCreator defaultCassandraClient =
-          classCreator.getMethodCreator("createDefaultCassandraClient", QuarkusCqlSession.class)) {
-        defaultCassandraClient.addAnnotation(ApplicationScoped.class);
-        defaultCassandraClient.addAnnotation(Produces.class);
-        defaultCassandraClient.addAnnotation(Default.class);
-
-        // mark QuarkusCqlSession as Unremovable bean
-        defaultCassandraClient.addAnnotation(Unremovable.class);
-
-        defaultCassandraClient.returnValue(
-            defaultCassandraClient.invokeVirtualMethod(
-                MethodDescriptor.ofMethod(
-                    AbstractCassandraClientProducer.class,
-                    "createCassandraClient",
-                    QuarkusCqlSession.class),
-                defaultCassandraClient.getThis()));
-      }
-    }
   }
 
   @Record(RUNTIME_INIT)
@@ -228,10 +161,17 @@ class CassandraClientProcessor {
   }
 
   @BuildStep
+  AdditionalBeanBuildItem cassandraClientProducer() {
+    return AdditionalBeanBuildItem.unremovableOf(CassandraClientProducer.class);
+  }
+
+  @BuildStep
   @Record(value = RUNTIME_INIT)
   CassandraClientBuildItem cassandraClient(
-      CassandraClientRecorder recorder, ShutdownContextBuildItem shutdown) {
-    return new CassandraClientBuildItem(recorder.getClient(shutdown));
+      CassandraClientRecorder recorder,
+      ShutdownContextBuildItem shutdown,
+      BeanContainerBuildItem beanContainer) {
+    return new CassandraClientBuildItem(recorder.buildClient(shutdown, beanContainer.getValue()));
   }
 
   @BuildStep
