@@ -1,5 +1,6 @@
 ### 1.0.0 (in progress)
 
+- [improvement] JAVA-2722: Replace generated code in CassandraClientProcessor by normal java class
 - [new feature] JAVA-2754: Integration between Driver reactive API and Quarkus
 - [new feature] JAVA-2719: Integrate with Netty event loop provided by Quarkus
 - [documentation] JAVA-2684: Add documentation and examples of Quarkus Cassandra extension

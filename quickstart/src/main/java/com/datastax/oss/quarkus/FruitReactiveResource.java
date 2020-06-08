@@ -45,6 +45,6 @@ public class FruitReactiveResource {
   }
 
   private Fruit covertFromDto(FruitDto fruitDto) {
-    return new Fruit(fruitDto.getName(), fruitDto.getDescription(), STORE_NAME);
+    return new Fruit(STORE_NAME, fruitDto.getName(), fruitDto.getDescription());
   }
 }
