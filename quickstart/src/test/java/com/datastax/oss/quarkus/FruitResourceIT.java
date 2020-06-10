@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 public class FruitResourceIT {
 
   @Test
-  public void testSaveAndRetrieveProduct() throws JSONException {
+  public void should_save_and_get_the_fruit() throws JSONException {
     // given
     JSONObject jsonObj =
         new JSONObject()
