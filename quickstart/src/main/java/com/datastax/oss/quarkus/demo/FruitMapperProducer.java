@@ -13,18 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus;
+package com.datastax.oss.quarkus.demo;
 
-import com.datastax.oss.driver.api.core.PagingIterable;
-import com.datastax.oss.driver.api.mapper.annotations.Dao;
-import com.datastax.oss.driver.api.mapper.annotations.Select;
-import com.datastax.oss.driver.api.mapper.annotations.Update;
+import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 
-@Dao
-public interface FruitDao {
-  @Update
-  void update(Fruit fruit);
+public class FruitMapperProducer {
+  private final QuarkusCqlSession cqlSession;
 
-  @Select
-  PagingIterable<Fruit> findById(String id);
+  @Inject
+  public FruitMapperProducer(QuarkusCqlSession cqlSession) {
+    this.cqlSession = cqlSession;
+  }
+
+  @Produces
+  @ApplicationScoped
+  FruitMapper produceFruitMapper() {
+    return new FruitMapperBuilder(cqlSession).build();
+  }
 }

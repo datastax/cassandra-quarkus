@@ -13,24 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus;
+package com.datastax.oss.quarkus.demo;
 
-import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
+import io.quarkus.arc.config.ConfigProperties;
 
-public class FruitMapperProducer {
-  private final QuarkusCqlSession cqlSession;
+@ConfigProperties(prefix = "fruit.dao")
+public class FruitServiceConfig {
+  /** Keyspace that should be used when creating a fruit dao. */
+  String keyspace;
 
-  @Inject
-  public FruitMapperProducer(QuarkusCqlSession cqlSession) {
-    this.cqlSession = cqlSession;
+  public String getKeyspace() {
+    return keyspace;
   }
 
-  @Produces
-  @ApplicationScoped
-  FruitMapper produceFruitMapper() {
-    return new FruitMapperBuilder(cqlSession).build();
+  public void setKeyspace(String keyspace) {
+    this.keyspace = keyspace;
   }
 }

@@ -13,20 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus;
+package com.datastax.oss.quarkus.demo;
 
+import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
+import com.datastax.oss.driver.api.mapper.annotations.Entity;
+import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
 import java.util.Objects;
 
-public class FruitDto {
+@Entity
+public class Fruit {
 
-  private String name;
+  @PartitionKey private String storeId;
+  @ClusteringColumn private String name;
   private String description;
 
-  public FruitDto() {}
+  public Fruit() {}
 
-  public FruitDto(String name, String description) {
+  public Fruit(String storeId, String name, String description) {
     this.name = name;
     this.description = description;
+    this.storeId = storeId;
+  }
+
+  public String getStoreId() {
+    return storeId;
+  }
+
+  public void setStoreId(String storeId) {
+    this.storeId = storeId;
   }
 
   public String getName() {
@@ -47,17 +61,32 @@ public class FruitDto {
 
   @Override
   public boolean equals(Object o) {
+
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-
-    FruitDto fruitDto = (FruitDto) o;
-
-    if (!Objects.equals(name, fruitDto.name)) return false;
-    return Objects.equals(description, fruitDto.description);
+    Fruit that = (Fruit) o;
+    return Objects.equals(storeId, that.storeId)
+        && Objects.equals(description, that.description)
+        && Objects.equals(name, that.name);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(description, name);
+    return Objects.hash(storeId, description, name);
+  }
+
+  @Override
+  public String toString() {
+    return "Fruit{"
+        + "name='"
+        + name
+        + '\''
+        + ", description='"
+        + description
+        + '\''
+        + ", storeId='"
+        + storeId
+        + '\''
+        + '}';
   }
 }
