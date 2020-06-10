@@ -21,7 +21,7 @@ import static com.datastax.oss.driver.api.core.config.DefaultDriverOption.REQUES
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.datastax.oss.driver.api.core.config.DriverExecutionProfile;
-import com.datastax.oss.quarkus.CassandraTestBase;
+import com.datastax.oss.quarkus.deployment.internal.tests.CassandraTestResource;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import io.quarkus.test.QuarkusUnitTest;
 import io.quarkus.test.common.QuarkusTestResource;
@@ -33,7 +33,7 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-@QuarkusTestResource(CassandraTestBase.class)
+@QuarkusTestResource(CassandraTestResource.class)
 public class CassandraClientConfigTest {
 
   @RegisterExtension
@@ -43,7 +43,7 @@ public class CassandraClientConfigTest {
           .setArchiveProducer(
               () ->
                   ShrinkWrap.create(JavaArchive.class)
-                      .addClasses(CassandraTestBase.class)
+                      .addClasses(CassandraTestResource.class)
                       .addAsResource("application.json")
                       .addAsResource("application.conf"));
 

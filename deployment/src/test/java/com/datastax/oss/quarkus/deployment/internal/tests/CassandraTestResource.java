@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus;
+package com.datastax.oss.quarkus.deployment.internal.tests;
 
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import java.util.Collections;
@@ -21,7 +21,7 @@ import java.util.Map;
 import org.testcontainers.containers.CassandraContainer;
 import org.testcontainers.containers.wait.CassandraQueryWaitStrategy;
 
-public class CassandraTestBase implements QuarkusTestResourceLifecycleManager {
+public class CassandraTestResource implements QuarkusTestResourceLifecycleManager {
   private static CassandraContainer<?> cassandraContainer;
 
   @Override

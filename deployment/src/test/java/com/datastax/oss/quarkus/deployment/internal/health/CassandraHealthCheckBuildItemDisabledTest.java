@@ -17,7 +17,7 @@ package com.datastax.oss.quarkus.deployment.internal.health;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.datastax.oss.quarkus.CassandraTestBase;
+import com.datastax.oss.quarkus.deployment.internal.tests.CassandraTestResource;
 import com.datastax.oss.quarkus.runtime.internal.health.CassandraHealthCheck;
 import io.quarkus.arc.Arc;
 import io.quarkus.test.QuarkusUnitTest;
@@ -33,7 +33,7 @@ public class CassandraHealthCheckBuildItemDisabledTest {
   static QuarkusUnitTest runner =
       new QuarkusUnitTest()
           .setArchiveProducer(
-              () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestBase.class))
+              () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
           .withConfigurationResource("application-health-disabled.properties");
 
   @Test

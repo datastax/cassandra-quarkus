@@ -26,6 +26,7 @@ public final class CassandraClientBuildItem extends SimpleBuildItem {
     this.cqlSession = cqlSession;
   }
 
+  @SuppressWarnings("unused")
   public RuntimeValue<QuarkusCqlSession> getCqlSession() {
     return cqlSession;
   }
