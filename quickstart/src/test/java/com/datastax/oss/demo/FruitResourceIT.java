@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus;
+package com.datastax.oss.demo;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
