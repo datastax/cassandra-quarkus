@@ -17,7 +17,7 @@ package com.datastax.oss.quarkus.deployment.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.datastax.oss.quarkus.CassandraTestBase;
+import com.datastax.oss.quarkus.deployment.internal.tests.CassandraTestResource;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import io.quarkus.arc.Arc;
 import io.quarkus.builder.BuildChainBuilder;
@@ -35,7 +35,7 @@ public class CassandraClientBuildItemConsumerTest {
   static QuarkusUnitTest runner =
       new QuarkusUnitTest()
           .setArchiveProducer(
-              () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestBase.class))
+              () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
           .withConfigurationResource("application-cassandra-client.properties")
           .addBuildChainCustomizer(buildCustomizer());
 

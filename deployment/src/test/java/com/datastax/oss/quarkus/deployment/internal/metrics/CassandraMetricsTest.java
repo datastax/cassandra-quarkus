@@ -18,7 +18,7 @@ package com.datastax.oss.quarkus.deployment.internal.metrics;
 import static com.datastax.oss.quarkus.runtime.internal.metrics.MicroProfileMetricsUpdater.CASSANDRA_METRICS_PREFIX;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.datastax.oss.quarkus.CassandraTestBase;
+import com.datastax.oss.quarkus.deployment.internal.tests.CassandraTestResource;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import io.quarkus.test.QuarkusUnitTest;
 import io.quarkus.test.common.QuarkusTestResource;
@@ -35,7 +35,7 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-@QuarkusTestResource(CassandraTestBase.class)
+@QuarkusTestResource(CassandraTestResource.class)
 public class CassandraMetricsTest {
 
   @Inject QuarkusCqlSession cqlSession;
@@ -48,7 +48,7 @@ public class CassandraMetricsTest {
   static final QuarkusUnitTest config =
       new QuarkusUnitTest()
           .setArchiveProducer(
-              () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestBase.class))
+              () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
           .withConfigurationResource("application-metrics.properties");
 
   @Test

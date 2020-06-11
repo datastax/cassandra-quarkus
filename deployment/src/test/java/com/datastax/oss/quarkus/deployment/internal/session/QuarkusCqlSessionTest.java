@@ -21,7 +21,7 @@ import com.datastax.dse.driver.api.core.cql.reactive.ReactiveRow;
 import com.datastax.oss.driver.api.core.cql.ColumnDefinitions;
 import com.datastax.oss.driver.api.core.cql.ExecutionInfo;
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
-import com.datastax.oss.quarkus.CassandraTestBase;
+import com.datastax.oss.quarkus.deployment.internal.tests.CassandraTestResource;
 import com.datastax.oss.quarkus.runtime.api.reactive.MutinyReactiveResultSet;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import io.quarkus.test.QuarkusUnitTest;
@@ -36,7 +36,7 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-@QuarkusTestResource(CassandraTestBase.class)
+@QuarkusTestResource(CassandraTestResource.class)
 public class QuarkusCqlSessionTest {
   @Inject QuarkusCqlSession quarkusCqlSession;
 
@@ -44,7 +44,7 @@ public class QuarkusCqlSessionTest {
   static QuarkusUnitTest runner =
       new QuarkusUnitTest()
           .setArchiveProducer(
-              () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestBase.class))
+              () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
           .withConfigurationResource("application-cassandra-client.properties");
 
   @Test

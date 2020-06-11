@@ -31,13 +31,12 @@ public class QuarkusCqlSessionBuilder
 
   private final MetricRegistry metricRegistry;
   private final EventLoopGroup mainEventLoop;
-  private boolean useQuarkusNettyEventLoop;
+  private final boolean useQuarkusNettyEventLoop;
 
   public QuarkusCqlSessionBuilder(
       MetricRegistry metricRegistry,
       EventLoopGroup mainEventLoop,
       boolean useQuarkusNettyEventLoop) {
-
     this.metricRegistry = metricRegistry;
     this.mainEventLoop = mainEventLoop;
     this.useQuarkusNettyEventLoop = useQuarkusNettyEventLoop;
