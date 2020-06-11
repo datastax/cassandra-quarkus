@@ -31,16 +31,6 @@ public class InventoryMapperProducer {
   @Produces
   @ApplicationScoped
   InventoryMapper produceFruitMapper() {
-    cqlSession.execute(
-        "CREATE KEYSPACE IF NOT EXISTS k1 WITH replication "
-            + "= {'class':'SimpleStrategy', 'replication_factor':1};");
-
-    cqlSession.execute(
-        "CREATE TABLE IF NOT EXISTS k1.product(id uuid PRIMARY KEY, description text)");
-
-    cqlSession.execute(
-        "CREATE TABLE IF NOT EXISTS k1.test_NameConverterEntity(test_entityId int primary key)");
-
     return new InventoryMapperBuilder(cqlSession).build();
   }
 }
