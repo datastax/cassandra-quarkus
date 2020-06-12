@@ -61,7 +61,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.eclipse.microprofile.metrics.MetricRegistry;
 import org.reactivestreams.Publisher;
 
 class CassandraClientProcessor {
@@ -195,11 +194,6 @@ class CassandraClientProcessor {
   @BuildStep
   RuntimeInitializedClassBuildItem runtimeMetadataManager() {
     return new RuntimeInitializedClassBuildItem(MetadataManager.class.getCanonicalName());
-  }
-
-  @BuildStep
-  RuntimeInitializedClassBuildItem runtimeMetricRegistry() {
-    return new RuntimeInitializedClassBuildItem(MetricRegistry.class.getCanonicalName());
   }
 
   @BuildStep
