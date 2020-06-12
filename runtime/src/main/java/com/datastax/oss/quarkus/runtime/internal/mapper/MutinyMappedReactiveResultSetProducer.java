@@ -37,18 +37,19 @@ public class MutinyMappedReactiveResultSetProducer implements MapperResultProduc
   }
 
   @Override
-  public <EntityT> Object execute(
+  public Object execute(
       @NonNull Statement<?> statement,
       @NonNull MapperContext context,
-      @Nullable EntityHelper<EntityT> entityHelper) {
+      @Nullable EntityHelper<?> entityHelper) {
     Objects.requireNonNull(entityHelper);
     ReactiveResultSet source = context.getSession().executeReactive(statement);
     return new DefaultMutinyMappedReactiveResultSet<>(
         new DefaultMappedReactiveResultSet<>(source, entityHelper::get));
   }
 
+  @Nullable
   @Override
-  public Object wrapError(@NonNull Throwable error) {
-    return new FailedMutinyMappedReactiveResultSet<>(error);
+  public Object wrapError(@NonNull Exception e) {
+    return new FailedMutinyMappedReactiveResultSet<>(e);
   }
 }
