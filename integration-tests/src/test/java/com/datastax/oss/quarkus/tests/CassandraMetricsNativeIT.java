@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus;
+package com.datastax.oss.quarkus.tests;
 
 import io.quarkus.test.junit.NativeImageTest;
 import org.junit.jupiter.api.Tag;
