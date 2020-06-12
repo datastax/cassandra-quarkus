@@ -149,8 +149,6 @@ public class CassandraClientProducer {
         DefaultDriverOption.LOAD_BALANCING_LOCAL_DATACENTER, config.localDatacenter);
     config.requestTimeout.ifPresent(
         v -> configLoaderBuilder.withDuration(DefaultDriverOption.REQUEST_TIMEOUT, v));
-    // force java clock because jnr does not work with quarkus
-    configLoaderBuilder.withBoolean(DefaultDriverOption.TIMESTAMP_GENERATOR_FORCE_JAVA_CLOCK, true);
   }
 
   private static class NonReloadableDriverConfigLoader implements DriverConfigLoader {
