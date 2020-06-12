@@ -33,15 +33,16 @@ public class MutinyUniResultProducer implements MapperResultProducer {
   }
 
   @Override
-  public <EntityT> Object execute(
+  public Object execute(
       @NonNull Statement<?> statement,
       @NonNull MapperContext context,
-      @Nullable EntityHelper<EntityT> entityHelper) {
+      @Nullable EntityHelper<?> entityHelper) {
     return Wrappers.toUni(context.getSession().executeAsync(statement));
   }
 
+  @Nullable
   @Override
-  public Object wrapError(@NonNull Throwable error) {
-    return Wrappers.failedUni(error);
+  public Object wrapError(@NonNull Exception e) {
+    return Wrappers.failedUni(e);
   }
 }
