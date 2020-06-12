@@ -27,6 +27,7 @@ import com.datastax.oss.driver.internal.core.loadbalancing.DefaultLoadBalancingP
 import com.datastax.oss.driver.internal.core.metadata.MetadataManager;
 import com.datastax.oss.driver.internal.core.metadata.NoopNodeStateListener;
 import com.datastax.oss.driver.internal.core.metadata.schema.NoopSchemaChangeListener;
+import com.datastax.oss.driver.internal.core.os.Native;
 import com.datastax.oss.driver.internal.core.retry.DefaultRetryPolicy;
 import com.datastax.oss.driver.internal.core.session.throttling.ConcurrencyLimitingRequestThrottler;
 import com.datastax.oss.driver.internal.core.session.throttling.PassThroughRequestThrottler;
@@ -204,5 +205,10 @@ class CassandraClientProcessor {
   @BuildStep
   NativeImageResourceBuildItem referenceConf() {
     return new NativeImageResourceBuildItem("reference.conf");
+  }
+
+  @BuildStep
+  RuntimeInitializedClassBuildItem runtimeNative() {
+    return new RuntimeInitializedClassBuildItem(Native.class.getCanonicalName());
   }
 }
