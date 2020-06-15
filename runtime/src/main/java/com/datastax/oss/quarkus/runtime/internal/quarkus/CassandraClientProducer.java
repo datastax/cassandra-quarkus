@@ -149,10 +149,6 @@ public class CassandraClientProducer {
         DefaultDriverOption.LOAD_BALANCING_LOCAL_DATACENTER, config.localDatacenter);
     config.requestTimeout.ifPresent(
         v -> configLoaderBuilder.withDuration(DefaultDriverOption.REQUEST_TIMEOUT, v));
-    config.authProviderClass.ifPresent(
-        authProviderClass ->
-            configLoaderBuilder.withString(
-                DefaultDriverOption.AUTH_PROVIDER_CLASS, authProviderClass));
     config.username.ifPresent(
         username ->
             configLoaderBuilder.withString(DefaultDriverOption.AUTH_PROVIDER_USER_NAME, username));

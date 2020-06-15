@@ -40,9 +40,6 @@ public class CassandraClientConnectionConfig {
   @ConfigItem(name = "request.timeout")
   public Optional<Duration> requestTimeout;
 
-  /** The auth provider class. If not specified, PlainTextAuthProvider will be used */
-  public Optional<String> authProviderClass;
-
   /** The auth_provider username used to connect to Apache Cassandra(R). */
   @ConfigItem(name = "username")
   public Optional<String> username;
