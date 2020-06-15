@@ -15,12 +15,16 @@
  */
 package com.datastax.oss.quarkus.deployment.internal;
 
+import static com.datastax.oss.driver.api.core.config.DefaultDriverOption.AUTH_PROVIDER_CLASS;
+import static com.datastax.oss.driver.api.core.config.DefaultDriverOption.AUTH_PROVIDER_PASSWORD;
+import static com.datastax.oss.driver.api.core.config.DefaultDriverOption.AUTH_PROVIDER_USER_NAME;
 import static com.datastax.oss.driver.api.core.config.DefaultDriverOption.LOAD_BALANCING_LOCAL_DATACENTER;
 import static com.datastax.oss.driver.api.core.config.DefaultDriverOption.REQUEST_PAGE_SIZE;
 import static com.datastax.oss.driver.api.core.config.DefaultDriverOption.REQUEST_TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.datastax.oss.driver.api.core.config.DriverExecutionProfile;
+import com.datastax.oss.driver.internal.core.auth.PlainTextAuthProvider;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.quarkus.test.QuarkusUnitTest;
@@ -73,5 +77,14 @@ public class CassandraClientConfigTest {
     DriverExecutionProfile profile = cqlSession.getContext().getConfig().getDefaultProfile();
 
     assertThat(profile.getInt(REQUEST_PAGE_SIZE)).isEqualTo(1000);
+  }
+
+  @Test
+  public void should_enable_plain_text_auth_when_username_and_password_provided() {
+    DriverExecutionProfile profile = cqlSession.getContext().getConfig().getDefaultProfile();
+    assertThat(profile.getString(AUTH_PROVIDER_CLASS))
+        .isEqualTo(PlainTextAuthProvider.class.getName());
+    assertThat(profile.getString(AUTH_PROVIDER_USER_NAME)).isEqualTo("alice");
+    assertThat(profile.getString(AUTH_PROVIDER_PASSWORD)).isEqualTo("fakePasswordForTests");
   }
 }

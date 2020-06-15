@@ -20,6 +20,7 @@ import com.datastax.oss.driver.api.core.config.DriverConfig;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
 import com.datastax.oss.driver.api.core.config.ProgrammaticDriverConfigLoaderBuilder;
 import com.datastax.oss.driver.api.core.context.DriverContext;
+import com.datastax.oss.driver.internal.core.auth.PlainTextAuthProvider;
 import com.datastax.oss.driver.internal.core.config.typesafe.DefaultDriverConfigLoader;
 import com.datastax.oss.driver.internal.core.config.typesafe.DefaultProgrammaticDriverConfigLoaderBuilder;
 import com.datastax.oss.driver.internal.core.util.concurrent.CompletableFutures;
@@ -142,6 +143,12 @@ public class CassandraClientProducer {
         DefaultDriverOption.LOAD_BALANCING_LOCAL_DATACENTER, config.localDatacenter);
     config.requestTimeout.ifPresent(
         v -> configLoaderBuilder.withDuration(DefaultDriverOption.REQUEST_TIMEOUT, v));
+    if (config.username.isPresent() && config.password.isPresent()) {
+      configLoaderBuilder
+          .withClass(DefaultDriverOption.AUTH_PROVIDER_CLASS, PlainTextAuthProvider.class)
+          .withString(DefaultDriverOption.AUTH_PROVIDER_USER_NAME, config.username.get())
+          .withString(DefaultDriverOption.AUTH_PROVIDER_PASSWORD, config.password.get());
+    }
   }
 
   private static class NonReloadableDriverConfigLoader implements DriverConfigLoader {

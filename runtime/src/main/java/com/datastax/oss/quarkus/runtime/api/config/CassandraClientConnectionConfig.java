@@ -39,4 +39,18 @@ public class CassandraClientConnectionConfig {
   /** How long the driver waits for a request to complete. */
   @ConfigItem(name = "request.timeout")
   public Optional<Duration> requestTimeout;
+
+  /**
+   * The username used to connect to Apache Cassandra(R). If a username and a password are both
+   * provided, plain text authentication will be automatically enabled.
+   */
+  @ConfigItem(name = "username")
+  public Optional<String> username;
+
+  /**
+   * The auth_provider password used to connect to Apache Cassandra(R). If a username and a password
+   * are both provided, plain text authentication will be automatically enabled.
+   */
+  @ConfigItem(name = "password")
+  public Optional<String> password;
 }
