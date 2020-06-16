@@ -129,7 +129,7 @@ workload:
 
             # compile and start quickstart app
             mvn clean package
-            java -jar ./target/cassandra-quarkus-quickstart-{{version}}-runner.jar &> ${FALLOUT_ARTIFACT_DIR}/quickstart.log
+            java -jar ./target/cassandra-quarkus-quickstart-{{version}}-runner.jar &> ${FALLOUT_ARTIFACT_DIR}/quickstart.log &
     - start-client-script:
         module: bash
         properties:
