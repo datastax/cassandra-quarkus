@@ -1,11 +1,16 @@
-# Quarkus demo: Cassandra Client
+= Quarkus demo: Cassandra Client
 
-This example showcases how to use the Cassandra client with Quarkus. 
+This example showcases how to use the Cassandra client with Quarkus.
 
-# Cassandra instance - Running with Docker
+TIP: Detailed instructions about how to build and run this demo can be found in the
+link:https://github.com/datastax/cassandra-quarkus/blob/master/documentation/src/main/asciidoc/cassandraclient.adoc[Quickstart guide].
+
+== Cassandra instance - Running with Docker
 
 Just run it as follows (only 9042 port is required for quickstart application):
-```shell script
+
+[source,shell]
+----
 docker run \
    --name local-cassandra-instance \
    -p 7000:7000 \
@@ -16,19 +21,17 @@ docker run \
    -p 9404:9404 \
    -d \
    launcher.gcr.io/google/cassandra3
-```
+----
 
 **Provision table**
 
-```shell script
+[source,shell]
+----
 docker exec -it local-cassandra-instance cqlsh -e "CREATE KEYSPACE IF NOT EXISTS k1 WITH replication = {'class':'SimpleStrategy', 'replication_factor':1}"
-```
-```shell script
 docker exec -it local-cassandra-instance cqlsh -e "CREATE TABLE IF NOT EXISTS k1.fruit(store_id text, name text, description text, PRIMARY KEY((store_id), name))"
-```
-                                                     
+----
 
-# Run the demo on dev mode
+== Run the demo on dev mode
 
 - Run `mvn clean package` and then `java -jar ./target/cassandra-quarkus-quickstart-1.0.0-SNAPSHOT-runner.jar`
 - In dev mode `mvn clean quarkus:dev`
@@ -38,18 +41,23 @@ You can add fruits to the list via the form.
 
 Alternatively, you can use curl commands to interact with the underlying REST API.
 To create a fruit:
-```shell script
+
+[source,shell]
+----
 curl --header "Content-Type: application/json" \
   --request POST \
   --data '{"name":"curl_product","description":"this was created via curl"}' \
   http://localhost:8080/fruits
-```
-To retrieve fruits:
-```shell script
-curl -X GET http://localhost:8080/fruits
-```
+----
 
-## Reactive demo
+To retrieve fruits:
+
+[source,shell]
+----
+curl -X GET http://localhost:8080/fruits
+----
+
+== Using the reactive endpoints
 
 This application provides a reactive version of REST controllers. 
 To see how they work, go to `http://localhost:8080/reactive-fruits.html`
@@ -57,23 +65,34 @@ You can add fruits to the list via the form. This time the logic will be execute
 
 Alternatively, you can use curl commands to interact with the underlying REST API.
 To create fruit in an async way:
-```shell script
+
+[source,shell]
+----
 curl --header "Content-Type: application/json" \
   --request POST \
   --data '{"name":"async_product","description":"this was created via curl"}' \
   http://localhost:8080/reactive-fruits
-```
-To retrieve fruits:
-```shell script
-curl -X GET http://localhost:8080/reactive-fruits
-```
+----
 
-# Running in native
+To retrieve fruits:
+
+[source,shell]
+----
+curl -X GET http://localhost:8080/reactive-fruits
+----
+
+== Running in native mode
 
 You can compile the application into a native binary using:
 
-`mvn clean package -Pnative`
+[source,shell]
+----
+mvn clean package -Pnative
+----
 
-and run with:
+Then run it with:
 
-`./target/cassandra-quarkus-quickstart-1.0.0-SNAPSHOT-runner` 
+[source,shell]
+----
+./target/cassandra-quarkus-quickstart-1.0.0-SNAPSHOT-runner
+----

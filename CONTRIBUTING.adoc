@@ -1,0 +1,313 @@
+= Contributing guidelines
+
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+**Want to contribute? Great!** 
+We try to make it easy, and all contributions, even small ones, are welcome.
+This includes bug reports, fixes, documentation, examples... But first, read this page.
+
+== Reporting an issue
+
+This project uses GitHub issues to manage the issues. Open an issue directly in GitHub.
+
+If you believe you have found a possible bug, please indicate a way to reproduce it, what you are 
+seeing, and what you would expect to see.
+
+TIP: Don't forget to indicate your Quarkus, Java, Maven/Gradle and GraalVM versions.
+
+== Setup
+
+If you have not done so on this machine, you need to:
+ 
+* Install Git and configure your GitHub access;
+* Install Java SDK (OpenJDK recommended);
+* Install link:https://quarkus.io/guides/building-native-image[GraalVM];
+* Install platform C developer tools:
+    ** Linux:
+        *** Make sure header files are installed on your system.
+            **** On Fedora `sudo dnf install zlib-devel`;
+            **** Otherwise `sudo apt-get install libz-dev`;
+    ** macOS:
+        *** `xcode-select --install`;
+* Set `GRAALVM_HOME` to your GraalVM Home directory e.g. `/opt/graalvm` on Linux or 
+  `/path/to/GraalVM/Contents/Home` on macOS;
+* Install Docker: it is used to run the integration tests for this project:
+    ** Check link:https://docs.docker.com/install/[the installation guide],
+      and link:https://docs.docker.com/docker-for-mac/install/[the MacOS installation guide];
+    ** If you just installed docker, be sure that your current user can run a container (no root
+      required). On Linux, check 
+      link:https://docs.docker.com/install/linux/linux-postinstall/[the post-installation guide].
+
+== Coding Guidelines
+
+=== Java
+
+We follow the link:https://google.github.io/styleguide/javaguide.html[Google Java Style Guide]. See
+link:https://github.com/google/google-java-format[here] for IDE plugins. The rules are not
+configurable.
+
+The build will fail if the code is not formatted. To format all files from the command line, run:
+
+[source,shell]
+----
+mvn fmt:format
+----
+
+Some aspects are not covered by the formatter:
+
+* Braces must be used with `if`, `else`, `for`, `do` and `while` statements, even when the body is
+  empty or contains only a single statement.
+* "Star" imports are not allowed, please import each symbol individually.
+* Imports should be sorted alphabetically. Static imports should be grouped together and be declared
+  before regular imports.
+
+Make sure you've configured your IDE formatting rules accordingly.
+
+=== XML
+
+The build will fail if XML files are not formatted correctly. Run the following command before you
+commit:
+
+[source,shell]
+----
+mvn xml-format:xml-format
+----
+
+The formatter does not enforce a maximum line length, but please use less than 100 characters
+to keep files readable across all mediums (IDE, terminal, Github...).
+
+== Coding style -- production code
+ 
+Do not use static imports in production code. They make things harder to understand when you look 
+at the code without IDE support, like Github's code view.
+
+Avoid abbreviations in class and variable names. A good rule of thumb is that you should only use
+them if you would also do so verbally. For example, "id" and "config" are probably reasonable.
+Single-letter variables are permissible if the variable scope is only a few lines, or for commonly
+understood cases (like `i` for a loop index).
+
+Keep source files short. Short files are easy to understand and test. The average should probably 
+be around 200-300 lines.
+
+=== Javadoc
+
+All types in **API** packages must be documented. For **internal** packages, documentation is 
+optional, but not discouraged: it's generally a good idea to have a class-level comment that 
+explains where the component fits in the architecture, and anything else that you feel is important.
+
+=== Logs
+
+We use SLF4J; loggers are declared like this:
+
+[source,java]
+----
+private static final Logger LOG = LoggerFactory.getLogger(TheEnclosingClass.class);
+----
+
+For more information, please consult the 
+link:https://quarkus.io/guides/logging[quarkus documentation on logging].
+
+=== Nullability annotations
+
+We use the link:https://spotbugs.github.io[Spotbugs annotations] to document nullability of parameters,
+method return types and class members.
+
+Please annotate any new class or interface with the appropriate annotations: `@NonNull`, 
+`@Nullable`.
+
+TIP: Make sure you import the types from `edu.umd.cs.findbugs.annotations`, there are homonyms in
+the classpath.
+
+== Coding style -- test code
+
+Static imports are permitted in a couple of places:
+
+* All AssertJ methods, e.g.:
+[source,java]
+----
+assertThat(node.getDatacenter()).isNotNull();
+fail("Expecting IllegalStateException to be thrown");
+----
+* All Mockito methods, e.g.:
+[source,java]
+----
+when(codecRegistry.codecFor(DataTypes.INT)).thenReturn(codec);
+verify(codec).decodePrimitive(any(ByteBuffer.class), eq(ProtocolVersion.DEFAULT));
+----
+
+Test methods names use lower `snake_case`, generally start with `should`, and clearly indicate the
+purpose of the test, for example: `should_fail_if_key_already_exists`. If you have trouble coming 
+up with a simple name, it might be a sign that your test does too much, and should be split.
+
+We use AssertJ (`assertThat`) for assertions. Don't use JUnit assertions (`assertEquals`, 
+`assertNull`, etc).
+
+We usually try to design tests to follow the given-when-then pattern, but that is not a requirement.
+
+Don't try to generify at all cost: a bit of duplication is acceptable, if that helps keep the tests
+simple to understand (a newcomer should be able to understand how to fix a failing test without
+having to read too much code).
+
+Test classes can be a bit longer, since they often enumerate similar test cases. You can also
+factor some common code in a parent abstract class named with "XxxTestBase", and then split
+different families of tests into separate child classes.
+
+== Running the tests
+
+=== Unit tests
+
+    mvn clean test
+
+=== Integration tests
+
+Run the following command to execute both unit tests and regular integration tests:
+
+    mvn clean verify
+
+To also run integration tests that require a native image to be built, you need to activate the 
+`native` profile:
+
+    mvn clean verify -Pnative
+    
+Native tests require that you point the environment variable `GRAALVM_HOME` to a valid Graal 
+installation root. When native integration tests are activated, the build takes considerably longer 
+to finish.  
+
+See the link:./integration-tests[integration-tests] module for more information.
+
+=== Generating documentation
+
+Run the following command to generate the documentation in PDF and HTML:
+   
+    mvn clean package -Prelease
+
+See the link:./documentation[documentation] module for more information.
+    
+== Continuous Integration (CI)
+
+All branches and pull-requests in this project are built regularly on DataStax internal continuous 
+integration servers. These builds are not publicly available at this moment.
+
+The `master` branch of this project is also regularly built against Quarkus `master` branch, by 
+Quarkus own CI system. The builds can be consulted 
+link:https://github.com/datastax/cassandra-quarkus/actions?query=workflow%3A%22Quarkus+ecosystem+CI%22[here].
+
+== Deployment & Release
+
+Releases are managed and conducted by DataStax. Stable (release) artifacts are available
+link:https://repo1.maven.org/maven2/com/datastax/oss/quarkus/cassandra-quarkus-parent[from Maven Central].
+See "Getting the extension" in the project's main 
+link:https://github.com/datastax/cassandra-quarkus/#getting-the-extension[README file] for more
+details.
+
+DataStax does not publish snapshot builds of this project at the moment.
+
+== License headers
+
+The build will fail if some license headers are missing. To update all files from the command line,
+run:
+
+[source,shell]
+----
+mvn license:format
+----
+
+== Commits
+
+Keep your changes **focused**. Each commit should have a single, clear purpose expressed in its 
+message.
+
+Resist the urge to "fix" cosmetic issues (add/remove blank lines, move methods, etc.) in existing
+code. This adds cognitive load for reviewers, who have to figure out which changes are relevant to
+the actual issue. If you see legitimate issues, like typos, address them in a separate commit (it's
+fine to group multiple typo fixes in a single commit).
+
+Isolate trivial refactorings into separate commits. For example, a method rename that affects dozens
+of call sites can be reviewed in a few seconds, but if it's part of a larger diff it gets mixed up
+with more complex changes (that might affect the same lines), and reviewers have to check every
+line.
+
+Commit message subjects start with a capital letter, use the imperative form and do **not** end
+with a period:
+
+* correct: "Add test for CQL request handler"
+* incorrect: "Added test for CQL request handler"
+* incorrect: "New test for CQL request handler"
+
+Avoid catch-all messages like "Minor cleanup", "Various fixes", etc. They don't provide any useful
+information to reviewers, and might be a sign that your commit contains unrelated changes.
+ 
+We don't enforce a particular subject line length limit, but try to keep it short.
+
+If your commit fixes an open issue, make sure to reference it in the commit message:
+    
+    Add test for CQL request handler (fixes #22)
+
+See GitHub's documentation on
+link:https://help.github.com/en/enterprise/2.16/user/github/managing-your-work-on-github/closing-issues-using-keywords#about-issue-references[issue references]
+for more information.
+
+You can add more details after the subject line, separated by a blank line. The following pattern
+(inspired by link:http://netty.io/wiki/writing-a-commit-message.html[Netty]) is not mandatory, but
+welcome for complex changes:
+
+[source,text]
+----
+One line description of your change
+ 
+Motivation:
+
+Explain here the context, and why you're making that change.
+What is the problem you're trying to solve.
+ 
+Modifications:
+
+Describe the modifications you've done.
+ 
+Result:
+
+After your change, what will change.
+----
+
+== Pull requests
+
+All submissions, including submissions by project members, must be reviewed before being merged.
+
+Like commits, pull requests should be focused on a single, clearly stated goal.
+
+Don't base a pull request onto another one, it's too complicated to follow two branches that evolve
+at the same time. If a ticket depends on another, wait for the first one to be merged. 
+
+If your pull request references an issue, make sure to reference it in its title or in its 
+description. See GitHub's documentation on
+link:https://help.github.com/en/enterprise/2.16/user/github/managing-your-work-on-github/closing-issues-using-keywords#about-issue-references[issue references]
+for more information.
+
+If you have to address feedback, avoid rewriting the history (e.g. squashing or amending commits):
+this makes the reviewers' job harder, because they have to re-read the full diff and figure out
+where your new changes are. Instead, push a new commit on top of the existing history; it will be
+squashed later when the PR gets merged. If the history is complex, it's a good idea to indicate in
+the message where the changes should be squashed:
+
+[source,text]
+----
+* 20c88f4 - Address feedback (to squash with "Add metadata parsing logic") (36 minutes ago)
+* 7044739 - Fix various typos in Javadocs (2 days ago)
+* 574dd08 - Add metadata parsing logic (2 days ago)
+----
+
+(Note that the message refers to the other commit's subject line, not the SHA-1. This way it's still
+relevant if there are intermediary rebases.)
+
+If you need new stuff from the base branch, it's fine to rebase and force-push, as long as you don't
+rewrite the history. Just give a heads up to the reviewers beforehand. Don't push a merge commit to
+a pull request.
+
+Be sure to test your pull request by running all the unit and integration tests, including tests in 
+native mode. Again, this can be done by running `mvn clean verify -Pnative`.

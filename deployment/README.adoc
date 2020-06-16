@@ -1,0 +1,17 @@
+= Cassandra Quarkus - Deployment Module
+
+The Deployment module for an Apache Cassandra(R) extension for Quarkus.
+
+== The Purpose of Deployment
+
+This module contains classes that are used during the build time of this extension.
+
+== The Build Process
+
+The `CassandraClientProcessor` is responsible for producing the `CassandraClientBuildItem`. 
+It does the construction of the underlying `QuarkusCqlSession` and injects it into the DI Arc container.
+
+== Deployment Configuration
+
+The `CassandraClientBuildTimeConfig` provides the build time settings for configuration of the `CassandraClientBuildItem`
+produced by the `CassandraClientProcessor`. For more information see the java-docs of `CassandraClientBuildTimeConfig`.
