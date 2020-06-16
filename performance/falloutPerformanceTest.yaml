@@ -105,6 +105,7 @@ workload:
         properties:
           target.group: quickstartapp
           export_output: false
+          timeout: 1 hours
           script: |
             cd ${FALLOUT_SCRATCH_DIR}
             sudo apt update --assume-yes
@@ -124,6 +125,7 @@ workload:
             DSE_THIRD_ADDRESS=$(echo ${FALLOUT_SERVER_PRODUCT_CONTACT_POINTS} | cut -d "," -f 3)
             DSE_ADDRESSES="${DSE_FIRST_ADDRESS}:9042, ${DSE_SECOND_ADDRESS}:9042, ${DSE_THIRD_ADDRESS}:9042"
             sed -i "s/127.0.0.1:9042/$DSE_ADDRESSES/g" src/main/resources/application.properties
+            echo "\nquarkus.cassandra.useQuarkusNettyEventLoop={{useQuarkusNettyEventLoop}}" >> src/main/resources/application.properties
 
             # compile and start quickstart app
             mvn clean package
@@ -133,6 +135,7 @@ workload:
         properties:
           target.group: http-client
           export_output: false
+          timeout: 30 minutes
           script: |
             cd ${FALLOUT_SCRATCH_DIR}
             sudo apt update --assume-yes
@@ -143,12 +146,12 @@ workload:
             sudo apt install maven --assume-yes
             sudo apt-get install unzip --assume-yes
             git clone -b {{branch}} git@github.com:datastax/cassandra-quarkus.git
-            cd cassandra-quarkus/performance
+            cd cassandra-quarkus/performance/wrk
 
-            QUICKSTART_APP_IP=${FALLOUT_QUICKSTARTAPP_NODE1_NODE_INFO_PUBLICNETWORKADDRESS}
+            QUICKSTART_APP_IP=${FALLOUT_QUICKSTARTAPP_NODE0_NODE_INFO_PUBLICNETWORKADDRESS}
 
             # -duration : 60 second -c 256 concurent connections -t 40 threads
-            wrk -d 60 -c 256 -t 40 --latency -s script.lua http://${QUICKSTART_APP_IP}:8080/ &> "testResult_useQuarkusNettyEventLoop_{{useQuarkusNettyEventLoop}}$_(date +%s).txt"
+            wrk -d 60 -c 256 -t 40 --latency -s script.lua http://${QUICKSTART_APP_IP}:8080/ &> ${FALLOUT_ARTIFACT_DIR}/testResult.txt
 
 
 
