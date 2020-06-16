@@ -1,17 +1,25 @@
 = Contributing guidelines
 
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
 **Want to contribute? Great!** 
 We try to make it easy, and all contributions, even small ones, are welcome.
-This includes bug reports, fixes, documentation, examples... 
-But first, read this page.
+This includes bug reports, fixes, documentation, examples... But first, read this page.
 
 == Reporting an issue
 
 This project uses GitHub issues to manage the issues. Open an issue directly in GitHub.
 
 If you believe you have found a possible bug, please indicate a way to reproduce it, what you are 
-seeing, and what you would expect to see. Don't forget to indicate your Quarkus, Java, Maven/Gradle 
-and GraalVM versions.
+seeing, and what you would expect to see.
+
+TIP: Don't forget to indicate your Quarkus, Java, Maven/Gradle and GraalVM versions.
 
 == Setup
 
@@ -51,8 +59,15 @@ The build will fail if the code is not formatted. To format all files from the c
 mvn fmt:format
 ----
 
-Some aspects are not covered by the formatter: braces must be used with `if`, `else`, `for`, `do`
-and `while` statements, even when the body is empty or contains only a single statement.
+Some aspects are not covered by the formatter:
+
+* Braces must be used with `if`, `else`, `for`, `do` and `while` statements, even when the body is
+  empty or contains only a single statement.
+* "Star" imports are not allowed, please import each symbol individually.
+* Imports should be sorted alphabetically. Static imports should be grouped together and be declared
+  before regular imports.
+
+Make sure you've configured your IDE formatting rules accordingly.
 
 === XML
 
@@ -104,8 +119,10 @@ We use the link:https://spotbugs.github.io[Spotbugs annotations] to document nul
 method return types and class members.
 
 Please annotate any new class or interface with the appropriate annotations: `@NonNull`, 
-`@Nullable`. Make sure you import the types from `edu.umd.cs.findbugs.annotations`, there are 
-homonyms in the classpath.
+`@Nullable`.
+
+TIP: Make sure you import the types from `edu.umd.cs.findbugs.annotations`, there are homonyms in
+the classpath.
 
 == Coding style -- test code
 
@@ -124,12 +141,14 @@ when(codecRegistry.codecFor(DataTypes.INT)).thenReturn(codec);
 verify(codec).decodePrimitive(any(ByteBuffer.class), eq(ProtocolVersion.DEFAULT));
 ----
 
-Test methods names use lower snake_case, generally start with `should`, and clearly indicate the
+Test methods names use lower `snake_case`, generally start with `should`, and clearly indicate the
 purpose of the test, for example: `should_fail_if_key_already_exists`. If you have trouble coming 
 up with a simple name, it might be a sign that your test does too much, and should be split.
 
 We use AssertJ (`assertThat`) for assertions. Don't use JUnit assertions (`assertEquals`, 
 `assertNull`, etc).
+
+We usually try to design tests to follow the given-when-then pattern, but that is not a requirement.
 
 Don't try to generify at all cost: a bit of duplication is acceptable, if that helps keep the tests
 simple to understand (a newcomer should be able to understand how to fix a failing test without
@@ -181,13 +200,13 @@ link:https://github.com/datastax/cassandra-quarkus/actions?query=workflow%3A%22Q
 
 == Deployment & Release
 
-DataStax does not publish snapshot builds of this project at the moment.
-
-Releases are managed and conducted by DataStax. Stable (release) artifacts are available 
+Releases are managed and conducted by DataStax. Stable (release) artifacts are available
 link:https://repo1.maven.org/maven2/com/datastax/oss/quarkus/cassandra-quarkus-parent[from Maven Central].
 See "Getting the extension" in the project's main 
 link:https://github.com/datastax/cassandra-quarkus/#getting-the-extension[README file] for more
 details.
+
+DataStax does not publish snapshot builds of this project at the moment.
 
 == License headers
 
@@ -218,8 +237,8 @@ Commit message subjects start with a capital letter, use the imperative form and
 with a period:
 
 * correct: "Add test for CQL request handler"
-* incorrect: "~~Added test for CQL request handler~~"
-* incorrect: "~~New test for CQL request handler~~"
+* incorrect: "Added test for CQL request handler"
+* incorrect: "New test for CQL request handler"
 
 Avoid catch-all messages like "Minor cleanup", "Various fixes", etc. They don't provide any useful
 information to reviewers, and might be a sign that your commit contains unrelated changes.
