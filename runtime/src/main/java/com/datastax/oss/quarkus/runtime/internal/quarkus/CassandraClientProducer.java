@@ -93,9 +93,9 @@ public class CassandraClientProducer {
               .withFallback(ConfigFactory.parseResources("application.conf"))
               .withFallback(ConfigFactory.parseResources("application.json"))
               .withFallback(ConfigFactory.defaultReference())
+              .getConfig(DefaultDriverConfigLoader.DEFAULT_ROOT_PATH)
               .resolve();
-        },
-        DefaultDriverConfigLoader.DEFAULT_ROOT_PATH) {
+        }) {
       @NonNull
       @Override
       public DriverConfigLoader build() {
