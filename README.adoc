@@ -11,7 +11,8 @@ link:https://github.com/datastax/cassandra-quarkus/blob/1.0.0-alpha1/documentati
 
 == Getting the extension
 
-The extension artifact is published in Maven central, under the group id link:http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.datastax.oss%22.quarkus%22[com.datastax.oss.quarkus]:
+The extension artifact is published in Maven central, under the group id
+link:http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.datastax.oss%22.quarkus%22[com.datastax.oss.quarkus]:
 
 [source,xml]
 ----
