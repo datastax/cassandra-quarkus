@@ -15,19 +15,20 @@
  */
 package com.datastax.oss.quarkus.deployment.internal;
 
-import static com.datastax.oss.driver.api.core.config.DefaultDriverOption.LOAD_BALANCING_LOCAL_DATACENTER;
-import static com.datastax.oss.driver.api.core.config.DefaultDriverOption.REQUEST_PAGE_SIZE;
-import static com.datastax.oss.driver.api.core.config.DefaultDriverOption.REQUEST_TIMEOUT;
+import static com.datastax.oss.driver.api.core.config.DefaultDriverOption.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.datastax.oss.driver.api.core.config.DriverExecutionProfile;
+import com.datastax.oss.driver.internal.core.auth.PlainTextAuthProvider;
 import com.datastax.oss.quarkus.deployment.internal.tests.CassandraTestResource;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import io.quarkus.test.QuarkusUnitTest;
 import io.quarkus.test.common.QuarkusTestResource;
+
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import javax.inject.Inject;
+
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
@@ -47,7 +48,8 @@ public class CassandraClientConfigTest {
                       .addAsResource("application.json")
                       .addAsResource("application.conf"));
 
-  @Inject QuarkusCqlSession cqlSession;
+  @Inject
+  QuarkusCqlSession cqlSession;
 
   @Test
   public void testDataSourceViaCqlSession() {
@@ -73,5 +75,14 @@ public class CassandraClientConfigTest {
     DriverExecutionProfile profile = cqlSession.getContext().getConfig().getDefaultProfile();
 
     assertThat(profile.getInt(REQUEST_PAGE_SIZE)).isEqualTo(1000);
+  }
+
+  @Test
+  public void testShouldEnablePlainTextAuthWhenUsernameAndPasswordAreProvided() {
+    DriverExecutionProfile profile = cqlSession.getContext().getConfig().getDefaultProfile();
+    assertThat(profile.getString(AUTH_PROVIDER_CLASS))
+        .isEqualTo(PlainTextAuthProvider.class.getName());
+    assertThat(profile.getString(AUTH_PROVIDER_USER_NAME)).isEqualTo("alice");
+    assertThat(profile.getString(AUTH_PROVIDER_PASSWORD)).isEqualTo("fakePasswordForTests");
   }
 }
