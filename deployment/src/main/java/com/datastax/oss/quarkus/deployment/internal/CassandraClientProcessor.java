@@ -20,6 +20,7 @@ import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
 import com.datastax.dse.driver.internal.core.tracker.MultiplexingRequestTracker;
 import com.datastax.oss.driver.internal.core.addresstranslation.Ec2MultiRegionAddressTranslator;
 import com.datastax.oss.driver.internal.core.addresstranslation.PassThroughAddressTranslator;
+import com.datastax.oss.driver.internal.core.auth.PlainTextAuthProvider;
 import com.datastax.oss.driver.internal.core.connection.ConstantReconnectionPolicy;
 import com.datastax.oss.driver.internal.core.connection.ExponentialReconnectionPolicy;
 import com.datastax.oss.driver.internal.core.loadbalancing.DcInferringLoadBalancingPolicy;
@@ -64,6 +65,7 @@ import java.util.Optional;
 import org.reactivestreams.Publisher;
 
 class CassandraClientProcessor {
+
   public static final String CASSANDRA_CLIENT = "cassandra-client";
 
   @BuildStep
@@ -100,7 +102,9 @@ class CassandraClientProcessor {
         // timestamp generators
         new ReflectiveClassBuildItem(true, true, AtomicTimestampGenerator.class.getName()),
         new ReflectiveClassBuildItem(true, true, ThreadLocalTimestampGenerator.class.getName()),
-        new ReflectiveClassBuildItem(true, true, Publisher.class.getName()));
+        new ReflectiveClassBuildItem(true, true, Publisher.class.getName()),
+        // authentication
+        new ReflectiveClassBuildItem(true, true, PlainTextAuthProvider.class.getName()));
   }
 
   @BuildStep
