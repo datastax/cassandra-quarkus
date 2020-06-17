@@ -4,6 +4,10 @@ version: "1.0.0-SNAPSHOT"
 
 # Whether or not the DataStax Java driver should use the Netty event loop provided by the Quarkus framework
 useQuarkusNettyEventLoop: "true"
+
+# Whether or not the application that is under the test should run in the native mode
+native: "true"
+
 ---
 
 ensemble:
@@ -110,10 +114,20 @@ workload:
             cd ${FALLOUT_SCRATCH_DIR}
             sudo apt update --assume-yes
             sudo apt-get install lftp --assume-yes
+            sudo apt-get install zlib1g-dev libxmu-dev libxmu-headers freeglut3-dev libxext-dev libxi-dev --assume-yes
+
 
             #install maven and java
             sudo apt install maven --assume-yes
             sudo apt-get install unzip --assume-yes
+
+            # setup graal vm
+            wget -c  https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-20.1.0/graalvm-ce-java8-linux-amd64-20.1.0.tar.gz -O - | tar -xz
+            sudo mv graalvm-ce-java8-20.1.0/ /usr/lib/jvm/
+            export GRAALVM_HOME=/usr/lib/jvm/graalvm-ce-java8-20.1.0
+            cd $GRAALVM_HOME/bin
+            ./gu install native-image
+
 
             git clone -b {{branch}} git@github.com:datastax/cassandra-quarkus.git
             cd cassandra-quarkus
@@ -128,14 +142,22 @@ workload:
             echo "quarkus.cassandra.use-quarkus-netty-event-loop={{useQuarkusNettyEventLoop}}" >> src/main/resources/application.properties
 
             # compile and start quickstart app
-            mvn clean package
+
+            if [ "{{native}}" = "true" ]
+            then
+              mvn clean package -Pnative
+            elif [ "{{native}}" = "false" ]
+            then
+              mvn clean package
+            fi
             java -jar ./target/cassandra-quarkus-quickstart-{{version}}-runner.jar &> ${FALLOUT_ARTIFACT_DIR}/quickstart.log &
+
     - start-client-script:
         module: bash
         properties:
           target.group: http-client
           export_output: false
-          timeout: 30 minutes
+          timeout: 1 hours
           script: |
             cd ${FALLOUT_SCRATCH_DIR}
             sudo apt update --assume-yes
@@ -150,8 +172,8 @@ workload:
 
             QUICKSTART_APP_IP=${FALLOUT_QUICKSTARTAPP_NODE0_NODE_INFO_PUBLICNETWORKADDRESS}
 
-            # -duration : 30 minutes -c 256 concurent connections -t 40 threads
-            wrk -d 1800 -c 256 -t 40 --latency -s script.lua http://${QUICKSTART_APP_IP}:8080/ &> ${FALLOUT_ARTIFACT_DIR}/testResult.txt
+            # -duration : 20 minutes -c 512 concurent connections -t 80 threads
+            wrk -d 1200 -c 512 -t 80 --latency -s script.lua http://${QUICKSTART_APP_IP}:8080/ &> ${FALLOUT_ARTIFACT_DIR}/testResult.txt
 
 
 
