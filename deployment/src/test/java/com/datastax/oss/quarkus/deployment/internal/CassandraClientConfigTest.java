@@ -24,11 +24,9 @@ import com.datastax.oss.quarkus.deployment.internal.tests.CassandraTestResource;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import io.quarkus.test.QuarkusUnitTest;
 import io.quarkus.test.common.QuarkusTestResource;
-
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import javax.inject.Inject;
-
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
@@ -48,8 +46,7 @@ public class CassandraClientConfigTest {
                       .addAsResource("application.json")
                       .addAsResource("application.conf"));
 
-  @Inject
-  QuarkusCqlSession cqlSession;
+  @Inject QuarkusCqlSession cqlSession;
 
   @Test
   public void testDataSourceViaCqlSession() {
