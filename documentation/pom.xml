@@ -29,8 +29,6 @@
   <properties>
     <asciidoctorj.version>2.2.0</asciidoctorj.version>
     <asciidoctorj-pdf.version>1.5.3</asciidoctorj-pdf.version>
-    <extension-url>https://github.com/datastax/cassandra-quarkus</extension-url>
-    <datastax-driver-documentation-url>https://docs.datastax.com/en/developer/java-driver/latest/manual</datastax-driver-documentation-url>
     <skipDocs>false</skipDocs>
   </properties>
   <build>
@@ -116,11 +114,6 @@
                 <docinfo1>true</docinfo1>
                 <!-- avoid content security policy violations -->
                 <skip-front-matter>true</skip-front-matter>
-                <quickstart-clone-url>${extension-url}/tree/master/quickstart</quickstart-clone-url>
-                <reference-conf-url>${datastax-driver-documentation-url}/core/configuration/reference/</reference-conf-url>
-                <fruits-html-url>${extension-url}/tree/master/quickstart/src/main/resources/META-INF/resources/fruits.html</fruits-html-url>
-                <reactive-fruits-html-url>${extension-url}/tree/master/quickstart/src/main/resources/META-INF/resources/reactive-fruits.html</reactive-fruits-html-url>
-                <mapper-docs-url>${datastax-driver-documentation-url}/mapper</mapper-docs-url>
               </attributes>
             </configuration>
             <executions>
