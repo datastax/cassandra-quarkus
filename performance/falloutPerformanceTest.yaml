@@ -150,8 +150,8 @@ workload:
 
             QUICKSTART_APP_IP=${FALLOUT_QUICKSTARTAPP_NODE0_NODE_INFO_PUBLICNETWORKADDRESS}
 
-            # -duration : 10 minutes -c 256 concurent connections -t 40 threads
-            wrk -d 600 -c 256 -t 40 --latency -s script.lua http://${QUICKSTART_APP_IP}:8080/ &> ${FALLOUT_ARTIFACT_DIR}/testResult.txt
+            # -duration : 30 minutes -c 256 concurent connections -t 40 threads
+            wrk -d 1800 -c 256 -t 40 --latency -s script.lua http://${QUICKSTART_APP_IP}:8080/ &> ${FALLOUT_ARTIFACT_DIR}/testResult.txt
 
 
 
