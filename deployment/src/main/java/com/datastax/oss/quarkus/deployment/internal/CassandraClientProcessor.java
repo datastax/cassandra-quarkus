@@ -17,9 +17,15 @@ package com.datastax.oss.quarkus.deployment.internal;
 
 import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
 
+import com.datastax.dse.driver.api.core.auth.ProgrammaticDseGssApiAuthProvider;
+import com.datastax.dse.driver.internal.core.auth.DseGssApiAuthProvider;
 import com.datastax.dse.driver.internal.core.tracker.MultiplexingRequestTracker;
+import com.datastax.oss.driver.api.core.metadata.SafeInitNodeStateListener;
+import com.datastax.oss.driver.api.core.ssl.ProgrammaticSslEngineFactory;
 import com.datastax.oss.driver.internal.core.addresstranslation.Ec2MultiRegionAddressTranslator;
 import com.datastax.oss.driver.internal.core.addresstranslation.PassThroughAddressTranslator;
+import com.datastax.oss.driver.internal.core.auth.PlainTextAuthProvider;
+import com.datastax.oss.driver.internal.core.auth.ProgrammaticPlainTextAuthProvider;
 import com.datastax.oss.driver.internal.core.connection.ConstantReconnectionPolicy;
 import com.datastax.oss.driver.internal.core.connection.ExponentialReconnectionPolicy;
 import com.datastax.oss.driver.internal.core.loadbalancing.DcInferringLoadBalancingPolicy;
@@ -34,7 +40,10 @@ import com.datastax.oss.driver.internal.core.session.throttling.PassThroughReque
 import com.datastax.oss.driver.internal.core.session.throttling.RateLimitingRequestThrottler;
 import com.datastax.oss.driver.internal.core.specex.ConstantSpeculativeExecutionPolicy;
 import com.datastax.oss.driver.internal.core.specex.NoSpeculativeExecutionPolicy;
+import com.datastax.oss.driver.internal.core.ssl.DefaultSslEngineFactory;
+import com.datastax.oss.driver.internal.core.ssl.SniSslEngineFactory;
 import com.datastax.oss.driver.internal.core.time.AtomicTimestampGenerator;
+import com.datastax.oss.driver.internal.core.time.ServerSideTimestampGenerator;
 import com.datastax.oss.driver.internal.core.time.ThreadLocalTimestampGenerator;
 import com.datastax.oss.driver.internal.core.tracker.NoopRequestTracker;
 import com.datastax.oss.driver.internal.core.tracker.RequestLogger;
@@ -88,6 +97,7 @@ class CassandraClientProcessor {
             true, true, ConstantSpeculativeExecutionPolicy.class.getName()),
         // state listener
         new ReflectiveClassBuildItem(true, true, NoopNodeStateListener.class.getName()),
+        new ReflectiveClassBuildItem(true, true, SafeInitNodeStateListener.class.getName()),
         // request trackers
         new ReflectiveClassBuildItem(true, true, NoopRequestTracker.class.getName()),
         new ReflectiveClassBuildItem(true, true, MultiplexingRequestTracker.class.getName()),
@@ -97,9 +107,6 @@ class CassandraClientProcessor {
         new ReflectiveClassBuildItem(
             true, true, ConcurrencyLimitingRequestThrottler.class.getName()),
         new ReflectiveClassBuildItem(true, true, RateLimitingRequestThrottler.class.getName()),
-        // timestamp generators
-        new ReflectiveClassBuildItem(true, true, AtomicTimestampGenerator.class.getName()),
-        new ReflectiveClassBuildItem(true, true, ThreadLocalTimestampGenerator.class.getName()),
         new ReflectiveClassBuildItem(true, true, Publisher.class.getName()));
   }
 
@@ -121,6 +128,32 @@ class CassandraClientProcessor {
     } else {
       return Collections.emptyList();
     }
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerSSLFactoryForReflection() {
+    return Arrays.asList(
+        new ReflectiveClassBuildItem(true, true, DefaultSslEngineFactory.class.getName()),
+        new ReflectiveClassBuildItem(true, true, ProgrammaticSslEngineFactory.class.getName()),
+        new ReflectiveClassBuildItem(true, true, SniSslEngineFactory.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerAuthProviderForReflection() {
+    return Arrays.asList(
+        new ReflectiveClassBuildItem(true, true, PlainTextAuthProvider.class.getName()),
+        new ReflectiveClassBuildItem(true, true, DseGssApiAuthProvider.class.getName()),
+        new ReflectiveClassBuildItem(true, true, ProgrammaticPlainTextAuthProvider.class.getName()),
+        new ReflectiveClassBuildItem(
+            true, true, ProgrammaticDseGssApiAuthProvider.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerTimestampGeneratorsForReflection() {
+    return Arrays.asList( // timestamp generators
+        new ReflectiveClassBuildItem(true, true, AtomicTimestampGenerator.class.getName()),
+        new ReflectiveClassBuildItem(true, true, ThreadLocalTimestampGenerator.class.getName()),
+        new ReflectiveClassBuildItem(true, true, ServerSideTimestampGenerator.class.getName()));
   }
 
   @BuildStep
