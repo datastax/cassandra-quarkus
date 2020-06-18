@@ -37,6 +37,22 @@
         <scope>import</scope>
       </dependency>
       <!-- DataStax Java Driver BOM -->
+      <!--
+      Note: we explicitly declare java-driver-core here,
+      and before the driver bom, in order for
+      the exclusions to be taken into account
+      -->
+      <dependency>
+        <groupId>com.datastax.oss</groupId>
+        <artifactId>java-driver-core</artifactId>
+        <version>${datastax-java-driver.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
       <dependency>
         <groupId>com.datastax.oss</groupId>
         <artifactId>java-driver-bom</artifactId>
@@ -44,10 +60,15 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <!-- Cassandra Quarkus Extension (Runtime) -->
+      <!-- Cassandra Quarkus Extension (Runtime & Test Framework) -->
       <dependency>
         <groupId>com.datastax.oss.quarkus</groupId>
         <artifactId>cassandra-quarkus-client</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.datastax.oss.quarkus</groupId>
+        <artifactId>cassandra-quarkus-test-framework</artifactId>
         <version>${project.version}</version>
       </dependency>
       <!-- Driver Optional dependencies -->
