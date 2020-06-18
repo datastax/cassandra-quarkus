@@ -102,9 +102,13 @@ class CassandraClientProcessor {
         // timestamp generators
         new ReflectiveClassBuildItem(true, true, AtomicTimestampGenerator.class.getName()),
         new ReflectiveClassBuildItem(true, true, ThreadLocalTimestampGenerator.class.getName()),
+        // reactive streams
         new ReflectiveClassBuildItem(true, true, Publisher.class.getName()),
         // authentication
         new ReflectiveClassBuildItem(true, true, PlainTextAuthProvider.class.getName()));
+        new ReflectiveClassBuildItem(true, true, DseGssApiAuthProvider.class.getName()));
+        new ReflectiveClassBuildItem(true, true, ProgrammaticPlainTextAuthProvider.class.getName()));
+        new ReflectiveClassBuildItem(true, true, ProgrammaticDseGssApiAuthProvider.class.getName()));
   }
 
   @BuildStep
