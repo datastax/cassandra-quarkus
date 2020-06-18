@@ -17,10 +17,13 @@ package com.datastax.oss.quarkus.deployment.internal;
 
 import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
 
+import com.datastax.dse.driver.api.core.auth.ProgrammaticDseGssApiAuthProvider;
+import com.datastax.dse.driver.internal.core.auth.DseGssApiAuthProvider;
 import com.datastax.dse.driver.internal.core.tracker.MultiplexingRequestTracker;
 import com.datastax.oss.driver.internal.core.addresstranslation.Ec2MultiRegionAddressTranslator;
 import com.datastax.oss.driver.internal.core.addresstranslation.PassThroughAddressTranslator;
 import com.datastax.oss.driver.internal.core.auth.PlainTextAuthProvider;
+import com.datastax.oss.driver.internal.core.auth.ProgrammaticPlainTextAuthProvider;
 import com.datastax.oss.driver.internal.core.connection.ConstantReconnectionPolicy;
 import com.datastax.oss.driver.internal.core.connection.ExponentialReconnectionPolicy;
 import com.datastax.oss.driver.internal.core.loadbalancing.DcInferringLoadBalancingPolicy;
@@ -105,10 +108,11 @@ class CassandraClientProcessor {
         // reactive streams
         new ReflectiveClassBuildItem(true, true, Publisher.class.getName()),
         // authentication
-        new ReflectiveClassBuildItem(true, true, PlainTextAuthProvider.class.getName()));
-        new ReflectiveClassBuildItem(true, true, DseGssApiAuthProvider.class.getName()));
-        new ReflectiveClassBuildItem(true, true, ProgrammaticPlainTextAuthProvider.class.getName()));
-        new ReflectiveClassBuildItem(true, true, ProgrammaticDseGssApiAuthProvider.class.getName()));
+        new ReflectiveClassBuildItem(true, true, PlainTextAuthProvider.class.getName()),
+        new ReflectiveClassBuildItem(true, true, DseGssApiAuthProvider.class.getName()),
+        new ReflectiveClassBuildItem(true, true, ProgrammaticPlainTextAuthProvider.class.getName()),
+        new ReflectiveClassBuildItem(
+            true, true, ProgrammaticDseGssApiAuthProvider.class.getName()));
   }
 
   @BuildStep
