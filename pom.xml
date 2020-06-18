@@ -26,18 +26,6 @@
   <description>Cassandra extensions for Quarkus</description>
   <url>https://quarkus.io/guides/cassandra</url>
   <inceptionYear>2020</inceptionYear>
-  <distributionManagement>
-    <repository>
-      <id>manipogo-repo</id>
-      <name>Nexus Releases</name>
-      <url>http://34.91.9.164:8080/repository/maven-releases</url>
-    </repository>
-    <snapshotRepository>
-      <id>manipogo-repo</id>
-      <name>Nexus Snapshot</name>
-      <url>http://34.91.9.164:8080/repository/maven-snapshots</url>
-    </snapshotRepository>
-  </distributionManagement>
   <properties>
     <!-- Note: this property is used by the Quarkus CI to pass version info into the build.  See JAVA-2745 for details -->
     <quarkus.version>1.5.0.Final</quarkus.version>
