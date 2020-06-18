@@ -76,38 +76,74 @@ class CassandraClientProcessor {
   public static final String CASSANDRA_CLIENT = "cassandra-client";
 
   @BuildStep
-  List<ReflectiveClassBuildItem> registerDriverForReflection() {
+  List<ReflectiveClassBuildItem> registerReactiveForReflection() {
+    return Collections.singletonList(
+        new ReflectiveClassBuildItem(true, true, Publisher.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerRetryPoliciesForReflection() {
+    return Collections.singletonList(
+        new ReflectiveClassBuildItem(true, true, DefaultRetryPolicy.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerSchemaChangeListenersForReflection() {
+    return Collections.singletonList(
+        new ReflectiveClassBuildItem(true, true, NoopSchemaChangeListener.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerStateListenersForRefection() {
     return Arrays.asList(
-        // reconnection policies
-        new ReflectiveClassBuildItem(true, true, ExponentialReconnectionPolicy.class.getName()),
-        new ReflectiveClassBuildItem(true, true, ConstantReconnectionPolicy.class.getName()),
-        // schema change listener
-        new ReflectiveClassBuildItem(true, true, NoopSchemaChangeListener.class.getName()),
-        // address translators
-        new ReflectiveClassBuildItem(true, true, PassThroughAddressTranslator.class.getName()),
-        new ReflectiveClassBuildItem(true, true, Ec2MultiRegionAddressTranslator.class.getName()),
-        // load balancing policies
-        new ReflectiveClassBuildItem(true, true, DefaultLoadBalancingPolicy.class.getName()),
-        new ReflectiveClassBuildItem(true, true, DcInferringLoadBalancingPolicy.class.getName()),
-        // retry policy
-        new ReflectiveClassBuildItem(true, true, DefaultRetryPolicy.class.getName()),
-        // speculative execution policies
+        new ReflectiveClassBuildItem(true, true, NoopNodeStateListener.class.getName()),
+        new ReflectiveClassBuildItem(true, true, SafeInitNodeStateListener.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerSpeculativeExecutionPoliciesForReflection() {
+    return Arrays.asList(
         new ReflectiveClassBuildItem(true, true, NoSpeculativeExecutionPolicy.class.getName()),
         new ReflectiveClassBuildItem(
-            true, true, ConstantSpeculativeExecutionPolicy.class.getName()),
-        // state listener
-        new ReflectiveClassBuildItem(true, true, NoopNodeStateListener.class.getName()),
-        new ReflectiveClassBuildItem(true, true, SafeInitNodeStateListener.class.getName()),
-        // request trackers
-        new ReflectiveClassBuildItem(true, true, NoopRequestTracker.class.getName()),
-        new ReflectiveClassBuildItem(true, true, MultiplexingRequestTracker.class.getName()),
-        new ReflectiveClassBuildItem(true, true, RequestLogger.class.getName()),
-        // request throttlers
+            true, true, ConstantSpeculativeExecutionPolicy.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerAddressTranslatorsForReflection() {
+    return Arrays.asList(
+        new ReflectiveClassBuildItem(true, true, Ec2MultiRegionAddressTranslator.class.getName()),
+        new ReflectiveClassBuildItem(true, true, PassThroughAddressTranslator.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerLoadBalancingPoliciesForReflection() {
+    return Arrays.asList(
+        new ReflectiveClassBuildItem(true, true, DefaultLoadBalancingPolicy.class.getName()),
+        new ReflectiveClassBuildItem(true, true, DcInferringLoadBalancingPolicy.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerReconnectionPoliciesForReflection() {
+    return Arrays.asList(
+        new ReflectiveClassBuildItem(true, true, ExponentialReconnectionPolicy.class.getName()),
+        new ReflectiveClassBuildItem(true, true, ConstantReconnectionPolicy.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerRequestThrottlersForReflection() {
+    return Arrays.asList(
         new ReflectiveClassBuildItem(true, true, PassThroughRequestThrottler.class.getName()),
         new ReflectiveClassBuildItem(
             true, true, ConcurrencyLimitingRequestThrottler.class.getName()),
-        new ReflectiveClassBuildItem(true, true, RateLimitingRequestThrottler.class.getName()),
-        new ReflectiveClassBuildItem(true, true, Publisher.class.getName()));
+        new ReflectiveClassBuildItem(true, true, RateLimitingRequestThrottler.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerRequestTrackersForReflection() {
+    return Arrays.asList(
+        new ReflectiveClassBuildItem(true, true, NoopRequestTracker.class.getName()),
+        new ReflectiveClassBuildItem(true, true, MultiplexingRequestTracker.class.getName()),
+        new ReflectiveClassBuildItem(true, true, RequestLogger.class.getName()));
   }
 
   @BuildStep
@@ -150,7 +186,7 @@ class CassandraClientProcessor {
 
   @BuildStep
   List<ReflectiveClassBuildItem> registerTimestampGeneratorsForReflection() {
-    return Arrays.asList( // timestamp generators
+    return Arrays.asList(
         new ReflectiveClassBuildItem(true, true, AtomicTimestampGenerator.class.getName()),
         new ReflectiveClassBuildItem(true, true, ThreadLocalTimestampGenerator.class.getName()),
         new ReflectiveClassBuildItem(true, true, ServerSideTimestampGenerator.class.getName()));
