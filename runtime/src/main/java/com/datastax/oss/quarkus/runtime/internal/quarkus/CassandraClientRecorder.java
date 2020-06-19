@@ -77,7 +77,6 @@ public class CassandraClientRecorder {
 
       producer.setMainEventLoop(mainEventLoop);
     }
-    producer.setUseQuarkusNettyEventLoop(useQuarkusNettyEventLoop);
   }
 
   private CassandraClientProducer getProducerInstance() {

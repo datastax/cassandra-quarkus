@@ -45,7 +45,6 @@ public class CassandraClientProducer {
   private MetricRegistry metricRegistry;
   private String protocolCompression;
   private EventLoopGroup mainEventLoop;
-  private boolean useQuarkusNettyEventLoop;
 
   @Produces
   @ApplicationScoped
@@ -58,8 +57,7 @@ public class CassandraClientProducer {
     QuarkusCqlSessionBuilder builder =
         new QuarkusCqlSessionBuilder()
             .withMetricRegistry(metricRegistry)
-            .withMainEventLoop(mainEventLoop)
-            .withUseQuarkusNettyEventLoop(useQuarkusNettyEventLoop)
+            .withQuarkusEventLoop(mainEventLoop)
             .withConfigLoader(configLoaderBuilder.build());
     return builder.build();
   }
@@ -82,10 +80,6 @@ public class CassandraClientProducer {
 
   public void setMainEventLoop(EventLoopGroup mainEventLoop) {
     this.mainEventLoop = mainEventLoop;
-  }
-
-  public void setUseQuarkusNettyEventLoop(boolean useQuarkusNettyEventLoop) {
-    this.useQuarkusNettyEventLoop = useQuarkusNettyEventLoop;
   }
 
   private ProgrammaticDriverConfigLoaderBuilder createDriverConfigLoader() {
@@ -125,10 +119,6 @@ public class CassandraClientProducer {
 
   public EventLoopGroup getMainEventLoop() {
     return mainEventLoop;
-  }
-
-  public boolean isUseQuarkusNettyEventLoop() {
-    return useQuarkusNettyEventLoop;
   }
 
   private void configureProtocolCompression(

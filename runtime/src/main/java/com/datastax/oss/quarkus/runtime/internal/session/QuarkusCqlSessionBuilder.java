@@ -23,6 +23,7 @@ import com.datastax.oss.driver.api.core.session.SessionBuilder;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.runtime.internal.context.QuarkusDriverContext;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.netty.channel.EventLoopGroup;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 
@@ -30,21 +31,15 @@ public class QuarkusCqlSessionBuilder
     extends SessionBuilder<QuarkusCqlSessionBuilder, QuarkusCqlSession> {
 
   private MetricRegistry metricRegistry;
-  private EventLoopGroup mainEventLoop;
-  private boolean useQuarkusNettyEventLoop;
+  private EventLoopGroup quarkusEventLoop;
 
   public QuarkusCqlSessionBuilder withMetricRegistry(@NonNull MetricRegistry metricRegistry) {
     this.metricRegistry = metricRegistry;
     return this;
   }
 
-  public QuarkusCqlSessionBuilder withMainEventLoop(@NonNull EventLoopGroup mainEventLoop) {
-    this.mainEventLoop = mainEventLoop;
-    return this;
-  }
-
-  public QuarkusCqlSessionBuilder withUseQuarkusNettyEventLoop(boolean useQuarkusNettyEventLoop) {
-    this.useQuarkusNettyEventLoop = useQuarkusNettyEventLoop;
+  public QuarkusCqlSessionBuilder withQuarkusEventLoop(@Nullable EventLoopGroup quarkusEventLoop) {
+    this.quarkusEventLoop = quarkusEventLoop;
     return this;
   }
 
@@ -57,10 +52,6 @@ public class QuarkusCqlSessionBuilder
   protected DriverContext buildContext(
       DriverConfigLoader configLoader, ProgrammaticArguments programmaticArguments) {
     return new QuarkusDriverContext(
-        configLoader,
-        programmaticArguments,
-        metricRegistry,
-        mainEventLoop,
-        useQuarkusNettyEventLoop);
+        configLoader, programmaticArguments, metricRegistry, quarkusEventLoop);
   }
 }
