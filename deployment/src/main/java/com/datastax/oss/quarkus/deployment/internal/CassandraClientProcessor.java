@@ -17,9 +17,15 @@ package com.datastax.oss.quarkus.deployment.internal;
 
 import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
 
+import com.datastax.dse.driver.api.core.auth.ProgrammaticDseGssApiAuthProvider;
+import com.datastax.dse.driver.internal.core.auth.DseGssApiAuthProvider;
 import com.datastax.dse.driver.internal.core.tracker.MultiplexingRequestTracker;
+import com.datastax.oss.driver.api.core.metadata.SafeInitNodeStateListener;
+import com.datastax.oss.driver.api.core.ssl.ProgrammaticSslEngineFactory;
 import com.datastax.oss.driver.internal.core.addresstranslation.Ec2MultiRegionAddressTranslator;
 import com.datastax.oss.driver.internal.core.addresstranslation.PassThroughAddressTranslator;
+import com.datastax.oss.driver.internal.core.auth.PlainTextAuthProvider;
+import com.datastax.oss.driver.internal.core.auth.ProgrammaticPlainTextAuthProvider;
 import com.datastax.oss.driver.internal.core.connection.ConstantReconnectionPolicy;
 import com.datastax.oss.driver.internal.core.connection.ExponentialReconnectionPolicy;
 import com.datastax.oss.driver.internal.core.loadbalancing.DcInferringLoadBalancingPolicy;
@@ -34,7 +40,10 @@ import com.datastax.oss.driver.internal.core.session.throttling.PassThroughReque
 import com.datastax.oss.driver.internal.core.session.throttling.RateLimitingRequestThrottler;
 import com.datastax.oss.driver.internal.core.specex.ConstantSpeculativeExecutionPolicy;
 import com.datastax.oss.driver.internal.core.specex.NoSpeculativeExecutionPolicy;
+import com.datastax.oss.driver.internal.core.ssl.DefaultSslEngineFactory;
+import com.datastax.oss.driver.internal.core.ssl.SniSslEngineFactory;
 import com.datastax.oss.driver.internal.core.time.AtomicTimestampGenerator;
+import com.datastax.oss.driver.internal.core.time.ServerSideTimestampGenerator;
 import com.datastax.oss.driver.internal.core.time.ThreadLocalTimestampGenerator;
 import com.datastax.oss.driver.internal.core.tracker.NoopRequestTracker;
 import com.datastax.oss.driver.internal.core.tracker.RequestLogger;
@@ -43,6 +52,9 @@ import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.internal.metrics.MetricsConfig;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientProducer;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientRecorder;
+import com.esri.core.geometry.ogc.OGCGeometry;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.BeanContainerBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeansRuntimeInitBuildItem;
@@ -61,46 +73,92 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
+import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistryV3d0;
 import org.reactivestreams.Publisher;
 
 class CassandraClientProcessor {
   public static final String CASSANDRA_CLIENT = "cassandra-client";
 
   @BuildStep
-  List<ReflectiveClassBuildItem> registerDriverForReflection() {
+  List<ReflectiveClassBuildItem> registerDriverUsedClassesForReflection() {
     return Arrays.asList(
-        // reconnection policies
-        new ReflectiveClassBuildItem(true, true, ExponentialReconnectionPolicy.class.getName()),
-        new ReflectiveClassBuildItem(true, true, ConstantReconnectionPolicy.class.getName()),
-        // schema change listener
-        new ReflectiveClassBuildItem(true, true, NoopSchemaChangeListener.class.getName()),
-        // address translators
-        new ReflectiveClassBuildItem(true, true, PassThroughAddressTranslator.class.getName()),
-        new ReflectiveClassBuildItem(true, true, Ec2MultiRegionAddressTranslator.class.getName()),
-        // load balancing policies
-        new ReflectiveClassBuildItem(true, true, DefaultLoadBalancingPolicy.class.getName()),
-        new ReflectiveClassBuildItem(true, true, DcInferringLoadBalancingPolicy.class.getName()),
-        // retry policy
-        new ReflectiveClassBuildItem(true, true, DefaultRetryPolicy.class.getName()),
-        // speculative execution policies
+        new ReflectiveClassBuildItem(true, true, OGCGeometry.class.getName()),
+        new ReflectiveClassBuildItem(true, true, GraphTraversal.class.getName()),
+        new ReflectiveClassBuildItem(true, true, TinkerIoRegistryV3d0.class.getName()),
+        new ReflectiveClassBuildItem(true, true, JsonParser.class.getName()),
+        new ReflectiveClassBuildItem(true, true, ObjectMapper.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerReactiveForReflection() {
+    return Collections.singletonList(
+        new ReflectiveClassBuildItem(true, true, Publisher.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerRetryPoliciesForReflection() {
+    return Collections.singletonList(
+        new ReflectiveClassBuildItem(true, true, DefaultRetryPolicy.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerSchemaChangeListenersForReflection() {
+    return Collections.singletonList(
+        new ReflectiveClassBuildItem(true, true, NoopSchemaChangeListener.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerStateListenersForRefection() {
+    return Arrays.asList(
+        new ReflectiveClassBuildItem(true, true, NoopNodeStateListener.class.getName()),
+        new ReflectiveClassBuildItem(true, true, SafeInitNodeStateListener.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerSpeculativeExecutionPoliciesForReflection() {
+    return Arrays.asList(
         new ReflectiveClassBuildItem(true, true, NoSpeculativeExecutionPolicy.class.getName()),
         new ReflectiveClassBuildItem(
-            true, true, ConstantSpeculativeExecutionPolicy.class.getName()),
-        // state listener
-        new ReflectiveClassBuildItem(true, true, NoopNodeStateListener.class.getName()),
-        // request trackers
-        new ReflectiveClassBuildItem(true, true, NoopRequestTracker.class.getName()),
-        new ReflectiveClassBuildItem(true, true, MultiplexingRequestTracker.class.getName()),
-        new ReflectiveClassBuildItem(true, true, RequestLogger.class.getName()),
-        // request throttlers
+            true, true, ConstantSpeculativeExecutionPolicy.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerAddressTranslatorsForReflection() {
+    return Arrays.asList(
+        new ReflectiveClassBuildItem(true, true, Ec2MultiRegionAddressTranslator.class.getName()),
+        new ReflectiveClassBuildItem(true, true, PassThroughAddressTranslator.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerLoadBalancingPoliciesForReflection() {
+    return Arrays.asList(
+        new ReflectiveClassBuildItem(true, true, DefaultLoadBalancingPolicy.class.getName()),
+        new ReflectiveClassBuildItem(true, true, DcInferringLoadBalancingPolicy.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerReconnectionPoliciesForReflection() {
+    return Arrays.asList(
+        new ReflectiveClassBuildItem(true, true, ExponentialReconnectionPolicy.class.getName()),
+        new ReflectiveClassBuildItem(true, true, ConstantReconnectionPolicy.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerRequestThrottlersForReflection() {
+    return Arrays.asList(
         new ReflectiveClassBuildItem(true, true, PassThroughRequestThrottler.class.getName()),
         new ReflectiveClassBuildItem(
             true, true, ConcurrencyLimitingRequestThrottler.class.getName()),
-        new ReflectiveClassBuildItem(true, true, RateLimitingRequestThrottler.class.getName()),
-        // timestamp generators
-        new ReflectiveClassBuildItem(true, true, AtomicTimestampGenerator.class.getName()),
-        new ReflectiveClassBuildItem(true, true, ThreadLocalTimestampGenerator.class.getName()),
-        new ReflectiveClassBuildItem(true, true, Publisher.class.getName()));
+        new ReflectiveClassBuildItem(true, true, RateLimitingRequestThrottler.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerRequestTrackersForReflection() {
+    return Arrays.asList(
+        new ReflectiveClassBuildItem(true, true, NoopRequestTracker.class.getName()),
+        new ReflectiveClassBuildItem(true, true, MultiplexingRequestTracker.class.getName()),
+        new ReflectiveClassBuildItem(true, true, RequestLogger.class.getName()));
   }
 
   @BuildStep
@@ -121,6 +179,32 @@ class CassandraClientProcessor {
     } else {
       return Collections.emptyList();
     }
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerSSLFactoryForReflection() {
+    return Arrays.asList(
+        new ReflectiveClassBuildItem(true, true, DefaultSslEngineFactory.class.getName()),
+        new ReflectiveClassBuildItem(true, true, ProgrammaticSslEngineFactory.class.getName()),
+        new ReflectiveClassBuildItem(true, true, SniSslEngineFactory.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerAuthProviderForReflection() {
+    return Arrays.asList(
+        new ReflectiveClassBuildItem(true, true, PlainTextAuthProvider.class.getName()),
+        new ReflectiveClassBuildItem(true, true, DseGssApiAuthProvider.class.getName()),
+        new ReflectiveClassBuildItem(true, true, ProgrammaticPlainTextAuthProvider.class.getName()),
+        new ReflectiveClassBuildItem(
+            true, true, ProgrammaticDseGssApiAuthProvider.class.getName()));
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerTimestampGeneratorsForReflection() {
+    return Arrays.asList(
+        new ReflectiveClassBuildItem(true, true, AtomicTimestampGenerator.class.getName()),
+        new ReflectiveClassBuildItem(true, true, ThreadLocalTimestampGenerator.class.getName()),
+        new ReflectiveClassBuildItem(true, true, ServerSideTimestampGenerator.class.getName()));
   }
 
   @BuildStep
