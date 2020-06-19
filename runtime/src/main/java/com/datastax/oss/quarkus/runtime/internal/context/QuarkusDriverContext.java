@@ -22,25 +22,24 @@ import com.datastax.oss.driver.internal.core.context.NettyOptions;
 import com.datastax.oss.driver.internal.core.metrics.MetricsFactory;
 import com.datastax.oss.quarkus.runtime.internal.driver.QuarkusNettyOptions;
 import com.datastax.oss.quarkus.runtime.internal.metrics.MicroProfileMetricsFactory;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.netty.channel.EventLoopGroup;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 
 public class QuarkusDriverContext extends DefaultDriverContext {
 
   private final MetricRegistry metricRegistry;
-  private final EventLoopGroup mainEventLoop;
-  private final boolean useQuarkusNettyEventLoop;
+  private final EventLoopGroup quarkusEventLoop;
 
   public QuarkusDriverContext(
-      DriverConfigLoader configLoader,
-      ProgrammaticArguments programmaticArguments,
-      MetricRegistry metricRegistry,
-      EventLoopGroup mainEventLoop,
-      boolean useQuarkusNettyEventLoop) {
+      @NonNull DriverConfigLoader configLoader,
+      @NonNull ProgrammaticArguments programmaticArguments,
+      @NonNull MetricRegistry metricRegistry,
+      @Nullable EventLoopGroup quarkusEventLoop) {
     super(configLoader, programmaticArguments);
     this.metricRegistry = metricRegistry;
-    this.mainEventLoop = mainEventLoop;
-    this.useQuarkusNettyEventLoop = useQuarkusNettyEventLoop;
+    this.quarkusEventLoop = quarkusEventLoop;
   }
 
   @Override
@@ -50,8 +49,8 @@ public class QuarkusDriverContext extends DefaultDriverContext {
 
   @Override
   protected NettyOptions buildNettyOptions() {
-    if (useQuarkusNettyEventLoop) {
-      return new QuarkusNettyOptions(this, mainEventLoop, mainEventLoop);
+    if (quarkusEventLoop != null) {
+      return new QuarkusNettyOptions(this, quarkusEventLoop, quarkusEventLoop);
     } else {
       return super.buildNettyOptions();
     }
