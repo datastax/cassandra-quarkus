@@ -33,7 +33,7 @@ public class CassandraClientConnectionConfig {
   public List<String> contactPoints;
 
   /** Local datacenter used when creating a {@link QuarkusCqlSession}. */
-  @ConfigItem(name = "load-balancing-policy.local-datacenter")
+  @ConfigItem(name = "local-datacenter")
   public String localDatacenter;
 
   /** How long the driver waits for a request to complete. */

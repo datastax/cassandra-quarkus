@@ -282,7 +282,7 @@ A sample configuration should look like this:
 ----
 # configure the Cassandra client for a replica set of two nodes
 quarkus.cassandra.contact-points={cassandra_ip}:9042
-quarkus.cassandra.load-balancing-policy.local-datacenter={dc_name}
+quarkus.cassandra.local-datacenter={dc_name}
 ----
 
 In this example, we are using a single instance running on localhost:
@@ -291,7 +291,7 @@ In this example, we are using a single instance running on localhost:
 ----
 # configure the Cassandra client for a single instance on localhost
 quarkus.cassandra.contact-points=127.0.0.1:9042
-quarkus.cassandra.load-balancing-policy.local-datacenter=datacenter1
+quarkus.cassandra.local-datacenter=datacenter1
 ----
 
 You can configure other Java driver settings using `application.conf` or `application.json` files.
@@ -308,7 +308,7 @@ link:https://docs.datastax.com/en/developer/java-driver/latest/manual/core/confi
 By default, `CassandraClient` is configured to access a local Cassandra database on port 9042 (the
 default Cassandra port).
 
-IMPORTANT: Make sure that the setting `quarkus.cassandra.load-balancing-policy.local-datacenter`
+IMPORTANT: Make sure that the setting `quarkus.cassandra.local-datacenter`
 matches the datacenter of your Cassandra cluster.
 
 TIP: If you don't know the name of your local datacenter, this value can be found by running the
