@@ -16,6 +16,7 @@
 package com.datastax.oss.quarkus.test;
 
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
+import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
 import org.jboss.logging.Logger;
@@ -44,7 +45,11 @@ public class CassandraTestResource implements QuarkusTestResourceLifecycleManage
   @Override
   public Map<String, String> start() {
     cassandraContainer = new CassandraContainer<>();
-    cassandraContainer.withInitScript("init_script.cql");
+    // set init script only if it's provided by the caller
+    URL resource = Thread.currentThread().getContextClassLoader().getResource("init_script.cql");
+    if (resource != null) {
+      cassandraContainer.withInitScript("init_script.cql");
+    }
     cassandraContainer.setWaitStrategy(new CassandraQueryWaitStrategy());
     cassandraContainer.start();
     String exposedPort =
