@@ -52,6 +52,9 @@ import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.internal.metrics.MetricsConfig;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientProducer;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientRecorder;
+import com.esri.core.geometry.ogc.OGCGeometry;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.BeanContainerBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeansRuntimeInitBuildItem;
@@ -70,10 +73,22 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
+import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistryV3d0;
 import org.reactivestreams.Publisher;
 
 class CassandraClientProcessor {
   public static final String CASSANDRA_CLIENT = "cassandra-client";
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerDriverUsedClassesForReflection() {
+    return Arrays.asList(
+        new ReflectiveClassBuildItem(true, true, OGCGeometry.class.getName()),
+        new ReflectiveClassBuildItem(true, true, GraphTraversal.class.getName()),
+        new ReflectiveClassBuildItem(true, true, TinkerIoRegistryV3d0.class.getName()),
+        new ReflectiveClassBuildItem(true, true, JsonParser.class.getName()),
+        new ReflectiveClassBuildItem(true, true, ObjectMapper.class.getName()));
+  }
 
   @BuildStep
   List<ReflectiveClassBuildItem> registerReactiveForReflection() {
