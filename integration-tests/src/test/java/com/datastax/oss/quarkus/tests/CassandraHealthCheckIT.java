@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 public class CassandraHealthCheckIT {
 
   @Test
-  public void healthCheckShouldReportStatusUp() {
+  public void should_report_status_up_by_the_health_check() {
 
     when()
         .get("/health/ready")
