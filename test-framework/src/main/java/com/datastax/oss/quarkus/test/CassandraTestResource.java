@@ -24,21 +24,21 @@ import org.testcontainers.containers.CassandraContainer;
 import org.testcontainers.containers.wait.CassandraQueryWaitStrategy;
 
 /**
- * The integration test that is using this resources should have defined two settings in the
- * .properties file:
+ * Integration tests using this resource must define two settings in the .properties file:
  *
  * <pre>
  * quarkus.cassandra.contact-points=127.0.0.1:${quarkus.cassandra.docker_port}
  * quarkus.cassandra.load-balancing-policy.local-datacenter=datacenter1
  * </pre>
  *
- * Please note the ${quarkus.cassandra.docker_port} - it will be automatically injected by the
- * {@code CassandraTestResource}.
+ * Please note the ${quarkus.cassandra.docker_port} - it will be automatically injected by {@code
+ * CassandraTestResource}.
  *
- * <p>If you want to execute the CQL init logic (i.e. CREATE KEYSPACE or CREATE TABLE) please create
+ * <p>If you want to execute a CQL init logic (i.e. CREATE KEYSPACE or CREATE TABLE) please create
  * an init_script.cql file and put it in the resources folder.
  */
 public class CassandraTestResource implements QuarkusTestResourceLifecycleManager {
+
   private static final Logger LOGGER = Logger.getLogger(CassandraTestResource.class);
   private static CassandraContainer<?> cassandraContainer;
 
