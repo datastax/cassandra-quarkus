@@ -37,7 +37,7 @@ public class CassandraHealthBuildItemEnabledTest {
           .withConfigurationResource("application-health-enabled.properties");
 
   @Test
-  public void shouldHaveHealthCheckInTheContainer() {
+  public void should_have_health_check_in_the_container() {
     Set<Bean<?>> beans = Arc.container().beanManager().getBeans(CassandraHealthCheck.class);
     assertThat(beans.size()).isEqualTo(1);
   }

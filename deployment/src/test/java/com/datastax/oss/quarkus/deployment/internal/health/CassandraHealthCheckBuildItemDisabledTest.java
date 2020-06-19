@@ -37,7 +37,7 @@ public class CassandraHealthCheckBuildItemDisabledTest {
           .withConfigurationResource("application-health-disabled.properties");
 
   @Test
-  public void shouldNotHaveHealthCheckInTheContainer() {
+  public void should_not_have_health_check_in_the_container() {
     Set<Bean<?>> beans = Arc.container().beanManager().getBeans(CassandraHealthCheck.class);
     assertThat(beans.size()).isZero();
   }
