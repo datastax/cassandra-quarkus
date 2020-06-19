@@ -56,7 +56,10 @@ public class CassandraClientProducer {
     configureMetricsSettings(configLoaderBuilder, metricsConfig);
     configureProtocolCompression(configLoaderBuilder, protocolCompression);
     QuarkusCqlSessionBuilder builder =
-        new QuarkusCqlSessionBuilder(metricRegistry, mainEventLoop, useQuarkusNettyEventLoop)
+        new QuarkusCqlSessionBuilder()
+            .withMetricRegistry(metricRegistry)
+            .withMainEventLoop(mainEventLoop)
+            .withUseQuarkusNettyEventLoop(useQuarkusNettyEventLoop)
             .withConfigLoader(configLoaderBuilder.build());
     return builder.build();
   }

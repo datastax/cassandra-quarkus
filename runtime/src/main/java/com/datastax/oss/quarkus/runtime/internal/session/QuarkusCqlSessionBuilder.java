@@ -29,17 +29,23 @@ import org.eclipse.microprofile.metrics.MetricRegistry;
 public class QuarkusCqlSessionBuilder
     extends SessionBuilder<QuarkusCqlSessionBuilder, QuarkusCqlSession> {
 
-  private final MetricRegistry metricRegistry;
-  private final EventLoopGroup mainEventLoop;
-  private final boolean useQuarkusNettyEventLoop;
+  private MetricRegistry metricRegistry;
+  private EventLoopGroup mainEventLoop;
+  private boolean useQuarkusNettyEventLoop;
 
-  public QuarkusCqlSessionBuilder(
-      MetricRegistry metricRegistry,
-      EventLoopGroup mainEventLoop,
-      boolean useQuarkusNettyEventLoop) {
+  public QuarkusCqlSessionBuilder withMetricRegistry(MetricRegistry metricRegistry) {
     this.metricRegistry = metricRegistry;
+    return this;
+  }
+
+  public QuarkusCqlSessionBuilder withMainEventLoop(EventLoopGroup mainEventLoop) {
     this.mainEventLoop = mainEventLoop;
+    return this;
+  }
+
+  public QuarkusCqlSessionBuilder withUseQuarkusNettyEventLoop(boolean useQuarkusNettyEventLoop) {
     this.useQuarkusNettyEventLoop = useQuarkusNettyEventLoop;
+    return this;
   }
 
   @Override
