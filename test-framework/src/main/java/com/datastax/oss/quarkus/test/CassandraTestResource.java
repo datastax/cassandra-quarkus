@@ -28,7 +28,7 @@ import org.testcontainers.containers.wait.CassandraQueryWaitStrategy;
  *
  * <pre>
  * quarkus.cassandra.contact-points=127.0.0.1:${quarkus.cassandra.docker_port}
- * quarkus.cassandra.load-balancing-policy.local-datacenter=datacenter1
+ * quarkus.cassandra.local-datacenter=datacenter1
  * </pre>
  *
  * Please note the ${quarkus.cassandra.docker_port} - it will be automatically injected by {@code
