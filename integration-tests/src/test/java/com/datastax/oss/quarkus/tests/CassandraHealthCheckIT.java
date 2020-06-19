@@ -19,6 +19,7 @@ import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 
+import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import javax.ws.rs.core.Response.Status;
@@ -29,7 +30,7 @@ import org.junit.jupiter.api.Test;
 public class CassandraHealthCheckIT {
 
   @Test
-  public void healthCheckShouldReportStatusUp() {
+  public void should_report_status_up_by_the_health_check() {
 
     when()
         .get("/health/ready")

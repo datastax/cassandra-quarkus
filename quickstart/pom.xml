@@ -30,7 +30,7 @@
     <surefire-plugin.version>2.22.0</surefire-plugin.version>
     <quarkus.version>1.5.0.Final</quarkus.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <datastax-java-driver.version>4.7.0-SNAPSHOT</datastax-java-driver.version>
+    <datastax-java-driver.version>4.7.0</datastax-java-driver.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -80,6 +80,12 @@
       <version>${datastax-java-driver.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.datastax.oss.quarkus</groupId>
+      <artifactId>cassandra-quarkus-test-framework</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-mutiny</artifactId>
     </dependency>
@@ -95,29 +101,6 @@
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>cassandra</artifactId>
-      <version>1.12.4</version>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.xml.bind</groupId>
-          <artifactId>jaxb-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.annotation</groupId>
-          <artifactId>javax.annotation-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.github.jnr</groupId>
-          <artifactId>jnr-posix</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.github.jnr</groupId>
-          <artifactId>jnr-ffi</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
   </dependencies>
   <build>

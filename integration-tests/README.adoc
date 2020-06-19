@@ -1,0 +1,19 @@
+= Cassandra Quarkus - Integration tests
+
+This module hosts integration tests for the Cassandra Quarkus extension.
+
+== Running integration tests
+
+To run the non-native integration tests simply execute:
+
+    mvn clean verify
+    
+To also run integration tests that require a native image to be built, you need to activate the 
+`native` profile:
+
+    mvn clean verify -Pnative
+    
+Native tests require that you point the environment variable `GRAALVM_HOME` to a valid Graal 
+installation root. When native integration tests are activated, the build takes considerably longer 
+to finish.
+    

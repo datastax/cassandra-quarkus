@@ -17,8 +17,8 @@ package com.datastax.oss.quarkus.deployment.internal.health;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.datastax.oss.quarkus.deployment.internal.tests.CassandraTestResource;
 import com.datastax.oss.quarkus.runtime.internal.health.CassandraHealthCheck;
+import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.quarkus.arc.Arc;
 import io.quarkus.test.QuarkusUnitTest;
 import java.util.Set;
@@ -37,7 +37,7 @@ public class CassandraHealthCheckBuildItemDisabledTest {
           .withConfigurationResource("application-health-disabled.properties");
 
   @Test
-  public void shouldNotHaveHealthCheckInTheContainer() {
+  public void should_not_have_health_check_in_the_container() {
     Set<Bean<?>> beans = Arc.container().beanManager().getBeans(CassandraHealthCheck.class);
     assertThat(beans.size()).isZero();
   }

@@ -36,13 +36,14 @@
     <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <datastax-java-driver.version>4.7.0-SNAPSHOT</datastax-java-driver.version>
+    <datastax-java-driver.version>4.7.0</datastax-java-driver.version>
     <!--suppress UnresolvedMavenProperty -->
     <graalvmHome>${env.GRAALVM_HOME}</graalvmHome>
   </properties>
   <modules>
     <module>bom-runtime</module>
     <module>bom-deployment</module>
+    <module>test-framework</module>
     <module>runtime</module>
     <module>deployment</module>
     <module>integration-tests</module>

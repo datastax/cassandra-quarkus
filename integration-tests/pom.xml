@@ -64,6 +64,12 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>com.datastax.oss.quarkus</groupId>
+      <artifactId>cassandra-quarkus-test-framework</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.datastax.oss</groupId>
       <artifactId>java-driver-mapper-runtime</artifactId>
     </dependency>
@@ -83,29 +89,6 @@
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>cassandra</artifactId>
-      <version>1.12.4</version>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.xml.bind</groupId>
-          <artifactId>jaxb-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.annotation</groupId>
-          <artifactId>javax.annotation-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.github.jnr</groupId>
-          <artifactId>jnr-posix</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.github.jnr</groupId>
-          <artifactId>jnr-ffi</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -172,6 +155,7 @@
             <artifactId>maven-failsafe-plugin</artifactId>
             <executions>
               <execution>
+                <id>default</id>
                 <goals>
                   <goal>integration-test</goal>
                   <goal>verify</goal>
@@ -216,20 +200,24 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
             <executions>
+              <!-- VM tests -->
               <execution>
-                <id>vm-tests</id>
+                <id>default</id>
                 <goals>
                   <goal>integration-test</goal>
+                  <goal>verify</goal>
                 </goals>
                 <configuration>
                   <excludedGroups>native</excludedGroups>
                   <summaryFile>${project.build.directory}/failsafe-reports/failsafe-summary-vm.xml</summaryFile>
                 </configuration>
               </execution>
+              <!-- Native tests -->
               <execution>
                 <id>native-tests</id>
                 <goals>
                   <goal>integration-test</goal>
+                  <goal>verify</goal>
                 </goals>
                 <configuration>
                   <groups>native</groups>
@@ -237,20 +225,8 @@
                   <systemProperties>
                     <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
                   </systemProperties>
-                </configuration>
-              </execution>
-              <execution>
-                <id>verify</id>
-                <goals>
-                  <goal>verify</goal>
-                </goals>
-                <configuration>
                   <!-- required because failed native tests are not reported at all -->
                   <failIfNoTests>true</failIfNoTests>
-                  <summaryFiles>
-                    <summaryFile>${project.build.directory}/failsafe-reports/failsafe-summary-vm.xml</summaryFile>
-                    <summaryFile>${project.build.directory}/failsafe-reports/failsafe-summary-native.xml</summaryFile>
-                  </summaryFiles>
                 </configuration>
               </execution>
             </executions>

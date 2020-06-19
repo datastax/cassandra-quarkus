@@ -21,8 +21,8 @@ import static com.datastax.oss.driver.api.core.config.DefaultDriverOption.REQUES
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.datastax.oss.driver.api.core.config.DriverExecutionProfile;
-import com.datastax.oss.quarkus.deployment.internal.tests.CassandraTestResource;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
+import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.quarkus.test.QuarkusUnitTest;
 import io.quarkus.test.common.QuarkusTestResource;
 import java.time.Duration;
@@ -50,26 +50,26 @@ public class CassandraClientConfigTest {
   @Inject QuarkusCqlSession cqlSession;
 
   @Test
-  public void testDataSourceViaCqlSession() {
+  public void should_execute_query_using_injected_cql_session() {
     assertThat(cqlSession.execute("SELECT * FROM system.local")).isNotEmpty();
   }
 
   @Test
-  public void testSettingSetFromApplicationProperties() {
+  public void should_load_settings_from_application_properties() {
     DriverExecutionProfile profile = cqlSession.getContext().getConfig().getDefaultProfile();
 
     assertThat(profile.getString(LOAD_BALANCING_LOCAL_DATACENTER)).isEqualTo("datacenter1");
   }
 
   @Test
-  public void applicationConfSettingsShouldHavePriorityOverReferenceConfFromDriver() {
+  public void application_conf_settings_should_have_priority_over_reference_conf_from_driver() {
     DriverExecutionProfile profile = cqlSession.getContext().getConfig().getDefaultProfile();
 
     assertThat(profile.getDuration(REQUEST_TIMEOUT)).isEqualTo(Duration.of(20, ChronoUnit.SECONDS));
   }
 
   @Test
-  public void applicationJsonSettingsShouldHavePriorityOverReferenceConfFromDriver() {
+  public void application_json_settings_should_have_priority_over_reference_conf_from_driver() {
     DriverExecutionProfile profile = cqlSession.getContext().getConfig().getDefaultProfile();
 
     assertThat(profile.getInt(REQUEST_PAGE_SIZE)).isEqualTo(1000);

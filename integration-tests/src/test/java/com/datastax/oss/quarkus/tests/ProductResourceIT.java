@@ -18,6 +18,7 @@ package com.datastax.oss.quarkus.tests;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.notNullValue;
 
+import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import javax.ws.rs.core.Response;
@@ -28,7 +29,7 @@ import org.junit.jupiter.api.Test;
 public class ProductResourceIT {
 
   @Test
-  public void testSaveAndRetrieveProduct() {
+  public void should_save_and_get_product() {
 
     String productId =
         when()
@@ -47,7 +48,7 @@ public class ProductResourceIT {
   }
 
   @Test
-  public void shouldSaveAndRetrieveUsingCustomNameConverterThatUsesReflection() {
+  public void should_save_and_get_product_using_custom_name_converter_that_uses_reflection() {
 
     String productId =
         when()
@@ -66,7 +67,7 @@ public class ProductResourceIT {
   }
 
   @Test
-  public void testSaveAndRetrieveProductReactive() {
+  public void should_save_and_get_product_reactive() {
 
     String productId =
         when()
