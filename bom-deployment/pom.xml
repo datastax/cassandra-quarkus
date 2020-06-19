@@ -43,7 +43,7 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <!-- Cassandra Quarkus Extensions (Deployment) -->
+      <!-- Cassandra Quarkus Extension (Deployment) -->
       <dependency>
         <groupId>com.datastax.oss.quarkus</groupId>
         <artifactId>cassandra-quarkus-client-deployment</artifactId>
