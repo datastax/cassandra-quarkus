@@ -50,6 +50,12 @@
       <artifactId>cassandra-quarkus-client</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.datastax.oss.quarkus</groupId>
+      <artifactId>cassandra-quarkus-test-framework</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-smallrye-health-spi</artifactId>
     </dependency>

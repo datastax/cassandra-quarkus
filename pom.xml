@@ -48,6 +48,7 @@
     <module>integration-tests</module>
     <module>quickstart</module>
     <module>documentation</module>
+    <module>test-framework</module>
   </modules>
   <build>
     <pluginManagement>
