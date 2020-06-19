@@ -19,6 +19,7 @@ import static io.restassured.RestAssured.when;
 import static org.hamcrest.core.StringContains.containsString;
 
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
+import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import javax.inject.Inject;

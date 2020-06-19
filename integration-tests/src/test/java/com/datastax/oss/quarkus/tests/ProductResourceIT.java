@@ -18,6 +18,7 @@ package com.datastax.oss.quarkus.tests;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.notNullValue;
 
+import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import javax.ws.rs.core.Response;

@@ -18,8 +18,8 @@ package com.datastax.oss.quarkus.deployment.internal.metrics;
 import static com.datastax.oss.quarkus.runtime.internal.metrics.MicroProfileMetricsUpdater.CASSANDRA_METRICS_PREFIX;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.datastax.oss.quarkus.deployment.internal.tests.CassandraTestResource;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
+import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.quarkus.test.QuarkusUnitTest;
 import io.quarkus.test.common.QuarkusTestResource;
 import javax.inject.Inject;

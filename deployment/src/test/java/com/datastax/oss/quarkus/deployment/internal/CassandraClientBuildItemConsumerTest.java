@@ -17,8 +17,8 @@ package com.datastax.oss.quarkus.deployment.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.datastax.oss.quarkus.deployment.internal.tests.CassandraTestResource;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
+import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.quarkus.arc.Arc;
 import io.quarkus.builder.BuildChainBuilder;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
