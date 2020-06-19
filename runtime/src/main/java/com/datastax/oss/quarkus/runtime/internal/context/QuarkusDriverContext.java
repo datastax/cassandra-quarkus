@@ -22,6 +22,8 @@ import com.datastax.oss.driver.internal.core.context.NettyOptions;
 import com.datastax.oss.driver.internal.core.metrics.MetricsFactory;
 import com.datastax.oss.quarkus.runtime.internal.driver.QuarkusNettyOptions;
 import com.datastax.oss.quarkus.runtime.internal.metrics.MicroProfileMetricsFactory;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.netty.channel.EventLoopGroup;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 
@@ -31,10 +33,10 @@ public class QuarkusDriverContext extends DefaultDriverContext {
   private final EventLoopGroup quarkusEventLoop;
 
   public QuarkusDriverContext(
-      DriverConfigLoader configLoader,
-      ProgrammaticArguments programmaticArguments,
-      MetricRegistry metricRegistry,
-      EventLoopGroup quarkusEventLoop) {
+      @NonNull DriverConfigLoader configLoader,
+      @NonNull ProgrammaticArguments programmaticArguments,
+      @NonNull MetricRegistry metricRegistry,
+      @Nullable EventLoopGroup quarkusEventLoop) {
     super(configLoader, programmaticArguments);
     this.metricRegistry = metricRegistry;
     this.quarkusEventLoop = quarkusEventLoop;
