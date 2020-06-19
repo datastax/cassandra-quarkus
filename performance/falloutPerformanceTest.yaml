@@ -1,0 +1,183 @@
+# branch and version of the cassandra-extension to benchmark
+branch: "master"
+version: "1.0.0-SNAPSHOT"
+
+# Whether or not the DataStax Java driver should use the Netty event loop provided by the Quarkus framework
+useQuarkusNettyEventLoop: "true"
+
+# Whether or not the application that is under the test should run in the native mode
+native: "true"
+
+---
+
+ensemble:
+  server:
+    node.count: 3
+    provisioner:
+      name: ctool
+      properties:
+        cloud.provider: openstack
+        cloud.tenant: performance
+        cloud.instance.type: ms1.small
+        name: dseserver-cassandra-quarkus-perf
+        mark_for_reuse: true
+    configuration_manager:
+      - name: ctool
+        properties:
+          java.version: "1.8_151"
+          product.type: dse
+          product.install.type: tarball
+          product.version: 6.7-dev
+          enable.graph: false
+          json.topology: |
+            {
+               "cluster":
+                {
+                  "snitch":"GossipingPropertyFileSnitch",
+                  "nodes":
+                  {
+                    "0":{"datacenter":"datacenter1", "rack":"rack1", "node_type":"Cassandra", "seed":"True"},
+                    "1":{"datacenter":"datacenter1", "rack":"rack1", "node_type":"Cassandra", "seed":"True"},
+                    "2":{"datacenter":"datacenter1", "rack":"rack1", "node_type":"Cassandra"}
+                  }
+                }
+            }
+      - name: ctool_monitoring
+        properties:
+          components: os,jvm, dse-db, cassandra-all
+  observer:
+    node.count: 1
+    provisioner:
+      name: ctool
+      properties:
+        cloud.tenant: performance
+        cloud.instance.type: m1.xlarge
+        mark_for_reuse: true
+    configuration_manager:
+      - name: ctool_monitoring
+        properties:
+          graphite.create_server: true
+  clients:
+    - name: quickstartapp
+      node.count: 1
+      provisioner:
+        name: ctool
+        properties:
+          cloud.provider: openstack
+          cloud.tenant: performance
+          cloud.instance.type: ms1.small
+          mark_for_reuse: true
+      configuration_manager:
+        - name: ctool
+          properties:
+            install.maven: true
+            java.version: openjdk8
+        - name: ctool_monitoring
+          properties:
+            components: os
+
+    - name: http-client
+      node.count: 1
+      provisioner:
+        name: ctool
+        properties:
+          cloud.provider: openstack
+          cloud.tenant: performance
+          cloud.instance.type: ms1.small
+          mark_for_reuse: true
+      configuration_manager:
+        - name: ctool
+          properties:
+            install.maven: true
+            java.version: openjdk8
+        - name: ctool_monitoring
+          properties:
+            components: os
+
+
+workload:
+  phases:
+    - setup-dse-schema:
+        module: cqlsh
+        properties:
+          num.nodes: 1
+          command: >
+            CREATE KEYSPACE IF NOT EXISTS k1 WITH replication = {'class':'SimpleStrategy', 'replication_factor':2};
+            CREATE TABLE IF NOT EXISTS k1.fruit(store_id text, name text, description text, PRIMARY KEY((store_id), name));
+    - clone-and-build-quickstart-app:
+        module: bash
+        properties:
+          target.group: quickstartapp
+          export_output: false
+          timeout: 1 hours
+          script: |
+            cd ${FALLOUT_SCRATCH_DIR}
+            sudo apt update --assume-yes
+            sudo apt-get install lftp --assume-yes
+            sudo apt-get install zlib1g-dev libxmu-dev libxmu-headers freeglut3-dev libxext-dev libxi-dev --assume-yes
+
+
+            #install maven and java
+            sudo apt install maven --assume-yes
+            sudo apt-get install unzip --assume-yes
+
+            # setup graal vm
+            wget -c  https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-20.1.0/graalvm-ce-java8-linux-amd64-20.1.0.tar.gz -O - | tar -xz
+            sudo mv graalvm-ce-java8-20.1.0/ /usr/lib/jvm/
+            export GRAALVM_HOME=/usr/lib/jvm/graalvm-ce-java8-20.1.0
+            cd $GRAALVM_HOME/bin
+            ./gu install native-image
+
+
+            git clone -b {{branch}} git@github.com:datastax/cassandra-quarkus.git
+            cd cassandra-quarkus
+            mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+            cd quickstart
+
+            DSE_FIRST_ADDRESS=$(echo ${FALLOUT_SERVER_PRODUCT_CONTACT_POINTS} | cut -d "," -f 1)
+            DSE_SECOND_ADDRESS=$(echo ${FALLOUT_SERVER_PRODUCT_CONTACT_POINTS} | cut -d "," -f 2)
+            DSE_THIRD_ADDRESS=$(echo ${FALLOUT_SERVER_PRODUCT_CONTACT_POINTS} | cut -d "," -f 3)
+            DSE_ADDRESSES="${DSE_FIRST_ADDRESS}:9042, ${DSE_SECOND_ADDRESS}:9042, ${DSE_THIRD_ADDRESS}:9042"
+            sed -i "s/127.0.0.1:9042/$DSE_ADDRESSES/g" src/main/resources/application.properties
+            echo "quarkus.cassandra.use-quarkus-netty-event-loop={{useQuarkusNettyEventLoop}}" >> src/main/resources/application.properties
+
+            # compile and start quickstart app
+
+            if [ "{{native}}" = "true" ]
+            then
+              mvn clean package -Pnative
+            elif [ "{{native}}" = "false" ]
+            then
+              mvn clean package
+            fi
+            java -jar ./target/cassandra-quarkus-quickstart-{{version}}-runner.jar &> ${FALLOUT_ARTIFACT_DIR}/quickstart.log &
+
+    - start-client-script:
+        module: bash
+        properties:
+          target.group: http-client
+          export_output: false
+          timeout: 1 hours
+          script: |
+            cd ${FALLOUT_SCRATCH_DIR}
+            sudo apt update --assume-yes
+            sudo apt-get install lftp --assume-yes
+            sudo apt-get install wrk --assume-yes
+
+            #install maven and java
+            sudo apt install maven --assume-yes
+            sudo apt-get install unzip --assume-yes
+            git clone -b {{branch}} git@github.com:datastax/cassandra-quarkus.git
+            cd cassandra-quarkus/performance/wrk
+
+            QUICKSTART_APP_IP=${FALLOUT_QUICKSTARTAPP_NODE0_NODE_INFO_PUBLICNETWORKADDRESS}
+
+            # -duration : 20 minutes -c 256 concurent connections -t 40 threads
+            wrk -d 1200 -c 256 -t 40 --latency -s script.lua http://${QUICKSTART_APP_IP}:8080/ &> ${FALLOUT_ARTIFACT_DIR}/testResult.txt
+
+
+
+
+  checkers:
+    verify_success:
+      checker: nofail
