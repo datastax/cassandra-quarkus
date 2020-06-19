@@ -18,10 +18,10 @@ package com.datastax.oss.quarkus.deployment.internal.driver;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.datastax.oss.driver.internal.core.context.NettyOptions;
-import com.datastax.oss.quarkus.deployment.internal.tests.CassandraTestResource;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.runtime.internal.context.QuarkusDriverContext;
 import com.datastax.oss.quarkus.runtime.internal.driver.QuarkusNettyOptions;
+import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.quarkus.test.QuarkusUnitTest;
 import io.vertx.core.impl.VertxThread;
 import java.util.concurrent.CompletionStage;

@@ -17,8 +17,8 @@ package com.datastax.oss.quarkus.deployment.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.datastax.oss.quarkus.deployment.internal.tests.CassandraTestResource;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
+import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.quarkus.arc.Arc;
 import io.quarkus.builder.BuildChainBuilder;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
@@ -40,7 +40,7 @@ public class CassandraClientBuildItemConsumerTest {
           .addBuildChainCustomizer(buildCustomizer());
 
   @Test
-  public void testContainerHasBeans() {
+  public void should_have_quarkus_cql_session_in_the_di_container() {
     // verify that QuarkusCqlSession bean is present -
     // it must be unremovable to be present at this stage of the lifecycle
     assertThat(Arc.container().instance(QuarkusCqlSession.class).get()).isNotNull();

@@ -43,6 +43,7 @@
   <modules>
     <module>bom-runtime</module>
     <module>bom-deployment</module>
+    <module>test-framework</module>
     <module>runtime</module>
     <module>deployment</module>
     <module>integration-tests</module>
