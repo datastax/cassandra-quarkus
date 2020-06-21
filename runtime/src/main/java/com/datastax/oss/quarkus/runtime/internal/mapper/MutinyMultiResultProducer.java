@@ -22,18 +22,18 @@ import com.datastax.oss.driver.api.core.type.reflect.GenericType;
 import com.datastax.oss.driver.api.mapper.MapperContext;
 import com.datastax.oss.driver.api.mapper.entity.EntityHelper;
 import com.datastax.oss.driver.api.mapper.result.MapperResultProducer;
-import com.datastax.oss.quarkus.runtime.api.reactive.mapper.MutinyMappedReactiveResultSet;
 import com.datastax.oss.quarkus.runtime.internal.reactive.DefaultMutinyMappedReactiveResultSet;
+import com.datastax.oss.quarkus.runtime.internal.reactive.DefaultMutinyReactiveResultSet;
 import com.datastax.oss.quarkus.runtime.internal.reactive.FailedMutinyMappedReactiveResultSet;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import java.util.Objects;
+import io.smallrye.mutiny.Multi;
 
-public class MutinyMappedReactiveResultSetProducer implements MapperResultProducer {
+public class MutinyMultiResultProducer implements MapperResultProducer {
 
   @Override
   public boolean canProduce(@NonNull GenericType<?> resultType) {
-    return resultType.getRawType().isAssignableFrom(MutinyMappedReactiveResultSet.class);
+    return Multi.class.isAssignableFrom(resultType.getRawType());
   }
 
   @Override
@@ -41,10 +41,17 @@ public class MutinyMappedReactiveResultSetProducer implements MapperResultProduc
       @NonNull Statement<?> statement,
       @NonNull MapperContext context,
       @Nullable EntityHelper<?> entityHelper) {
-    Objects.requireNonNull(entityHelper);
     ReactiveResultSet source = context.getSession().executeReactive(statement);
-    return new DefaultMutinyMappedReactiveResultSet<>(
-        new DefaultMappedReactiveResultSet<>(source, entityHelper::get));
+    if (entityHelper == null) {
+      // If no entity helper is present, supported return types are:
+      // Multi<Row>, Multi<ReactiveRow>, MutinyReactiveResultSet
+      return new DefaultMutinyReactiveResultSet(source);
+    } else {
+      // If an entity helper is present, supported return types are:
+      // Multi<EntityT> or MappedReactiveResultSet<EntityT>
+      return new DefaultMutinyMappedReactiveResultSet<>(
+          new DefaultMappedReactiveResultSet<>(source, entityHelper::get));
+    }
   }
 
   @Nullable

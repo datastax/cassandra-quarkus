@@ -23,7 +23,6 @@ public class MutinyProducerService implements MapperResultProducerService {
 
   @Override
   public Iterable<MapperResultProducer> getProducers() {
-    return Arrays.asList(
-        new MutinyMappedReactiveResultSetProducer(), new MutinyUniResultProducer());
+    return Arrays.asList(new MutinyMultiResultProducer(), new MutinyUniResultProducer());
   }
 }
