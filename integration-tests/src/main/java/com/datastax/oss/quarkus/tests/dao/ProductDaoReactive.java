@@ -18,7 +18,7 @@ package com.datastax.oss.quarkus.tests.dao;
 import com.datastax.oss.driver.api.mapper.annotations.Dao;
 import com.datastax.oss.driver.api.mapper.annotations.Insert;
 import com.datastax.oss.driver.api.mapper.annotations.Select;
-import com.datastax.oss.quarkus.runtime.api.reactive.mapper.MutinyMappedReactiveResultSet;
+import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import java.util.UUID;
 
@@ -29,5 +29,8 @@ public interface ProductDaoReactive {
   Uni<Void> create(Product product);
 
   @Select
-  MutinyMappedReactiveResultSet<Product> findById(UUID productId);
+  Uni<Product> findById(UUID productId);
+
+  @Select
+  Multi<Product> findAll();
 }

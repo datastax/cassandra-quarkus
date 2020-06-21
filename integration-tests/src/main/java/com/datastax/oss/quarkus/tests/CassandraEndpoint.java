@@ -44,7 +44,7 @@ public class CassandraEndpoint {
   }
 
   @GET
-  @Produces(MediaType.TEXT_PLAIN)
+  @Produces(MediaType.APPLICATION_JSON)
   @Path("/product/{id}")
   public Product getProduct(@PathParam("id") UUID id) {
     return dao.getDao().findById(id);
@@ -55,13 +55,20 @@ public class CassandraEndpoint {
   @Path("/product-reactive/{description}")
   public Uni<UUID> saveProductReactive(@PathParam("description") String desc) {
     UUID id = UUID.randomUUID();
-    return reactiveDao.getDao().create(new Product(id, desc)).then(i -> Uni.createFrom().item(id));
+    return reactiveDao.getDao().create(new Product(id, desc)).map(v -> id);
   }
 
   @GET
-  @Produces(MediaType.TEXT_PLAIN)
+  @Produces(MediaType.APPLICATION_JSON)
   @Path("/product-reactive/{id}")
-  public Multi<Product> getProductReactive(@PathParam("id") UUID id) {
+  public Uni<Product> getProductReactive(@PathParam("id") UUID id) {
     return reactiveDao.getDao().findById(id);
+  }
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("/product-reactive")
+  public Multi<Product> getAllProductsReactive() {
+    return reactiveDao.getDao().findAll();
   }
 }

@@ -50,6 +50,14 @@
       <artifactId>quarkus-smallrye-metrics</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-resteasy</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-resteasy-jsonb</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.datastax.oss.quarkus</groupId>
       <artifactId>cassandra-quarkus-client</artifactId>
     </dependency>

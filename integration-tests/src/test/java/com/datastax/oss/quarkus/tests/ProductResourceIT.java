@@ -16,12 +16,16 @@
 package com.datastax.oss.quarkus.tests;
 
 import static io.restassured.RestAssured.when;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 
 import com.datastax.oss.quarkus.test.CassandraTestResource;
+import com.datastax.oss.quarkus.tests.dao.Product;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import java.util.UUID;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
@@ -33,7 +37,7 @@ public class ProductResourceIT {
 
     String productId =
         when()
-            .post("/cassandra/product/desc1")
+            .post("/cassandra/product/test1")
             .then()
             .statusCode(Response.Status.OK.getStatusCode())
             .body(notNullValue())
@@ -69,19 +73,59 @@ public class ProductResourceIT {
   @Test
   public void should_save_and_get_product_reactive() {
 
-    String productId =
+    String productId1 =
         when()
-            .post("/cassandra/product-reactive/desc1")
+            .post("/cassandra/product-reactive/reactive1")
             .then()
             .statusCode(Response.Status.OK.getStatusCode())
             .body(notNullValue())
             .extract()
             .body()
             .asString();
-    when()
-        .get("/cassandra/product-reactive/" + productId)
-        .then()
-        .statusCode(Response.Status.OK.getStatusCode())
-        .body(notNullValue());
+    Product product1 = new Product(UUID.fromString(productId1), "reactive1");
+
+    String productId2 =
+        when()
+            .post("/cassandra/product-reactive/reactive2")
+            .then()
+            .statusCode(Response.Status.OK.getStatusCode())
+            .body(notNullValue())
+            .extract()
+            .body()
+            .asString();
+    Product product2 = new Product(UUID.fromString(productId2), "reactive2");
+
+    Product actual1 =
+        when()
+            .get("/cassandra/product-reactive/" + productId1)
+            .then()
+            .statusCode(Status.OK.getStatusCode())
+            .body(notNullValue())
+            .extract()
+            .body()
+            .as(Product.class);
+    assertThat(actual1).isEqualTo(product1);
+
+    Product actual2 =
+        when()
+            .get("/cassandra/product-reactive/" + productId2)
+            .then()
+            .statusCode(Status.OK.getStatusCode())
+            .body(notNullValue())
+            .extract()
+            .body()
+            .as(Product.class);
+    assertThat(actual2).isEqualTo(product2);
+
+    Product[] products =
+        when()
+            .get("/cassandra/product-reactive")
+            .then()
+            .statusCode(Status.OK.getStatusCode())
+            .body(notNullValue())
+            .extract()
+            .body()
+            .as(Product[].class);
+    assertThat(products).contains(product1, product2);
   }
 }
