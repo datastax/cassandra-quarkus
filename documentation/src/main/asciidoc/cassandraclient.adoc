@@ -153,34 +153,50 @@ When starting the Quarkus app, it will try to fetch the `fruit.dao.keyspace` set
 fruit.dao.keyspace=k1
 ----
 
-The instance of a `FruitMapper` should be shared between services that are using it within an
-application. We should leverage Quarkus Dependency Injection container and inject the instance of
-constructed `FruitMapper`:
+Next, we need a component to create our DAO instances: `FruitDaoProducer`. Indeed, Mapper and Dao
+instances are stateful objects, and should be created only once, as application-scoped singletons.
+This component will do exactly that, leveraging Quarkus Dependency Injection container:
 
 [source, java]
 ----
+import com.datastax.oss.driver.api.core.CqlIdentifier;
+import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 
-public class FruitMapperProducer {
-  private final QuarkusCqlSession quarkusCqlSession;
+public class FruitDaoProducer {
+
+  private final FruitDao fruitDao;
+  private final FruitDaoReactive fruitDaoReactive;
 
   @Inject
-  public FruitMapperProducer(QuarkusCqlSession quarkusCqlSession) {
-    this.quarkusCqlSession = quarkusCqlSession;
+  public FruitDaoProducer(QuarkusCqlSession cqlSession, FruitServiceConfig fruitServiceConfig) {
+    // create a mapper
+    FruitMapper mapper = new FruitMapperBuilder(cqlSession).build();
+    // retrieve the keyspace
+    CqlIdentifier keyspace = CqlIdentifier.fromCql(fruitServiceConfig.getKeyspace());
+    // instantiate our Daos
+    fruitDao = mapper.fruitDao(keyspace);
+    fruitDaoReactive = mapper.fruitDaoReactive(keyspace);
   }
 
   @Produces
   @ApplicationScoped
-  FruitMapper produceFruitMapper() {
-    return new FruitMapperBuilder(quarkusCqlSession).build();
+  FruitDao produceFruitDao() {
+    return fruitDao;
+  }
+
+  @Produces
+  @ApplicationScoped
+  FruitDaoReactive produceFruitDaoReactive() {
+    return fruitDaoReactive;
   }
 }
 ----
 
-Please note the `QuarkusCqlSession` instance injected automatically by the cassandra-quarkus
-extension in the `FruitMapperProducer` constructor. The `produceFruitMapper()` method is
-constructing a `FruitMapper` instance that will be injected into the DI container by the Quarkus
-framework.
+Note how the `QuarkusCqlSession` instance is injected automatically by the cassandra-quarkus
+extension in the `FruitDaoProducer` constructor.
 
 Now create a `FruitService` that will be the business layer of our application and store/load the
 fruits from the Cassandra database.
@@ -189,11 +205,12 @@ fruits from the Cassandra database.
 ----
 @ApplicationScoped
 public class FruitService {
+
   private final FruitDao dao;
 
   @Inject
-  public FruitService(FruitMapper fruitMapper, FruitServiceConfig fruitServiceConfig) {
-    dao = fruitMapper.fruitDao(CqlIdentifier.fromCql(fruitServiceConfig.keyspace));
+  public FruitService(FruitDao dao) {
+    this.dao = dao;
   }
 
   public void save(Fruit fruit) {
@@ -206,9 +223,8 @@ public class FruitService {
 }
 ----
 
-Please note the construction of a `FruitDao` instance in the constructor. It uses a `FruitMapper`
-instance injected automatically by the `FruitMapperProducer` bean. It is also using the injected
-`FruitServiceConfig` with the keyspace provided via the `application.properties` file.
+Note how the service receives a `FruitDao` instance in the constructor. This dao instance is
+provided by `FruitDaoProducer` and injected automatically.
 
 The last missing piece is the REST API that will expose GET and POST methods:
 
@@ -220,6 +236,7 @@ The last missing piece is the REST API that will expose GET and POST methods:
 public class FruitResource {
 
   private static final String STORE_NAME = "acme";
+
   @Inject FruitService fruitService;
 
   @GET

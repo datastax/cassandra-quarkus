@@ -15,18 +15,18 @@
  */
 package com.datastax.oss.quarkus.demo;
 
-import com.datastax.oss.driver.api.core.CqlIdentifier;
 import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
 public class FruitService {
+
   private final FruitDao dao;
 
   @Inject
-  public FruitService(FruitMapper fruitMapper, FruitServiceConfig fruitServiceConfig) {
-    dao = fruitMapper.fruitDao(CqlIdentifier.fromCql(fruitServiceConfig.keyspace));
+  public FruitService(FruitDao dao) {
+    this.dao = dao;
   }
 
   public void save(Fruit fruit) {

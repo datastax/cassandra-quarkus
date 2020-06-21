@@ -19,8 +19,9 @@ import io.quarkus.arc.config.ConfigProperties;
 
 @ConfigProperties(prefix = "fruit.dao")
 public class FruitServiceConfig {
+
   /** Keyspace that should be used when creating a fruit dao. */
-  String keyspace;
+  private String keyspace;
 
   public String getKeyspace() {
     return keyspace;
