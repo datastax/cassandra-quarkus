@@ -30,9 +30,11 @@
     <!--
     Note: the quarkus.version property is used by the Quarkus CI to pass version info into the build.
     See https://github.com/datastax/cassandra-quarkus/issues/38 for details.
+    Note: when upgrading the Quarkus version or the DataStax Java driver version, make sure that you
+    upgrade them in the quickstart module too.
     -->
     <quarkus.version>1.5.0.Final</quarkus.version>
-    <datastax-java-driver.version>4.7.0</datastax-java-driver.version>
+    <datastax-java-driver.version>4.7.1</datastax-java-driver.version>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.source>1.8</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -15,6 +15,7 @@
  */
 package com.datastax.oss.quarkus.runtime.internal.quarkus;
 
+import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.config.DefaultDriverOption;
 import com.datastax.oss.driver.api.core.config.DriverConfig;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
@@ -51,7 +52,7 @@ public class CassandraClientProducer {
   @ApplicationScoped
   @Unremovable
   public QuarkusCqlSession createCassandraClient() {
-    ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder = createDriverConfigLoader();
+    ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder = createDriverConfigLoaderBuilder();
     configureConnectionSettings(configLoaderBuilder, config.cassandraClientConnectionConfig);
     configureMetricsSettings(configLoaderBuilder, metricsConfig);
     configureProtocolCompression(configLoaderBuilder, protocolCompression);
@@ -83,17 +84,16 @@ public class CassandraClientProducer {
     this.mainEventLoop = mainEventLoop;
   }
 
-  private ProgrammaticDriverConfigLoaderBuilder createDriverConfigLoader() {
+  private ProgrammaticDriverConfigLoaderBuilder createDriverConfigLoaderBuilder() {
     return new DefaultProgrammaticDriverConfigLoaderBuilder(
-        () -> {
-          ConfigFactory.invalidateCaches();
-          return ConfigFactory.defaultOverrides()
-              .withFallback(ConfigFactory.parseResources("application.conf"))
-              .withFallback(ConfigFactory.parseResources("application.json"))
-              .withFallback(ConfigFactory.defaultReference())
-              .getConfig(DefaultDriverConfigLoader.DEFAULT_ROOT_PATH)
-              .resolve();
-        }) {
+        () ->
+            // The fallback supplier specified here is similar to the default
+            // one, except that we don't accept application.properties
+            // because it's used by Quarkus.
+            ConfigFactory.parseResources("application.conf")
+                .withFallback(ConfigFactory.parseResources("application.json"))
+                .withFallback(ConfigFactory.defaultReference(CqlSession.class.getClassLoader())),
+        DefaultDriverConfigLoader.DEFAULT_ROOT_PATH) {
       @NonNull
       @Override
       public DriverConfigLoader build() {

@@ -23,11 +23,10 @@
   <version>1.0.0-SNAPSHOT</version>
   <name>Cassandra Quarkus :: Quickstart</name>
   <properties>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <surefire-plugin.version>2.22.0</surefire-plugin.version>
     <quarkus.version>1.5.0.Final</quarkus.version>
+    <datastax-java-driver.version>4.7.1</datastax-java-driver.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <datastax-java-driver.version>4.7.0</datastax-java-driver.version>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
   <dependencyManagement>
     <dependencies>
