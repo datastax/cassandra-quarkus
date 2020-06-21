@@ -33,7 +33,7 @@ public class MutinyMappedReactiveResultSetProducer implements MapperResultProduc
 
   @Override
   public boolean canProduce(@NonNull GenericType<?> resultType) {
-    return resultType.getRawType().equals(MutinyMappedReactiveResultSet.class);
+    return resultType.getRawType().isAssignableFrom(MutinyMappedReactiveResultSet.class);
   }
 
   @Override
