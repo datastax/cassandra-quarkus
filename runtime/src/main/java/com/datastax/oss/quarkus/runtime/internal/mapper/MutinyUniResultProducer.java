@@ -15,9 +15,7 @@
  */
 package com.datastax.oss.quarkus.runtime.internal.mapper;
 
-import com.datastax.oss.driver.api.core.AsyncPagingIterable;
-import com.datastax.oss.driver.api.core.cql.AsyncResultSet;
-import com.datastax.oss.driver.api.core.cql.Row;
+import com.datastax.dse.driver.api.core.cql.reactive.ReactiveResultSet;
 import com.datastax.oss.driver.api.core.cql.Statement;
 import com.datastax.oss.driver.api.core.type.reflect.GenericType;
 import com.datastax.oss.driver.api.mapper.MapperContext;
@@ -27,13 +25,12 @@ import com.datastax.oss.quarkus.runtime.internal.reactive.Wrappers;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.smallrye.mutiny.Uni;
-import java.util.concurrent.CompletionStage;
 
 public class MutinyUniResultProducer implements MapperResultProducer {
 
   @Override
   public boolean canProduce(@NonNull GenericType<?> resultType) {
-    return resultType.getRawType().equals(Uni.class);
+    return Uni.class.equals(resultType.getRawType());
   }
 
   @Override
@@ -41,10 +38,16 @@ public class MutinyUniResultProducer implements MapperResultProducer {
       @NonNull Statement<?> statement,
       @NonNull MapperContext context,
       @Nullable EntityHelper<?> entityHelper) {
-    CompletionStage<AsyncResultSet> stage = context.getSession().executeAsync(statement);
-    // Assume that the result set returned by this query contains zero or one row
-    CompletionStage<Row> firstRowOrEmpty = stage.thenApply(AsyncPagingIterable::one);
-    return Wrappers.toUni(firstRowOrEmpty);
+    ReactiveResultSet source = context.getSession().executeReactive(statement);
+    if (entityHelper == null) {
+      // If no entity helper is present, accepted return types are: Uni<Void> or Uni<Row>
+      return Wrappers.toUni(source);
+    } else {
+      // If an entity helper is present, accepted return type is Uni<EntityT>;
+      // note that Uni does not comply with the Publisher specs and will emit a null item
+      // when the query returns no rows; we need to catch that here.
+      return Wrappers.toUni(source).map(row -> row == null ? null : entityHelper.get(row));
+    }
   }
 
   @Nullable
