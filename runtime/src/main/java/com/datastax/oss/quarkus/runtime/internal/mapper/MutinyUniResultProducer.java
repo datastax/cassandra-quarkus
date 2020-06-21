@@ -15,6 +15,9 @@
  */
 package com.datastax.oss.quarkus.runtime.internal.mapper;
 
+import com.datastax.oss.driver.api.core.AsyncPagingIterable;
+import com.datastax.oss.driver.api.core.cql.AsyncResultSet;
+import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.driver.api.core.cql.Statement;
 import com.datastax.oss.driver.api.core.type.reflect.GenericType;
 import com.datastax.oss.driver.api.mapper.MapperContext;
@@ -24,6 +27,7 @@ import com.datastax.oss.quarkus.runtime.internal.reactive.Wrappers;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.smallrye.mutiny.Uni;
+import java.util.concurrent.CompletionStage;
 
 public class MutinyUniResultProducer implements MapperResultProducer {
 
@@ -37,7 +41,10 @@ public class MutinyUniResultProducer implements MapperResultProducer {
       @NonNull Statement<?> statement,
       @NonNull MapperContext context,
       @Nullable EntityHelper<?> entityHelper) {
-    return Wrappers.toUni(context.getSession().executeAsync(statement));
+    CompletionStage<AsyncResultSet> stage = context.getSession().executeAsync(statement);
+    // Assume that the result set returned by this query contains zero or one row
+    CompletionStage<Row> firstRowOrEmpty = stage.thenApply(AsyncPagingIterable::one);
+    return Wrappers.toUni(firstRowOrEmpty);
   }
 
   @Nullable
