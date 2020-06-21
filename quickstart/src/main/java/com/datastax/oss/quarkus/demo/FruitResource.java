@@ -34,7 +34,7 @@ public class FruitResource {
   @Inject FruitService fruitService;
 
   @GET
-  public List<FruitDto> list() {
+  public List<FruitDto> getAll() {
     return fruitService.get(STORE_NAME).stream()
         .map(fruit -> new FruitDto(fruit.getName(), fruit.getDescription()))
         .collect(Collectors.toList());

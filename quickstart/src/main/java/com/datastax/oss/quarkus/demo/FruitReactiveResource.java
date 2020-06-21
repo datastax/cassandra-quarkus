@@ -16,6 +16,7 @@
 package com.datastax.oss.quarkus.demo;
 
 import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.Uni;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -39,9 +40,9 @@ public class FruitReactiveResource {
   }
 
   @POST
-  public Multi<FruitDto> add(FruitDto fruitDto) {
+  public Uni<Void> add(FruitDto fruitDto) {
     Fruit fruit = covertFromDto(fruitDto);
-    return service.add(fruit).then(ignored -> getAll());
+    return service.add(fruit);
   }
 
   private Fruit covertFromDto(FruitDto fruitDto) {
