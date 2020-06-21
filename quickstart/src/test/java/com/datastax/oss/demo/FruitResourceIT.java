@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 public class FruitResourceIT {
 
   @Test
-  public void should_save_and_get_the_fruit() throws JSONException {
+  public void should_save_and_retrieve_entity() throws JSONException {
     // given
     JSONObject jsonObj =
         new JSONObject()
@@ -63,5 +63,37 @@ public class FruitResourceIT {
             .body()
             .as(FruitDto[].class);
     assertThat(fruits).contains(new FruitDto("it_product", "this was created via IT test"));
+  }
+
+  @Test
+  public void should_save_and_retrieve_entity_reactive() throws JSONException {
+    // given
+    JSONObject jsonObj =
+        new JSONObject()
+            .put("name", "it_product_reactive")
+            .put("description", "this was created via reactive IT test");
+
+    // when creating, then
+    given()
+        .contentType(ContentType.JSON)
+        .body(jsonObj.toString())
+        .when()
+        .post("/reactive-fruits")
+        .then()
+        .statusCode(Response.Status.NO_CONTENT.getStatusCode())
+        .body(notNullValue());
+
+    // when retrieving, then
+    FruitDto[] fruits =
+        when()
+            .get("/reactive-fruits")
+            .then()
+            .statusCode(Response.Status.OK.getStatusCode())
+            .body(notNullValue())
+            .extract()
+            .body()
+            .as(FruitDto[].class);
+    assertThat(fruits)
+        .contains(new FruitDto("it_product_reactive", "this was created via reactive IT test"));
   }
 }
