@@ -173,7 +173,7 @@ Run the following command to execute both unit tests and regular integration tes
 To also run integration tests that require a native image to be built, you need to activate the 
 `native` profile:
 
-    mvn clean verify -Pnative
+    mvn clean verify -Dnative
     
 Native tests require that you point the environment variable `GRAALVM_HOME` to a valid Graal 
 installation root. When native integration tests are activated, the build takes considerably longer 
@@ -310,4 +310,4 @@ rewrite the history. Just give a heads up to the reviewers beforehand. Don't pus
 a pull request.
 
 Be sure to test your pull request by running all the unit and integration tests, including tests in 
-native mode. Again, this can be done by running `mvn clean verify -Pnative`.
+native mode. Again, this can be done by running `mvn clean verify -Dnative`.

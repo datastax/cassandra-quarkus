@@ -600,7 +600,7 @@ you will see metric reports for all enabled metrics.
 
 You can use the Cassandra client in a native executable.
 
-You can build a native executable with the `mvn clean package -Pnative` command.
+You can build a native executable with the `mvn clean package -Dnative` command.
 
 Running it is as simple as executing `./target/quickstart-1.0.0-SNAPSHOT-runner`.
 

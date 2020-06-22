@@ -89,7 +89,7 @@ You can compile the application into a native binary using:
 
 [source,shell]
 ----
-mvn clean package -Pnative
+mvn clean package -Dnative
 ----
 
 Then run it with:

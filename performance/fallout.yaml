@@ -145,7 +145,7 @@ workload:
 
             if [ "{{native}}" = "true" ]
             then
-              mvn clean package -Pnative
+              mvn clean package -Dnative
             elif [ "{{native}}" = "false" ]
             then
               mvn clean package
