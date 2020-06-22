@@ -35,6 +35,7 @@
     -->
     <quarkus.version>1.5.0.Final</quarkus.version>
     <datastax-java-driver.version>4.7.2</datastax-java-driver.version>
+    <datastax-java-driver.javadoc.version>4.7</datastax-java-driver.javadoc.version>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.source>1.8</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -157,6 +158,11 @@
           <artifactId>maven-release-plugin</artifactId>
           <version>2.5.3</version>
         </plugin>
+        <plugin>
+          <groupId>org.sonatype.plugins</groupId>
+          <artifactId>nexus-staging-maven-plugin</artifactId>
+          <version>1.6.8</version>
+        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
@@ -278,8 +284,103 @@ limitations under the License.]]></inlineHeader>
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <artifactId>maven-release-plugin</artifactId>
+        <configuration>
+          <tagNameFormat>@{project.version}</tagNameFormat>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+          <useReleaseProfile>false</useReleaseProfile>
+          <releaseProfiles>release</releaseProfiles>
+          <goals>deploy</goals>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <configuration>
+              <verbose>false</verbose>
+              <quiet>true</quiet>
+              <doclint>all,-missing</doclint>
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+                <configuration>
+                  <header><![CDATA[<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-TWSQ28');</script>
+<!-- End Google Tag Manager -->
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TWSQ28"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->]]></header>
+                  <additionalOptions>
+                    <additionalOption>--allow-script-in-comments</additionalOption>
+                  </additionalOptions>
+                  <excludePackageNames>com.datastax.oss.quarkus.*.internal,com.datastax.oss.quarkus.*.internal.*</excludePackageNames>
+                  <links>
+                    <link>https://docs.datastax.com/en/drivers/java/${datastax-java-driver.javadoc.version}/</link>
+                    <link>https://smallrye.io/smallrye-mutiny/apidocs/</link>
+                    <link>https://www.reactive-streams.org/reactive-streams-1.0.3-javadoc/</link>
+                  </links>
+                  <sourceFileExcludes>
+                    <sourceFileExclude>**/*$$accessor.java</sourceFileExclude>
+                    <sourceFileExclude>**/*__MapperGenerated.java</sourceFileExclude>
+                  </sourceFileExcludes>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <extensions>true</extensions>
+            <configuration>
+              <serverId>ossrh</serverId>
+              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+              <autoReleaseAfterClose>false</autoReleaseAfterClose>
+              <skipLocalStaging>true</skipLocalStaging>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
   <distributionManagement>
     <repository>
       <id>ossrh</id>

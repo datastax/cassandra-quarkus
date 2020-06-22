@@ -219,6 +219,85 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <!--
+      The release profile and all the plugin executions it contains are only used
+      when we release the quickstart module, as part of the process of releasing
+      the Cassandra Quarkus extension; if you are using the quickstart demo app as
+      a template for your project, you can change their configuration, or even
+      remove this profile completely.
+      -->
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>1.6</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.2.0</version>
+            <configuration>
+              <verbose>false</verbose>
+              <quiet>true</quiet>
+              <doclint>all,-missing</doclint>
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+                <configuration>
+                  <links>
+                    <link>https://docs.datastax.com/en/drivers/java/latest/</link>
+                    <link>https://smallrye.io/smallrye-mutiny/apidocs/</link>
+                    <link>https://www.reactive-streams.org/reactive-streams-1.0.3-javadoc/</link>
+                  </links>
+                  <sourceFileExcludes>
+                    <sourceFileExclude>**/*$$accessor.java</sourceFileExclude>
+                    <sourceFileExclude>**/*__MapperGenerated.java</sourceFileExclude>
+                  </sourceFileExcludes>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <version>1.6.8</version>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <extensions>true</extensions>
+            <configuration>
+              <serverId>ossrh</serverId>
+              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+              <autoReleaseAfterClose>false</autoReleaseAfterClose>
+              <skipLocalStaging>true</skipLocalStaging>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
   <distributionManagement>
     <repository>
