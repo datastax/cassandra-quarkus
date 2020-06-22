@@ -291,6 +291,7 @@ limitations under the License.]]></inlineHeader>
           <autoVersionSubmodules>true</autoVersionSubmodules>
           <useReleaseProfile>false</useReleaseProfile>
           <releaseProfiles>release</releaseProfiles>
+          <preparationGoals>xml-format:xml-format</preparationGoals>
           <goals>deploy</goals>
         </configuration>
       </plugin>
