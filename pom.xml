@@ -24,7 +24,7 @@
   <packaging>pom</packaging>
   <name>Cassandra Quarkus :: Parent</name>
   <description>Cassandra extensions for Quarkus</description>
-  <url>https://quarkus.io/guides/cassandra</url>
+  <url>https://github.com/datastax/cassandra-quarkus</url>
   <inceptionYear>2020</inceptionYear>
   <properties>
     <!--
