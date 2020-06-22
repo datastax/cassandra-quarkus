@@ -220,4 +220,30 @@
       </build>
     </profile>
   </profiles>
+  <distributionManagement>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
+  <licenses>
+    <license>
+      <name>Apache 2</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+      <comments>Apache License Version 2.0</comments>
+    </license>
+  </licenses>
+  <scm>
+    <connection>scm:git:git@github.com:datastax/cassandra-quarkus.git</connection>
+    <developerConnection>scm:git:git@github.com:datastax/cassandra-quarkus.git</developerConnection>
+    <url>https://github.com/datastax/cassandra-quarkus</url>
+    <tag>HEAD</tag>
+  </scm>
+  <developers>
+    <developer>
+      <name>Various</name>
+      <organization>DataStax</organization>
+    </developer>
+  </developers>
 </project>
