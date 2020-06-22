@@ -1,5 +1,6 @@
 ### 1.0.0 (in progress)
 
+- [new feature] Add setting for DataStax Astra secure connect bundle (fixes #94)
 - [new feature] Add configuration options for plain text authentication
 - [improvement] JAVA-2778: Split classes into api and internal packages
 - [improvement] JAVA-2722: Replace generated code in CassandraClientProcessor by normal java class

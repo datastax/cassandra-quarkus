@@ -290,6 +290,8 @@ constructor.
 
 == Configuring the Cassandra database
 
+=== Connecting to Apache Cassandra or DataStax Enterprise (DSE)
+
 The main two properties to configure are: `contact-points`, to access the Cassandra database, and
 `local-datacenter`, which is required by the driver.
 
@@ -297,7 +299,6 @@ A sample configuration should look like this:
 
 [source,properties]
 ----
-# configure the Cassandra client for a replica set of two nodes
 quarkus.cassandra.contact-points={cassandra_ip}:9042
 quarkus.cassandra.local-datacenter={dc_name}
 ----
@@ -306,13 +307,38 @@ In this example, we are using a single instance running on localhost:
 
 [source,properties]
 ----
-# configure the Cassandra client for a single instance on localhost
 quarkus.cassandra.contact-points=127.0.0.1:9042
 quarkus.cassandra.local-datacenter=datacenter1
 ----
 
+If your cluster requires plain text authentication, you can also provide two more settings:
+`username` and `password`.
+
+[source,properties]
+----
+quarkus.cassandra.username=john
+quarkus.cassandra.password=s3cr3t
+----
+
+=== Connecting to a cloud DataStax Astra database
+
+When connecting to Astra, required properties to configure are: `secure-connect-bundle`,
+which should point to a valid path to an Astra secure connect bundle, as well as `username` and
+`password`, since authentication is always required on Astra clusters.
+
+A sample configuration should look like this:
+
+[source,properties]
+----
+quarkus.cassandra.secure-connect-bundle=/path/to/secure-connect-bundle.zip
+quarkus.cassandra.username=john
+quarkus.cassandra.password=s3cr3t
+----
+
+=== Advanced driver configuration
+
 You can configure other Java driver settings using `application.conf` or `application.json` files.
-They need to be located in the resources directory of your application.
+They need to be located in the classpath of your application.
 All settings will be passed automatically to the underlying driver configuration mechanism.
 Settings defined in `application.properties` with the `quarkus.cassandra` prefix will have priority
 over settings defined in `application.conf` or `application.json`.
