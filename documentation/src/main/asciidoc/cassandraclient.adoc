@@ -411,15 +411,20 @@ public interface FruitDaoReactive {
 ----
 
 Please note the usage of `MutinyMappedReactiveResultSet` - it is a specialized `Mutiny` type
-converted from the original `Publisher` returned by the driver.
+converted from the original `Publisher` returned by the driver, which also exposes a few extra
+methods, e.g. to obtain the query execution info. If you don't need anything in that interface,
+you can also simply declare your method to return `Multi`: `Multi<Fruit> findByIdAsync(String id)`,
 
 Similarly, the method `updateAsync` returns a `Uni` - it is automatically converted from the
-original `CompletionStage` returned by the driver.
+original result set returned by the driver.
 
 NOTE: The Cassandra driver uses the Reactive Streams `Publisher` API for reactive calls. The Quarkus
 framework however uses Mutiny. Because of that, the `CqlQuarkusSession` interface transparently
-converts the `Publisher` instances returned by the driver into `Mutiny` reactive types.
-`CqlQuarkusSession` is also capable of converting a `CompletionStage` into a `Uni`.
+converts the `Publisher` instances returned by the driver into the reactive type `Multi`.
+`CqlQuarkusSession` is also capable of converting a `Publisher` into a `Uni` – in this case, the
+publisher is expected to emit at most one row, then complete. This is suitable for write queries
+(they return no rows), or for read queries guaranteed to return one row at most (count queries, for
+example).
 
 Next, we need to adapt the `FruitMapper` to construct a `FruitDaoReactive` instance:
 
