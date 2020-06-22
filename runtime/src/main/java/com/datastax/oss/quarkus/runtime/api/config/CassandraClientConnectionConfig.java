@@ -15,9 +15,9 @@
  */
 package com.datastax.oss.quarkus.runtime.api.config;
 
-import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import io.quarkus.runtime.annotations.ConfigGroup;
 import io.quarkus.runtime.annotations.ConfigItem;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
@@ -26,15 +26,26 @@ import java.util.Optional;
 public class CassandraClientConnectionConfig {
 
   /**
-   * Contact-points used to connect to Apache Cassandra (R). If not specified, it will connect to
-   * localhost.
+   * Contact-points used to connect to Apache Cassandra (R) or DataStax Enterprise (DSE). If not
+   * specified, the driver will attempt to connect to localhost on port 9042. This setting is not
+   * required to connect to DataStax Astra.
    */
-  @ConfigItem(name = "contact-points", defaultValue = "127.0.0.1:9042")
-  public List<String> contactPoints;
+  @ConfigItem(name = "contact-points")
+  public Optional<List<String>> contactPoints;
 
-  /** Local datacenter used when creating a {@link QuarkusCqlSession}. */
+  /**
+   * Local datacenter used to connect to Apache Cassandra (R) or DataStax Enterprise (DSE). This
+   * setting is not required to connect to DataStax Astra.
+   */
   @ConfigItem(name = "local-datacenter")
-  public String localDatacenter;
+  public Optional<String> localDatacenter;
+
+  /**
+   * The path to a cloud secure bundle used to connect to DataStax Astra. This setting is not
+   * required to connect to connect to Apache Cassandra (R) or DataStax Enterprise (DSE).
+   */
+  @ConfigItem(name = "secure-connect-bundle")
+  public Optional<Path> secureConnectBundle;
 
   /** How long the driver waits for a request to complete. */
   @ConfigItem(name = "request.timeout")

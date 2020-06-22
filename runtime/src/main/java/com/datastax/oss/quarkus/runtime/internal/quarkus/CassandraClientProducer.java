@@ -138,9 +138,15 @@ public class CassandraClientProducer {
   private void configureConnectionSettings(
       ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder,
       CassandraClientConnectionConfig config) {
-    configLoaderBuilder.withStringList(DefaultDriverOption.CONTACT_POINTS, config.contactPoints);
-    configLoaderBuilder.withString(
-        DefaultDriverOption.LOAD_BALANCING_LOCAL_DATACENTER, config.localDatacenter);
+    config.contactPoints.ifPresent(
+        v -> configLoaderBuilder.withStringList(DefaultDriverOption.CONTACT_POINTS, v));
+    config.localDatacenter.ifPresent(
+        v ->
+            configLoaderBuilder.withString(DefaultDriverOption.LOAD_BALANCING_LOCAL_DATACENTER, v));
+    config.secureConnectBundle.ifPresent(
+        v ->
+            configLoaderBuilder.withString(
+                DefaultDriverOption.CLOUD_SECURE_CONNECT_BUNDLE, v.toAbsolutePath().toString()));
     config.requestTimeout.ifPresent(
         v -> configLoaderBuilder.withDuration(DefaultDriverOption.REQUEST_TIMEOUT, v));
     if (config.username.isPresent() && config.password.isPresent()) {
