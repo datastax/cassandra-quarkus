@@ -24,18 +24,21 @@ import org.testcontainers.containers.CassandraContainer;
 import org.testcontainers.containers.wait.CassandraQueryWaitStrategy;
 
 /**
- * Integration tests using this resource must define two settings in the .properties file:
+ * A {@link QuarkusTestResourceLifecycleManager} that starts and stops a {@link CassandraContainer}.
+ *
+ * <p>Integration tests using this resource must define two settings in the .properties file:
  *
  * <pre>
  * quarkus.cassandra.contact-points=127.0.0.1:${quarkus.cassandra.docker_port}
  * quarkus.cassandra.local-datacenter=datacenter1
  * </pre>
  *
- * Please note the ${quarkus.cassandra.docker_port} - it will be automatically injected by {@code
- * CassandraTestResource}.
+ * Please note that ports for contact points must not be hard-coded, but instead, specified exactly
+ * as <code>${quarkus.cassandra.docker_port}</code> - the actual port will be automatically injected
+ * by this manager.
  *
- * <p>If you want to execute a CQL init logic (i.e. CREATE KEYSPACE or CREATE TABLE) please create
- * an init_script.cql file and put it in the resources folder.
+ * <p>If you want to execute a CQL init logic (i.e. CREATE KEYSPACE or CREATE TABLE query) please
+ * create an <code>init_script.cql</code> file and put it in the test resources folder.
  */
 public class CassandraTestResource implements QuarkusTestResourceLifecycleManager {
 

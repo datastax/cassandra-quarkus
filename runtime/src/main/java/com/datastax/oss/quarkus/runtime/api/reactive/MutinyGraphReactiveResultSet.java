@@ -24,10 +24,14 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.smallrye.mutiny.Multi;
 
 /**
- * A marker interface for {@code Multi<ReactiveGraphNode>} returned by {@link QuarkusCqlSession}.
+ * A marker interface for {@code Multi<ReactiveGraphNode>} results returned by {@link
+ * QuarkusCqlSession}, when querying a Graph database.
+ *
+ * <p>Note: Graph databases are only available for DataStax Enterprise (DSE).
  *
  * @see QuarkusCqlSession#executeReactive(GraphStatement)
  * @see ReactiveGraphResultSet
+ * @see <a href="https://www.datastax.com/products/datastax-graph">DataStax Enteprise Graph</a>
  */
 public interface MutinyGraphReactiveResultSet
     extends Multi<ReactiveGraphNode>, ReactiveGraphResultSet {

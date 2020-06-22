@@ -22,7 +22,7 @@ import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import io.smallrye.mutiny.Multi;
 
 /**
- * A marker interface for {@code Multi<ReactiveRow>} returned by {@link QuarkusCqlSession}.
+ * A marker interface for {@code Multi<ReactiveRow>} results returned by {@link QuarkusCqlSession}.
  *
  * @see QuarkusCqlSession#executeReactive(String)
  * @see QuarkusCqlSession#executeReactive(Statement)

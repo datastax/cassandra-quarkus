@@ -20,11 +20,20 @@ import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
 import java.util.Objects;
 
+/**
+ * Represents the name and description of a fruit, for a given store.
+ *
+ * @see <a
+ *     href="https://docs.datastax.com/en/developer/java-driver/latest/manual/mapper/entities/">Defining
+ *     entities with the DataStax Java driver object mapper</a>
+ */
 @Entity
 public class Fruit {
 
   @PartitionKey private String storeId;
+
   @ClusteringColumn private String name;
+
   private String description;
 
   public Fruit() {}
@@ -35,6 +44,7 @@ public class Fruit {
     this.storeId = storeId;
   }
 
+  /** @return The store id for which this fruit was defined. */
   public String getStoreId() {
     return storeId;
   }
@@ -43,6 +53,7 @@ public class Fruit {
     this.storeId = storeId;
   }
 
+  /** @return The fruit name. */
   public String getName() {
     return name;
   }
@@ -51,6 +62,7 @@ public class Fruit {
     this.name = name;
   }
 
+  /** @return The fruit description. */
   public String getDescription() {
     return description;
   }
@@ -61,7 +73,6 @@ public class Fruit {
 
   @Override
   public boolean equals(Object o) {
-
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Fruit that = (Fruit) o;

@@ -18,13 +18,12 @@ package com.datastax.oss.quarkus.runtime.api.reactive;
 import com.datastax.dse.driver.api.core.cql.reactive.ReactiveQueryMetadata;
 import com.datastax.oss.driver.api.core.cql.ColumnDefinitions;
 import com.datastax.oss.driver.api.core.cql.ExecutionInfo;
-import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.smallrye.mutiny.Multi;
 
 /**
  * Interface implemented by the {@link MutinyReactiveResultSet} and {@link
- * MutinyContinuousReactiveResultSet} provided by the {@link QuarkusCqlSession}.
+ * MutinyContinuousReactiveResultSet}.
  *
  * @see ReactiveQueryMetadata
  */

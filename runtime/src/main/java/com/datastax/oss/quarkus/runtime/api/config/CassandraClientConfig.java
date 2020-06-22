@@ -19,11 +19,18 @@ import io.quarkus.runtime.annotations.ConfigItem;
 import io.quarkus.runtime.annotations.ConfigPhase;
 import io.quarkus.runtime.annotations.ConfigRoot;
 
+/**
+ * This class holds runtime configuration items for the Cassandra Quarkus extension.
+ *
+ * <p>Settings specified in application.properties under the {@code quarkus.cassandra} prefix will
+ * be mapped to fields in this class and its child configuration classes.
+ */
 @ConfigRoot(name = CassandraClientConfig.CONFIG_NAME, phase = ConfigPhase.RUN_TIME)
 public class CassandraClientConfig {
+
   public static final String CONFIG_NAME = "cassandra";
 
-  /** The Apache Cassandra (R) client config. */
+  /** The client connection configuration settings. */
   @ConfigItem(name = ConfigItem.PARENT)
   public CassandraClientConnectionConfig cassandraClientConnectionConfig;
 }

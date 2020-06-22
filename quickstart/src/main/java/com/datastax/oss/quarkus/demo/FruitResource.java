@@ -25,6 +25,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+/**
+ * A REST resource exposing endpoints for creating and retrieving {@link Fruit} objects in the
+ * database, leveraging the {@link FruitService} component.
+ */
 @Path("/fruits")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)

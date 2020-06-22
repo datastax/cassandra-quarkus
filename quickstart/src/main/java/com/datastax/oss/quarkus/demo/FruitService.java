@@ -19,6 +19,7 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+/** A service that manages {@link Fruit} objects, leveraging the {@link FruitDao} DAO. */
 @ApplicationScoped
 public class FruitService {
 

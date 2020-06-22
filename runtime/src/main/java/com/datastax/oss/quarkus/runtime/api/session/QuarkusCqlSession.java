@@ -20,6 +20,22 @@ import com.datastax.oss.quarkus.runtime.api.reactive.MutinyContinuousReactiveSes
 import com.datastax.oss.quarkus.runtime.api.reactive.MutinyGraphReactiveSession;
 import com.datastax.oss.quarkus.runtime.api.reactive.MutinyReactiveSession;
 
+/**
+ * A specialized {@link CqlSession} tailored for Quarkus applications.
+ *
+ * <p>This interface is the main entry point for Quarkus applications that need to connect to
+ * Cassandra databases. Upon application startup, the Cassandra Quarkus extension will configure an
+ * application-scoped singleton bean implementing this interface, and then inject it in all
+ * application components that require access to the Cassandra database.
+ *
+ * <p>This interface also implements {@link MutinyReactiveSession}; it exposes reactive query
+ * methods such as {@link #executeReactive(String)}, which return Mutiny subtypes that integrate
+ * seamlessly with any application using reactive-style programming.
+ *
+ * @see CqlSession
+ * @see MutinyReactiveSession
+ * @see com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig
+ */
 public interface QuarkusCqlSession
     extends CqlSession,
         MutinyReactiveSession,

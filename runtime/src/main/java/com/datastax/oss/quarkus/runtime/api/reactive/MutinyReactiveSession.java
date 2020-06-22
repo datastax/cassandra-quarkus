@@ -25,10 +25,10 @@ import io.smallrye.mutiny.Multi;
 import java.util.Objects;
 
 /**
- * The reactive session type that supports the Reactive Mutiny API .
+ * A specialized {@link ReactiveSession} that supports the Reactive Mutiny API.
  *
- * <p>It provides user-friendly execution methods for executing reactive {@code String} and {@code
- * Statement} queries.
+ * <p>It provides user-friendly methods for executing CQL statements in a reactive way; these
+ * methods all return {@link MutinyReactiveResultSet}, which is a subtype of {@link Multi}.
  */
 public interface MutinyReactiveSession extends ReactiveSession {
 

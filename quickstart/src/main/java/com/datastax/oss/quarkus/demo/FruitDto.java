@@ -17,6 +17,7 @@ package com.datastax.oss.quarkus.demo;
 
 import java.util.Objects;
 
+/** A DTO (Data Transfer Object) used to convey information from a {@link Fruit} domain object. */
 public class FruitDto {
 
   private String name;

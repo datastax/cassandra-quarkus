@@ -25,10 +25,15 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+/**
+ * A REST resource exposing reactive endpoints for creating and retrieving {@link Fruit} objects in
+ * the database, leveraging the {@link FruitReactiveService} component.
+ */
 @Path("/reactive-fruits")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class FruitReactiveResource {
+
   private static final String STORE_NAME = "acme";
   @Inject FruitReactiveService service;
 

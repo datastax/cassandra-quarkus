@@ -26,10 +26,9 @@ import io.smallrye.mutiny.Multi;
 import java.util.Objects;
 
 /**
- * The continuous reactive session type that supports the Reactive Mutiny API.
+ * A specialized session type that supports the Reactive Mutiny API for continuous paging queries.
  *
- * <p>It provides user-friendly execution methods for executing reactive {@code String} and {@code
- * Statement} queries.
+ * <p>Note: continuous paging is only available for DataStax Enterprise (DSE) 5.1 and higher.
  */
 public interface MutinyContinuousReactiveSession extends ContinuousReactiveSession {
 

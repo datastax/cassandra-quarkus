@@ -17,17 +17,10 @@ package com.datastax.oss.quarkus.demo;
 
 import io.quarkus.arc.config.ConfigProperties;
 
+/** Configuration settings for accessing and storing {@link Fruit} objects in the database. */
 @ConfigProperties(prefix = "fruit.dao")
 public class FruitServiceConfig {
 
-  /** Keyspace that should be used when creating a fruit dao. */
-  private String keyspace;
-
-  public String getKeyspace() {
-    return keyspace;
-  }
-
-  public void setKeyspace(String keyspace) {
-    this.keyspace = keyspace;
-  }
+  /** The keyspace name that should be used when accessing the fruit table in the database. */
+  public String keyspace;
 }

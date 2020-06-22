@@ -22,6 +22,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
+/** This class holds runtime configuration items related to connection settings. */
 @ConfigGroup
 public class CassandraClientConnectionConfig {
 
@@ -47,10 +48,6 @@ public class CassandraClientConnectionConfig {
   @ConfigItem(name = "secure-connect-bundle")
   public Optional<Path> secureConnectBundle;
 
-  /** How long the driver waits for a request to complete. */
-  @ConfigItem(name = "request.timeout")
-  public Optional<Duration> requestTimeout;
-
   /**
    * The username used to connect to Apache Cassandra(R). If a username and a password are both
    * provided, plain text authentication will be automatically enabled.
@@ -64,4 +61,11 @@ public class CassandraClientConnectionConfig {
    */
   @ConfigItem(name = "password")
   public Optional<String> password;
+
+  /**
+   * How long the driver waits for a request to complete. If not specified, it defaults to 2
+   * seconds.
+   */
+  @ConfigItem(name = "request.timeout")
+  public Optional<Duration> requestTimeout;
 }

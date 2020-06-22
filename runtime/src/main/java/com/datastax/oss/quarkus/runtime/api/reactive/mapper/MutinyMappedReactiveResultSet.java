@@ -22,15 +22,15 @@ import io.smallrye.mutiny.Multi;
 /**
  * A wrapper interface for {@code MappedReactiveResultSet<EntityT>} returned by the java driver
  * object mapper. It provides the translation from {@code Publisher<EntityT>} to {@code
- * Multi<EntityT}
+ * Multi<EntityT}.
  *
- * <p>You can leverage this class in the {@link Dao}:
+ * <p>You can leverage this class as a return type for {@link Dao} methods, e.g.:
  *
  * <pre>
  * &#64;Dao
- * public interface FruitDaoReactive {
+ * public interface MyReactiveDao {
  *   &#64;Select
- *   MutinyMappedReactiveResultSet<Fruit> findByIdAsync(String id);
+ *   MutinyMappedReactiveResultSet&lt;Fruit&gt; findByIdReactive(String id);
  * }
  * </pre>
  *

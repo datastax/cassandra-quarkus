@@ -25,10 +25,11 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import java.util.Objects;
 
 /**
- * The graph reactive session type that supports the Reactive Mutiny API .
+ * A specialized session that supports the Reactive Mutiny API for Graph queries.
  *
- * <p>It provides user-friendly execution methods for executing reactive {@code GraphStatement}
- * queries.
+ * <p>Note: Graph databases are only available for DataStax Enterprise (DSE).
+ *
+ * @see <a href="https://www.datastax.com/products/datastax-graph">DataStax Enteprise Graph</a>
  */
 public interface MutinyGraphReactiveSession extends CqlSession, MutinyReactiveSession {
 

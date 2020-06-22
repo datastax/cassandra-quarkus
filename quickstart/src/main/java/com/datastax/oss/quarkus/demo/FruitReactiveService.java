@@ -20,6 +20,10 @@ import io.smallrye.mutiny.Uni;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+/**
+ * A service that manages {@link Fruit} objects using reactive-style programming. This service
+ * leverages the {@link FruitDaoReactive} DAO.
+ */
 @ApplicationScoped
 public class FruitReactiveService {
 

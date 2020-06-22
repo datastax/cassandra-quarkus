@@ -20,11 +20,31 @@ import com.datastax.oss.driver.api.mapper.annotations.Dao;
 import com.datastax.oss.driver.api.mapper.annotations.Select;
 import com.datastax.oss.driver.api.mapper.annotations.Update;
 
+/**
+ * A DAO for retrieving {@link Fruit} instances.
+ *
+ * @see <a
+ *     href="https://docs.datastax.com/en/developer/java-driver/latest/manual/mapper/doas/">Defining
+ *     DAOs with the DataStax Java driver object mapper</a>
+ */
 @Dao
 public interface FruitDao {
+
+  /**
+   * Creates or updates the given {@link Fruit} in the database.
+   *
+   * @param fruit The {@link Fruit} to create or update. Cannot be null.
+   */
   @Update
   void update(Fruit fruit);
 
+  /**
+   * Finds all the fruits defined for the given store id.
+   *
+   * @param storeId The store id to query. Cannot be null.
+   * @return An {@linkplain PagingIterable iterable} containing all the results found in the
+   *     database.
+   */
   @Select
-  PagingIterable<Fruit> findById(String id);
+  PagingIterable<Fruit> findById(String storeId);
 }

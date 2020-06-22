@@ -21,6 +21,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
+/**
+ * A Quarkus component that creates DAOs and make them available as container beans for injection.
+ */
 public class FruitDaoProducer {
 
   private final FruitDao fruitDao;
@@ -29,17 +32,19 @@ public class FruitDaoProducer {
   @Inject
   public FruitDaoProducer(QuarkusCqlSession cqlSession, FruitServiceConfig fruitServiceConfig) {
     FruitMapper mapper = new FruitMapperBuilder(cqlSession).build();
-    CqlIdentifier keyspace = CqlIdentifier.fromCql(fruitServiceConfig.getKeyspace());
+    CqlIdentifier keyspace = CqlIdentifier.fromCql(fruitServiceConfig.keyspace);
     fruitDao = mapper.fruitDao(keyspace);
     fruitDaoReactive = mapper.fruitDaoReactive(keyspace);
   }
 
+  /** @return A {@link FruitDao} singleton instance. */
   @Produces
   @ApplicationScoped
   FruitDao produceFruitDao() {
     return fruitDao;
   }
 
+  /** @return A {@link FruitDaoReactive} singleton instance. */
   @Produces
   @ApplicationScoped
   FruitDaoReactive produceFruitDaoReactive() {

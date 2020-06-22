@@ -22,7 +22,10 @@ import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import io.smallrye.mutiny.Multi;
 
 /**
- * A marker interface for {@code Multi<ReactiveRow>} returned by {@link QuarkusCqlSession}.
+ * A marker interface for {@code Multi<ReactiveRow>} results returned by {@link QuarkusCqlSession},
+ * when continuous paging is used.
+ *
+ * <p>Note: continuous paging is only available for DataStax Enterprise (DSE) 5.1 and higher.
  *
  * @see QuarkusCqlSession#executeContinuouslyReactive(String)
  * @see QuarkusCqlSession#executeContinuouslyReactive(Statement)
