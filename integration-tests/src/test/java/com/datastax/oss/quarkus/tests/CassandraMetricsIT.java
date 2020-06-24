@@ -18,11 +18,10 @@ package com.datastax.oss.quarkus.tests;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.core.StringContains.containsString;
 
-import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import org.junit.jupiter.api.Test;
 
@@ -30,12 +29,15 @@ import org.junit.jupiter.api.Test;
 @QuarkusTestResource(CassandraTestResource.class)
 public class CassandraMetricsIT {
 
-  @Inject QuarkusCqlSession cqlSession;
-
   @Test
   public void should_report_driver_metrics_via_metrics_endpoint() {
-    // when
-    cqlSession.execute("select *  from system.local");
+
+    /* Trigger some CQL activity via the test REST endpoint.  We're not particularly
+     * interested in the product that gets created here, only that it was created. */
+    when()
+        .post("/cassandra/product/metrics-test")
+        .then()
+        .statusCode(Response.Status.OK.getStatusCode());
 
     // then
     when()
