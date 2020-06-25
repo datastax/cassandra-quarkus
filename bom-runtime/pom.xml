@@ -47,6 +47,10 @@
         <artifactId>java-driver-core</artifactId>
         <version>${datastax-java-driver.version}</version>
         <exclusions>
+          <!--
+          This extension uses Microprofile Metrics so we don't
+          need Dropwizard Metrics.
+          -->
           <exclusion>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
