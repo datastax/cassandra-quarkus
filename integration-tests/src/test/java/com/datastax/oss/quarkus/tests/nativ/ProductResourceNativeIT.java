@@ -13,24 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.tests.dao;
+package com.datastax.oss.quarkus.tests.nativ;
 
-import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
+import com.datastax.oss.quarkus.tests.ProductResourceIT;
+import io.quarkus.test.junit.NativeImageTest;
+import org.junit.jupiter.api.Tag;
 
-public class InventoryMapperProducer {
-  private final QuarkusCqlSession cqlSession;
-
-  @Inject
-  public InventoryMapperProducer(QuarkusCqlSession cqlSession) {
-    this.cqlSession = cqlSession;
-  }
-
-  @Produces
-  @ApplicationScoped
-  InventoryMapper produceFruitMapper() {
-    return new InventoryMapperBuilder(cqlSession).build();
-  }
-}
+@NativeImageTest
+@Tag("native")
+public class ProductResourceNativeIT extends ProductResourceIT {}

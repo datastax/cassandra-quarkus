@@ -13,18 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.tests.dao.nameconverters;
+package com.datastax.oss.quarkus.tests.mapper;
 
 import com.datastax.oss.driver.api.mapper.entity.naming.NameConverter;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 @RegisterForReflection
-public class TestNameConverter implements NameConverter {
+public class CustomerNameConverter implements NameConverter {
 
   @Override
   @NonNull
   public String toCassandraName(@NonNull String javaName) {
-    return "test_" + javaName;
+    switch (javaName) {
+      case "id":
+      case "name":
+        return "customer_" + javaName;
+    }
+    return javaName.toLowerCase();
   }
 }

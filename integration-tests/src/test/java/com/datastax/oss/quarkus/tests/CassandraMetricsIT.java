@@ -32,12 +32,9 @@ public class CassandraMetricsIT {
   @Test
   public void should_report_driver_metrics_via_metrics_endpoint() {
 
-    /* Trigger some CQL activity via the test REST endpoint.  We're not particularly
-     * interested in the product that gets created here, only that it was created. */
-    when()
-        .post("/cassandra/product/metrics-test")
-        .then()
-        .statusCode(Response.Status.OK.getStatusCode());
+    // Trigger some CQL activity via the test REST endpoint. We're not particularly
+    // interested in the product that gets created here, only that it was created.
+    when().get("/product").then().statusCode(Response.Status.OK.getStatusCode());
 
     // then
     when()

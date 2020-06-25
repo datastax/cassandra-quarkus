@@ -15,9 +15,13 @@
  */
 package com.datastax.oss.quarkus.tests.dao;
 
+import com.datastax.oss.driver.api.core.PagingIterable;
 import com.datastax.oss.driver.api.mapper.annotations.Dao;
+import com.datastax.oss.driver.api.mapper.annotations.Delete;
 import com.datastax.oss.driver.api.mapper.annotations.Insert;
 import com.datastax.oss.driver.api.mapper.annotations.Select;
+import com.datastax.oss.driver.api.mapper.annotations.Update;
+import com.datastax.oss.quarkus.tests.entity.Product;
 import java.util.UUID;
 
 @Dao
@@ -26,6 +30,15 @@ public interface ProductDao {
   @Insert
   void create(Product product);
 
+  @Update
+  void update(Product product);
+
+  @Delete(entityClass = Product.class)
+  void delete(UUID productId);
+
   @Select
   Product findById(UUID productId);
+
+  @Select
+  PagingIterable<Product> findAll();
 }

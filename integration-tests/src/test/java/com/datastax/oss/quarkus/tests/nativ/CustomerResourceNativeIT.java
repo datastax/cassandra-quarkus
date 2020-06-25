@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.tests;
+package com.datastax.oss.quarkus.tests.nativ;
 
+import com.datastax.oss.quarkus.tests.CustomerResourceIT;
 import io.quarkus.test.junit.NativeImageTest;
 import org.junit.jupiter.api.Tag;
 
 @NativeImageTest
 @Tag("native")
-public class CassandraMetricsNativeIT extends CassandraMetricsIT {}
+public class CustomerResourceNativeIT extends CustomerResourceIT {}

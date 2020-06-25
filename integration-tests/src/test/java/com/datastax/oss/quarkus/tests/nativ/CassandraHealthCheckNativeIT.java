@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.tests.dao.nameconverters;
+package com.datastax.oss.quarkus.tests.nativ;
 
-import com.datastax.oss.driver.api.core.CqlIdentifier;
-import com.datastax.oss.driver.api.mapper.annotations.DaoFactory;
-import com.datastax.oss.driver.api.mapper.annotations.DaoKeyspace;
-import com.datastax.oss.driver.api.mapper.annotations.Mapper;
+import com.datastax.oss.quarkus.tests.CassandraHealthCheckIT;
+import io.quarkus.test.junit.NativeImageTest;
+import org.junit.jupiter.api.Tag;
 
-@Mapper
-public interface TestMapper {
-  @DaoFactory
-  NameConverterEntityDao nameConverterEntityDao(@DaoKeyspace CqlIdentifier keyspace);
-}
+@NativeImageTest
+@Tag("native")
+public class CassandraHealthCheckNativeIT extends CassandraHealthCheckIT {}

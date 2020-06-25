@@ -13,18 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.tests.dao;
+package com.datastax.oss.quarkus.tests.mapper;
 
 import com.datastax.oss.driver.api.core.CqlIdentifier;
 import com.datastax.oss.driver.api.mapper.annotations.DaoFactory;
 import com.datastax.oss.driver.api.mapper.annotations.DaoKeyspace;
 import com.datastax.oss.driver.api.mapper.annotations.Mapper;
+import com.datastax.oss.quarkus.tests.dao.CustomerDao;
+import com.datastax.oss.quarkus.tests.dao.ProductDao;
+import com.datastax.oss.quarkus.tests.dao.ProductReactiveDao;
 
 @Mapper
 public interface InventoryMapper {
+
   @DaoFactory
   ProductDao productDao(@DaoKeyspace CqlIdentifier keyspace);
 
   @DaoFactory
-  ProductDaoReactive productDaoReactive(@DaoKeyspace CqlIdentifier keyspace);
+  ProductReactiveDao productReactiveDao(@DaoKeyspace CqlIdentifier keyspace);
+
+  @DaoFactory
+  CustomerDao customerDao(@DaoKeyspace CqlIdentifier keyspace);
 }

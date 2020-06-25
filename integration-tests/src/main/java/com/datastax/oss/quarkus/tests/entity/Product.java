@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.tests.dao;
+package com.datastax.oss.quarkus.tests.entity;
 
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
@@ -22,14 +22,16 @@ import java.util.UUID;
 
 @Entity
 public class Product {
+
   @PartitionKey private UUID id;
-  private String description;
+
+  private String name;
 
   public Product() {}
 
-  public Product(UUID id, String description) {
+  public Product(UUID id, String name) {
     this.id = id;
-    this.description = description;
+    this.name = name;
   }
 
   public UUID getId() {
@@ -40,30 +42,33 @@ public class Product {
     this.id = id;
   }
 
-  public String getDescription() {
-    return description;
+  public String getName() {
+    return name;
   }
 
-  public void setDescription(String description) {
-    this.description = description;
+  public void setName(String name) {
+    this.name = name;
   }
 
   @Override
   public boolean equals(Object o) {
-
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    Product that = (Product) o;
-    return Objects.equals(id, that.id) && Objects.equals(description, that.description);
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Product)) {
+      return false;
+    }
+    Product product = (Product) o;
+    return id.equals(product.id) && name.equals(product.name);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, description);
+    return Objects.hash(id, name);
   }
 
   @Override
   public String toString() {
-    return "ProductSimple{" + "id=" + id + ", description='" + description + '\'' + '}';
+    return "Product{id=" + id + ", name='" + name + "'}";
   }
 }

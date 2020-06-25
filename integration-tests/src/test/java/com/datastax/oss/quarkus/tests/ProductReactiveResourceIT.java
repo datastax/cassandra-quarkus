@@ -18,7 +18,6 @@ package com.datastax.oss.quarkus.tests;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.endsWith;
 
 import com.datastax.oss.quarkus.test.CassandraTestResource;
 import com.datastax.oss.quarkus.tests.entity.Product;
@@ -31,8 +30,7 @@ import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 @QuarkusTestResource(CassandraTestResource.class)
-public class ProductResourceIT {
-
+public class ProductReactiveResourceIT {
   @Test
   public void should_create_product() {
     Product expected = new Product(UUID.randomUUID(), "name");
@@ -64,7 +62,7 @@ public class ProductResourceIT {
     assertCreate(expected3);
     Product[] actual =
         when()
-            .get("/product")
+            .get("/rx/product")
             .then()
             .statusCode(Status.OK.getStatusCode())
             .extract()
@@ -78,10 +76,9 @@ public class ProductResourceIT {
         .body(product)
         .contentType(ContentType.JSON)
         .when()
-        .post("/product")
+        .post("/rx/product")
         .then()
-        .statusCode(Status.CREATED.getStatusCode())
-        .header("location", endsWith("/product/" + product.getId()));
+        .statusCode(Status.CREATED.getStatusCode());
     assertFind(product);
   }
 
@@ -90,16 +87,19 @@ public class ProductResourceIT {
         .body(product)
         .contentType(ContentType.JSON)
         .when()
-        .put("/product/{id}", product.getId())
+        .put("/rx/product/{id}", product.getId())
         .then()
         .statusCode(Status.OK.getStatusCode());
     assertFind(product);
   }
 
   private void assertDelete(Product expected) {
-    when().delete("/product/{id}", expected.getId()).then().statusCode(Status.OK.getStatusCode());
     when()
-        .get("/product/{id}", expected.getId())
+        .delete("/rx/product/{id}", expected.getId())
+        .then()
+        .statusCode(Status.OK.getStatusCode());
+    when()
+        .get("/rx/product/{id}", expected.getId())
         .then()
         .statusCode(Status.NOT_FOUND.getStatusCode());
   }
@@ -107,7 +107,7 @@ public class ProductResourceIT {
   private void assertFind(Product expected) {
     Product actual =
         when()
-            .get("/product/{id}", expected.getId())
+            .get("/rx/product/{id}", expected.getId())
             .then()
             .contentType(ContentType.JSON)
             .statusCode(Status.OK.getStatusCode())

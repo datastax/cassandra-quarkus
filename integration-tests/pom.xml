@@ -58,6 +58,10 @@
       <artifactId>quarkus-resteasy-jsonb</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-vertx-web</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.datastax.oss.quarkus</groupId>
       <artifactId>cassandra-quarkus-client</artifactId>
     </dependency>
@@ -187,6 +191,7 @@
                   <goal>native-image</goal>
                 </goals>
                 <configuration>
+                  <reportErrorsAtRuntime>false</reportErrorsAtRuntime>
                   <cleanupServer>true</cleanupServer>
                   <enableHttpUrlHandler>true</enableHttpUrlHandler>
                   <additionalBuildArgs>-H:+TraceClassInitialization</additionalBuildArgs>

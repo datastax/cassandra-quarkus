@@ -13,17 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.tests.dao.nameconverters;
+package com.datastax.oss.quarkus.tests.dao;
 
 import com.datastax.oss.driver.api.mapper.annotations.Dao;
+import com.datastax.oss.driver.api.mapper.annotations.Delete;
 import com.datastax.oss.driver.api.mapper.annotations.Insert;
 import com.datastax.oss.driver.api.mapper.annotations.Select;
+import com.datastax.oss.driver.api.mapper.annotations.Update;
+import com.datastax.oss.quarkus.tests.entity.Product;
+import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.Uni;
+import java.util.UUID;
 
 @Dao
-public interface NameConverterEntityDao {
-  @Select
-  NameConverterEntity findById(int id);
+public interface ProductReactiveDao {
 
   @Insert
-  void save(NameConverterEntity entity);
+  Uni<Void> create(Product product);
+
+  @Update
+  Uni<Void> update(Product product);
+
+  @Delete(entityClass = Product.class)
+  Uni<Void> delete(UUID productId);
+
+  @Select
+  Uni<Product> findById(UUID productId);
+
+  @Select
+  Multi<Product> findAll();
 }

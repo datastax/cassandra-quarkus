@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.endsWith;
 
 import com.datastax.oss.quarkus.test.CassandraTestResource;
-import com.datastax.oss.quarkus.tests.entity.Product;
+import com.datastax.oss.quarkus.tests.entity.Customer;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
@@ -31,89 +31,88 @@ import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 @QuarkusTestResource(CassandraTestResource.class)
-public class ProductResourceIT {
-
+public class CustomerResourceIT {
   @Test
-  public void should_create_product() {
-    Product expected = new Product(UUID.randomUUID(), "name");
+  public void should_create_customer() {
+    Customer expected = new Customer(UUID.randomUUID(), "name");
     assertCreate(expected);
   }
 
   @Test
-  public void should_update_product() {
-    Product expected = new Product(UUID.randomUUID(), "name");
+  public void should_update_customer() {
+    Customer expected = new Customer(UUID.randomUUID(), "name");
     assertCreate(expected);
     expected.setName("updated name");
     assertUpdate(expected);
   }
 
   @Test
-  public void should_delete_product() {
-    Product expected = new Product(UUID.randomUUID(), "name");
+  public void should_delete_customer() {
+    Customer expected = new Customer(UUID.randomUUID(), "name");
     assertCreate(expected);
     assertDelete(expected);
   }
 
   @Test
-  public void should_find_products() {
-    Product expected1 = new Product(UUID.randomUUID(), "name1");
-    Product expected2 = new Product(UUID.randomUUID(), "name2");
-    Product expected3 = new Product(UUID.randomUUID(), "name3");
+  public void should_find_customers() {
+    Customer expected1 = new Customer(UUID.randomUUID(), "name1");
+    Customer expected2 = new Customer(UUID.randomUUID(), "name2");
+    Customer expected3 = new Customer(UUID.randomUUID(), "name3");
     assertCreate(expected1);
     assertCreate(expected2);
     assertCreate(expected3);
-    Product[] actual =
+    Customer[] actual =
         when()
-            .get("/product")
+            .get("/customer")
             .then()
             .statusCode(Status.OK.getStatusCode())
             .extract()
             .body()
-            .as(Product[].class);
+            .as(Customer[].class);
     assertThat(actual).contains(expected1, expected2, expected3);
   }
 
-  private void assertCreate(Product product) {
+  private void assertCreate(Customer customer) {
     given()
-        .body(product)
+        .body(customer)
         .contentType(ContentType.JSON)
         .when()
-        .post("/product")
+        .post("/customer")
         .then()
         .statusCode(Status.CREATED.getStatusCode())
-        .header("location", endsWith("/product/" + product.getId()));
-    assertFind(product);
+        .header("location", endsWith("/customer/" + customer.getId()));
+    assertFind(customer);
   }
 
-  private void assertUpdate(Product product) {
+  private void assertUpdate(Customer customer) {
     given()
-        .body(product)
+        .body(customer)
         .contentType(ContentType.JSON)
         .when()
-        .put("/product/{id}", product.getId())
+        .put("/customer/{id}", customer.getId())
         .then()
         .statusCode(Status.OK.getStatusCode());
-    assertFind(product);
+    assertFind(customer);
   }
 
-  private void assertDelete(Product expected) {
-    when().delete("/product/{id}", expected.getId()).then().statusCode(Status.OK.getStatusCode());
+  private void assertDelete(Customer expected) {
+    when().delete("/customer/{id}", expected.getId()).then().statusCode(Status.OK.getStatusCode());
     when()
-        .get("/product/{id}", expected.getId())
+        .get("/customer/{id}", expected.getId())
         .then()
         .statusCode(Status.NOT_FOUND.getStatusCode());
   }
 
-  private void assertFind(Product expected) {
-    Product actual =
+  private void assertFind(Customer expected) {
+    Customer actual =
         when()
-            .get("/product/{id}", expected.getId())
+            .get("/customer/{id}", expected.getId())
             .then()
             .contentType(ContentType.JSON)
             .statusCode(Status.OK.getStatusCode())
             .extract()
             .body()
-            .as(Product.class);
+            .as(Customer.class);
     assertThat(actual).isEqualTo(expected);
   }
 }
