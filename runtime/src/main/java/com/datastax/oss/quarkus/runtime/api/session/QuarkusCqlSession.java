@@ -29,8 +29,8 @@ import com.datastax.oss.quarkus.runtime.api.reactive.MutinyReactiveSession;
  * application components that require access to the Cassandra database.
  *
  * <p>This interface also implements {@link MutinyReactiveSession}; it exposes reactive query
- * methods such as {@link #executeReactive(String)}, which return Mutiny subtypes that integrate
- * seamlessly with any application using reactive-style programming.
+ * methods such as {@link MutinyReactiveSession#executeReactive(String)}, which return Mutiny
+ * subtypes that integrate seamlessly with any application using reactive-style programming.
  *
  * @see CqlSession
  * @see MutinyReactiveSession
