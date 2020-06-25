@@ -1,4 +1,6 @@
-### 1.0.0 (in progress)
+### 1.0.0-alpha2 (in progress)
+
+### 1.0.0-alpha1
 
 - [new feature] Add setting for DataStax Astra secure connect bundle (fixes #94)
 - [new feature] Add configuration options for plain text authentication
