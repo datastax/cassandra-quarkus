@@ -25,6 +25,8 @@
   </parent>
   <artifactId>cassandra-quarkus-client</artifactId>
   <name>Cassandra Quarkus :: Client :: Runtime</name>
+  <!-- The contents of the description tag below will appear in code.quarkus.io -->
+  <description>Connect to Apache Cassandra databases</description>
   <dependencyManagement>
     <dependencies>
       <dependency>
