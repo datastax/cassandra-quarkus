@@ -26,8 +26,6 @@ import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import javax.ws.rs.core.Response;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
@@ -35,17 +33,14 @@ import org.junit.jupiter.api.Test;
 public class FruitResourceIT {
 
   @Test
-  public void should_save_and_retrieve_entity() throws JSONException {
+  public void should_save_and_retrieve_entity() {
     // given
-    JSONObject jsonObj =
-        new JSONObject()
-            .put("name", "it_product")
-            .put("description", "this was created via IT test");
+    FruitDto expected = new FruitDto("it_product", "this was created via IT test");
 
     // when creating, then
     given()
         .contentType(ContentType.JSON)
-        .body(jsonObj.toString())
+        .body(expected)
         .when()
         .post("/fruits")
         .then()
@@ -53,7 +48,7 @@ public class FruitResourceIT {
         .body(notNullValue());
 
     // when retrieving, then
-    FruitDto[] fruits =
+    FruitDto[] actual =
         when()
             .get("/fruits")
             .then()
@@ -62,21 +57,19 @@ public class FruitResourceIT {
             .extract()
             .body()
             .as(FruitDto[].class);
-    assertThat(fruits).contains(new FruitDto("it_product", "this was created via IT test"));
+    assertThat(actual).contains(expected);
   }
 
   @Test
-  public void should_save_and_retrieve_entity_reactive() throws JSONException {
+  public void should_save_and_retrieve_entity_reactive() {
     // given
-    JSONObject jsonObj =
-        new JSONObject()
-            .put("name", "it_product_reactive")
-            .put("description", "this was created via reactive IT test");
+    FruitDto expected =
+        new FruitDto("it_product_reactive", "this was created via reactive IT test");
 
     // when creating, then
     given()
         .contentType(ContentType.JSON)
-        .body(jsonObj.toString())
+        .body(expected)
         .when()
         .post("/reactive-fruits")
         .then()
@@ -84,7 +77,7 @@ public class FruitResourceIT {
         .body(notNullValue());
 
     // when retrieving, then
-    FruitDto[] fruits =
+    FruitDto[] actual =
         when()
             .get("/reactive-fruits")
             .then()
@@ -93,7 +86,6 @@ public class FruitResourceIT {
             .extract()
             .body()
             .as(FruitDto[].class);
-    assertThat(fruits)
-        .contains(new FruitDto("it_product_reactive", "this was created via reactive IT test"));
+    assertThat(actual).contains(expected);
   }
 }
