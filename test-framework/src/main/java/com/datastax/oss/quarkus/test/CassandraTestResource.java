@@ -17,7 +17,7 @@ package com.datastax.oss.quarkus.test;
 
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import java.net.URL;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,13 +30,13 @@ import org.testcontainers.containers.wait.CassandraQueryWaitStrategy;
  * <p>Integration tests using this resource must define two settings in the .properties file:
  *
  * <pre>
- * quarkus.cassandra.contact-points=127.0.0.1:${quarkus.cassandra.docker_port}
+ * quarkus.cassandra.contact-points=${quarkus.cassandra.docker_host}:${quarkus.cassandra.docker_port}
  * quarkus.cassandra.local-datacenter=datacenter1
  * </pre>
  *
- * Please note that ports for contact points must not be hard-coded, but instead, specified exactly
- * as <code>${quarkus.cassandra.docker_port}</code> - the actual port will be automatically injected
- * by this manager.
+ * Please note that contact points must not be hard-coded, but instead, specified exactly as <code>
+ * ${quarkus.cassandra.docker_host}:${quarkus.cassandra.docker_port}</code> - the actual host and
+ * port will be automatically injected by this manager.
  *
  * <p>If you want to execute a CQL init logic (i.e. CREATE KEYSPACE or CREATE TABLE query) please
  * create an <code>init_script.cql</code> file and put it in the test resources folder.
@@ -59,8 +59,16 @@ public class CassandraTestResource implements QuarkusTestResourceLifecycleManage
     cassandraContainer.start();
     String exposedPort =
         String.valueOf(cassandraContainer.getMappedPort(CassandraContainer.CQL_PORT));
-    LOGGER.info("Started {} on port {}", cassandraContainer.getDockerImageName(), exposedPort);
-    return Collections.singletonMap("quarkus.cassandra.docker_port", exposedPort);
+    String exposedHost = cassandraContainer.getContainerIpAddress();
+    if (exposedHost.equals("localhost")) {
+      exposedHost = "127.0.0.1";
+    }
+    LOGGER.info(
+        "Started {} on {}:{}", cassandraContainer.getDockerImageName(), exposedHost, exposedPort);
+    HashMap<String, String> result = new HashMap<>();
+    result.put("quarkus.cassandra.docker_host", exposedHost);
+    result.put("quarkus.cassandra.docker_port", exposedPort);
+    return result;
   }
 
   @Override
