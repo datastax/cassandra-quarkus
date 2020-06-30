@@ -19,7 +19,8 @@ import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.CassandraContainer;
 import org.testcontainers.containers.wait.CassandraQueryWaitStrategy;
 
@@ -42,7 +43,8 @@ import org.testcontainers.containers.wait.CassandraQueryWaitStrategy;
  */
 public class CassandraTestResource implements QuarkusTestResourceLifecycleManager {
 
-  private static final Logger LOGGER = Logger.getLogger(CassandraTestResource.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CassandraTestResource.class);
+
   private static CassandraContainer<?> cassandraContainer;
 
   @Override
@@ -57,7 +59,7 @@ public class CassandraTestResource implements QuarkusTestResourceLifecycleManage
     cassandraContainer.start();
     String exposedPort =
         String.valueOf(cassandraContainer.getMappedPort(CassandraContainer.CQL_PORT));
-    LOGGER.infof("Started %s on port %s", cassandraContainer.getDockerImageName(), exposedPort);
+    LOGGER.info("Started {} on port {}", cassandraContainer.getDockerImageName(), exposedPort);
     return Collections.singletonMap("quarkus.cassandra.docker_port", exposedPort);
   }
 
