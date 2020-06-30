@@ -1,5 +1,6 @@
 ### 1.0.0-alpha2 (in progress)
 
+- [improvement] Add more configuration settings
 - [bug] Trigger eager session initialization at startup (fixes #99)
 
 ### 1.0.0-alpha1

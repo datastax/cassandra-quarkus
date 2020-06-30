@@ -17,7 +17,10 @@ package com.datastax.oss.quarkus.deployment.internal.session;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.datastax.dse.driver.api.core.config.DseDriverOption;
 import com.datastax.dse.driver.api.core.cql.reactive.ReactiveRow;
+import com.datastax.oss.driver.api.core.config.DefaultDriverOption;
+import com.datastax.oss.driver.api.core.config.DriverExecutionProfile;
 import com.datastax.oss.driver.api.core.cql.ColumnDefinitions;
 import com.datastax.oss.driver.api.core.cql.ExecutionInfo;
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
@@ -28,6 +31,7 @@ import io.quarkus.test.QuarkusUnitTest;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.groups.MultiSubscribe;
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -38,20 +42,83 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 @QuarkusTestResource(CassandraTestResource.class)
 public class QuarkusCqlSessionTest {
-  @Inject QuarkusCqlSession quarkusCqlSession;
 
   @RegisterExtension
   static QuarkusUnitTest runner =
       new QuarkusUnitTest()
+          .withConfigurationResource("application-cassandra-client.properties")
           .setArchiveProducer(
-              () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
-          .withConfigurationResource("application-cassandra-client.properties");
+              () ->
+                  ShrinkWrap.create(JavaArchive.class)
+                      .addClasses(CassandraTestResource.class)
+                      .addAsResource("application.json")
+                      .addAsResource("application.conf"));
+
+  @Inject QuarkusCqlSession session;
+
+  @Test
+  public void should_execute_query_using_injected_cql_session() {
+    assertThat(session.execute("SELECT * FROM system.local")).isNotEmpty();
+  }
+
+  @Test
+  public void application_conf_settings_should_have_priority_over_reference_conf_from_driver() {
+    DriverExecutionProfile profile = session.getContext().getConfig().getDefaultProfile();
+    assertThat(profile.getDuration(DefaultDriverOption.CONFIG_RELOAD_INTERVAL))
+        .isEqualTo(Duration.ofMinutes(2));
+  }
+
+  @Test
+  public void application_json_settings_should_have_priority_over_reference_conf_from_driver() {
+    DriverExecutionProfile profile = session.getContext().getConfig().getDefaultProfile();
+    assertThat(profile.getBoolean(DefaultDriverOption.LOAD_BALANCING_POLICY_SLOW_AVOIDANCE))
+        .isFalse();
+  }
+
+  @Test
+  public void should_configure_connection_settings() {
+    DriverExecutionProfile profile = session.getContext().getConfig().getDefaultProfile();
+    assertThat(profile.getStringList(DefaultDriverOption.CONTACT_POINTS)).hasSize(1);
+    assertThat(profile.getString(DefaultDriverOption.LOAD_BALANCING_LOCAL_DATACENTER))
+        .isEqualTo("datacenter1");
+    assertThat(profile.getString(DefaultDriverOption.SESSION_KEYSPACE)).isEqualTo("test_keyspace");
+  }
+
+  @Test
+  public void should_configure_init_settings() {
+    DriverExecutionProfile profile = session.getContext().getConfig().getDefaultProfile();
+    assertThat(profile.getBoolean(DefaultDriverOption.RECONNECT_ON_INIT)).isFalse();
+    assertThat(profile.getBoolean(DefaultDriverOption.RESOLVE_CONTACT_POINTS)).isTrue();
+  }
+
+  @Test
+  public void should_configure_request_settings() {
+    DriverExecutionProfile profile = session.getContext().getConfig().getDefaultProfile();
+    assertThat(profile.getDuration(DefaultDriverOption.REQUEST_TIMEOUT))
+        .isEqualTo(Duration.ofSeconds(10));
+    assertThat(profile.getString(DefaultDriverOption.REQUEST_CONSISTENCY)).isEqualTo("ONE");
+    assertThat(profile.getString(DefaultDriverOption.REQUEST_SERIAL_CONSISTENCY))
+        .isEqualTo("LOCAL_SERIAL");
+    assertThat(profile.getInt(DefaultDriverOption.REQUEST_PAGE_SIZE)).isEqualTo(1000);
+    assertThat(profile.getBoolean(DefaultDriverOption.REQUEST_DEFAULT_IDEMPOTENCE)).isTrue();
+  }
+
+  @Test
+  public void should_configure_graph_settings() {
+    DriverExecutionProfile profile = session.getContext().getConfig().getDefaultProfile();
+    assertThat(profile.getString(DseDriverOption.GRAPH_NAME)).isEqualTo("test_graph");
+    assertThat(profile.getString(DseDriverOption.GRAPH_READ_CONSISTENCY_LEVEL)).isEqualTo("QUORUM");
+    assertThat(profile.getString(DseDriverOption.GRAPH_WRITE_CONSISTENCY_LEVEL))
+        .isEqualTo("QUORUM");
+    assertThat(profile.getDuration(DseDriverOption.GRAPH_TIMEOUT))
+        .isEqualTo(Duration.ofSeconds(60));
+  }
 
   @Test
   public void should_execute_reactive_query_string() {
     // when
     MutinyReactiveResultSet reactiveRowMulti =
-        quarkusCqlSession.executeReactive("select * from system.local");
+        session.executeReactive("select * from system.local");
 
     // then
     validateReactiveRowNotEmpty(reactiveRowMulti);
@@ -64,8 +131,7 @@ public class QuarkusCqlSessionTest {
   public void should_execute_reactive_query_statement() {
     // when
     MutinyReactiveResultSet reactiveRowMulti =
-        quarkusCqlSession.executeReactive(
-            SimpleStatement.newInstance("select * from system.local"));
+        session.executeReactive(SimpleStatement.newInstance("select * from system.local"));
 
     // then
     validateReactiveRowNotEmpty(reactiveRowMulti);
