@@ -28,7 +28,7 @@
   <name>Cassandra Quarkus :: BOM :: Runtime</name>
   <dependencyManagement>
     <dependencies>
-      <!-- External BOM -->
+      <!-- Quarkus BOM -->
       <dependency>
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-bom</artifactId>
@@ -37,10 +37,16 @@
         <scope>import</scope>
       </dependency>
       <!-- DataStax Java Driver BOM -->
+      <dependency>
+        <groupId>com.datastax.oss</groupId>
+        <artifactId>java-driver-bom</artifactId>
+        <version>${datastax-java-driver.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <!--
       Note: we explicitly declare java-driver-core here,
-      and before the driver bom, in order for
-      the exclusions to be taken into account
+      in order for the exclusions to be taken into account
       -->
       <dependency>
         <groupId>com.datastax.oss</groupId>
@@ -57,12 +63,12 @@
           </exclusion>
         </exclusions>
       </dependency>
+      <!-- Driver Optional dependencies -->
       <dependency>
-        <groupId>com.datastax.oss</groupId>
-        <artifactId>java-driver-bom</artifactId>
-        <version>${datastax-java-driver.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
+        <groupId>org.lz4</groupId>
+        <artifactId>lz4-java</artifactId>
+        <version>1.6.0</version>
+        <optional>true</optional>
       </dependency>
       <!-- Cassandra Quarkus Extension (Runtime & Test Framework) -->
       <dependency>
@@ -74,13 +80,6 @@
         <groupId>com.datastax.oss.quarkus</groupId>
         <artifactId>cassandra-quarkus-test-framework</artifactId>
         <version>${project.version}</version>
-      </dependency>
-      <!-- Driver Optional dependencies -->
-      <dependency>
-        <groupId>org.lz4</groupId>
-        <artifactId>lz4-java</artifactId>
-        <version>1.6.0</version>
-        <optional>true</optional>
       </dependency>
     </dependencies>
   </dependencyManagement>
