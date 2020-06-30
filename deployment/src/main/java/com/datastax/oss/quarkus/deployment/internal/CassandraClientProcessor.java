@@ -52,6 +52,7 @@ import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.internal.metrics.MetricsConfig;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientProducer;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientRecorder;
+import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientStarter;
 import com.esri.core.geometry.ogc.OGCGeometry;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -248,6 +249,11 @@ class CassandraClientProcessor {
   @BuildStep
   AdditionalBeanBuildItem cassandraClientProducer() {
     return AdditionalBeanBuildItem.unremovableOf(CassandraClientProducer.class);
+  }
+
+  @BuildStep
+  AdditionalBeanBuildItem cassandraClientStarter() {
+    return AdditionalBeanBuildItem.builder().addBeanClass(CassandraClientStarter.class).build();
   }
 
   @BuildStep

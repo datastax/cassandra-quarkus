@@ -1,5 +1,7 @@
 ### 1.0.0-alpha2 (in progress)
 
+- [bug] Trigger eager session initialization at startup (fixes #99)
+
 ### 1.0.0-alpha1
 
 - [new feature] Add setting for DataStax Astra secure connect bundle (fixes #94)
