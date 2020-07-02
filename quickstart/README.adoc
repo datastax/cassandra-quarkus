@@ -3,7 +3,7 @@
 This example showcases how to use the Cassandra client with Quarkus.
 
 TIP: Detailed instructions about how to build and run this demo can be found in the
-link:https://github.com/datastax/cassandra-quarkus/blob/master/documentation/src/main/asciidoc/cassandraclient.adoc[Quickstart guide].
+link:https://github.com/datastax/cassandra-quarkus/blob/master/documentation/src/main/asciidoc/cassandra.adoc[Quickstart guide].
 
 == Cassandra instance - Running with Docker
 

@@ -5,9 +5,9 @@ image::https://maven-badges.herokuapp.com/maven-central/com.datastax.oss.quarkus
 An Apache Cassandra(R) extension for Quarkus.
 
 *You can find the latest version of the official documentation 
-link:https://github.com/datastax/cassandra-quarkus/blob/master/documentation/src/main/asciidoc/cassandraclient.adoc[here].
+link:https://github.com/datastax/cassandra-quarkus/blob/master/documentation/src/main/asciidoc/cassandra.adoc[here].
 Documentation for specific versions can be consulted via their respective release tags, e.g. 
-link:https://github.com/datastax/cassandra-quarkus/blob/1.0.0-alpha1/documentation/src/main/asciidoc/cassandraclient.adoc[1.0.0-alpha1]*
+link:https://github.com/datastax/cassandra-quarkus/blob/1.0.0-alpha1/documentation/src/main/asciidoc/cassandra.adoc[1.0.0-alpha1]*
 
 == Getting the extension
 
@@ -31,7 +31,7 @@ It requires Java 8 or higher.
 
 == Useful links
 
-* link:https://github.com/datastax/cassandra-quarkus/blob/master/documentation/src/main/asciidoc/cassandraclient.adoc[Quickstart guide]
+* link:https://github.com/datastax/cassandra-quarkus/blob/master/documentation/src/main/asciidoc/cassandra.adoc[Quickstart guide]
 * Bug tracking: link:https://github.com/datastax/cassandra-quarkus/issues[Issues]
 * Quarkus link:https://groups.google.com/forum/#!forum/quarkus-dev[Mailing list]
 * link:changelog/[Changelog]
