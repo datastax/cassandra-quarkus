@@ -21,7 +21,7 @@
   <parent>
     <groupId>com.datastax.oss.quarkus</groupId>
     <artifactId>cassandra-quarkus-parent</artifactId>
-    <version>1.0.0-alpha2</version>
+    <version>1.0.0-alpha3-SNAPSHOT</version>
   </parent>
   <artifactId>cassandra-quarkus-documentation</artifactId>
   <name>Cassandra Quarkus :: Documentation</name>
@@ -116,7 +116,7 @@
                 <icons>font</icons>
                 <sectanchors>true</sectanchors>
                 <!-- set the idprefix to blank -->
-                <idprefix/>
+                <idprefix />
                 <idseparator>-</idseparator>
                 <docinfo1>true</docinfo1>
                 <!-- avoid content security policy violations -->
@@ -158,7 +158,7 @@
                     <pdf-style>quarkus</pdf-style>
                     <pdf-fontsdir>${basedir}/src/main/resources/theme/fonts</pdf-fontsdir>
                     <icon-set>fas</icon-set>
-                    <pagenums/>
+                    <pagenums />
                   </attributes>
                 </configuration>
               </execution>
