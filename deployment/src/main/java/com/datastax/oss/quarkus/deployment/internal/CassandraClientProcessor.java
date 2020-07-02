@@ -52,6 +52,7 @@ import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.internal.metrics.MetricsConfig;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientProducer;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientRecorder;
+import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientStarter;
 import com.esri.core.geometry.ogc.OGCGeometry;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,7 +60,6 @@ import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.BeanContainerBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeansRuntimeInitBuildItem;
 import io.quarkus.deployment.Capabilities;
-import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.Consume;
 import io.quarkus.deployment.annotations.Record;
@@ -78,7 +78,13 @@ import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistryV3d0;
 import org.reactivestreams.Publisher;
 
 class CassandraClientProcessor {
+
   public static final String CASSANDRA_CLIENT = "cassandra-client";
+
+  @BuildStep
+  FeatureBuildItem feature() {
+    return new FeatureBuildItem(CASSANDRA_CLIENT);
+  }
 
   @BuildStep
   List<ReflectiveClassBuildItem> registerDriverUsedClassesForReflection() {
@@ -207,11 +213,6 @@ class CassandraClientProcessor {
         new ReflectiveClassBuildItem(true, true, ServerSideTimestampGenerator.class.getName()));
   }
 
-  @BuildStep
-  void build(BuildProducer<FeatureBuildItem> feature) {
-    feature.produce(new FeatureBuildItem(CASSANDRA_CLIENT));
-  }
-
   @Record(RUNTIME_INIT)
   @BuildStep
   @Consume(SyntheticBeansRuntimeInitBuildItem.class)
@@ -248,6 +249,11 @@ class CassandraClientProcessor {
   @BuildStep
   AdditionalBeanBuildItem cassandraClientProducer() {
     return AdditionalBeanBuildItem.unremovableOf(CassandraClientProducer.class);
+  }
+
+  @BuildStep
+  AdditionalBeanBuildItem cassandraClientStarter() {
+    return AdditionalBeanBuildItem.builder().addBeanClass(CassandraClientStarter.class).build();
   }
 
   @BuildStep

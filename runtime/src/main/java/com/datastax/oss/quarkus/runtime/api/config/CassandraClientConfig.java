@@ -33,4 +33,8 @@ public class CassandraClientConfig {
   /** The client connection configuration settings. */
   @ConfigItem(name = ConfigItem.PARENT)
   public CassandraClientConnectionConfig cassandraClientConnectionConfig;
+
+  /** Whether to eagerly initialize the session at application startup. */
+  @ConfigItem(name = "eager-init", defaultValue = "true")
+  public boolean eagerInit;
 }
