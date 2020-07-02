@@ -1,4 +1,4 @@
-### 1.0.0-alpha2 (in progress)
+### 1.0.0-alpha2
 
 - [improvement] Add more configuration settings (fixes #72, fixes #105)
 - [improvement] Exclude Groovy jars when importing the driver (fixes #101)
