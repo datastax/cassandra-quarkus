@@ -34,7 +34,23 @@ public class CassandraClientConfig {
   @ConfigItem(name = ConfigItem.PARENT)
   public CassandraClientConnectionConfig cassandraClientConnectionConfig;
 
-  /** Whether to eagerly initialize the session at application startup. */
-  @ConfigItem(name = "eager-init", defaultValue = "true")
-  public boolean eagerInit;
+  /** The cloud (DataStax Astra) configuration settings. */
+  @ConfigItem(name = "cloud")
+  public CassandraClientCloudConfig cassandraClientCloudConfig;
+
+  /** The session initialization settings. */
+  @ConfigItem(name = "init")
+  public CassandraClientInitConfig cassandraClientInitConfig;
+
+  /** The authentication settings. */
+  @ConfigItem(name = "auth")
+  public CassandraClientAuthConfig cassandraClientAuthConfig;
+
+  /** The request settings. */
+  @ConfigItem(name = "request")
+  public CassandraClientRequestConfig cassandraClientRequestConfig;
+
+  /** The DSE Graph settings. */
+  @ConfigItem(name = "graph")
+  public CassandraClientGraphConfig cassandraClientGraphConfig;
 }

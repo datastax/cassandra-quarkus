@@ -1,5 +1,6 @@
 ### 1.0.0-alpha2 (in progress)
 
+- [improvement] Add more configuration settings (fixes #72, fixes #105)
 - [improvement] Exclude Groovy jars when importing the driver (fixes #101)
 - [bug] Trigger eager session initialization at startup (fixes #99)
 

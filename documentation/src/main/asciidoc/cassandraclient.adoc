@@ -316,8 +316,8 @@ If your cluster requires plain text authentication, you can also provide two mor
 
 [source,properties]
 ----
-quarkus.cassandra.username=john
-quarkus.cassandra.password=s3cr3t
+quarkus.cassandra.auth.username=john
+quarkus.cassandra.auth.password=s3cr3t
 ----
 
 === Connecting to a cloud DataStax Astra database
@@ -330,9 +330,9 @@ A sample configuration should look like this:
 
 [source,properties]
 ----
-quarkus.cassandra.secure-connect-bundle=/path/to/secure-connect-bundle.zip
-quarkus.cassandra.username=john
-quarkus.cassandra.password=s3cr3t
+quarkus.cassandra.cloud.secure-connect-bundle=/path/to/secure-connect-bundle.zip
+quarkus.cassandra.auth.username=john
+quarkus.cassandra.auth.password=s3cr3t
 ----
 
 === Advanced driver configuration

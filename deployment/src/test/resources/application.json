@@ -1,9 +1,9 @@
 {
   "datastax-java-driver": {
     "basic": {
-      "request": {
-        "timeout": "10 seconds",
-        "page-size": "1000"
+      "config-reload-interval": "1 minute",
+      "load-balancing-policy": {
+        "slow-replica-avoidance": false
       }
     }
   }
