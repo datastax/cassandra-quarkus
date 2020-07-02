@@ -61,6 +61,14 @@
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
           </exclusion>
+          <!--
+          Tinkerpop pulls in Groovy 2, but Quarkus has Groovy 3;
+          we don't need Groovy anyway for DSE Graph.
+          -->
+          <exclusion>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>*</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <!-- Driver Optional dependencies -->

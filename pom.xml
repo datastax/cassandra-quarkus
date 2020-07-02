@@ -57,17 +57,6 @@
     <module>quickstart</module>
     <module>documentation</module>
   </modules>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>io.rest-assured</groupId>
-        <artifactId>rest-assured</artifactId>
-        <!-- Version 4.3.0 has binary incompatibilities -->
-        <version>4.2.0</version>
-        <scope>test</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
   <build>
     <pluginManagement>
       <plugins>
