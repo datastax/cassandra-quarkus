@@ -23,12 +23,7 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class FruitService {
 
-  private final FruitDao dao;
-
-  @Inject
-  public FruitService(FruitDao dao) {
-    this.dao = dao;
-  }
+  @Inject FruitDao dao;
 
   public void save(Fruit fruit) {
     dao.update(fruit);

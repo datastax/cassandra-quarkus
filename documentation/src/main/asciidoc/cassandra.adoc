@@ -121,37 +121,17 @@ Finally, the Mapper itself:
 @Mapper
 public interface FruitMapper {
   @DaoFactory
-  FruitDao fruitDao(@DaoKeyspace CqlIdentifier keyspace);
+  FruitDao fruitDao();
 }
 ----
 
-The mapper is responsible for constructing instances of `FruitDao`.
+The mapper is responsible for constructing instances of `FruitDao`. In the example above, the
+`FruitDao` instance will be connected to the same keyspace as the underlying session. More on that
+below.
 
-A `FruitDao` instance can then be created for a specific keyspace. We should make it parameterized
-by using Quarkus `@ConfigProperties` mechanism.
-
-Firstly, let's define the `FruitServiceConfig` class that will contain the keyspace setting:
-
-[source,java]
-----
-
-@ConfigProperties(prefix = "fruit.dao")
-public class FruitServiceConfig {
-  /** Keyspace that should be used when creating a fruit dao. */
-  String keyspace;
-
-  // getter and setter omitted for brevity
-}
-----
-
-When starting the Quarkus app, it will try to fetch the `fruit.dao.keyspace` setting from the
-`application.properties` file. To make it work, we need to add this setting to the
-`application.properties` file:
-
-[source, properties]
-----
-fruit.dao.keyspace=k1
-----
+TIP: It is also possible to create DAO instances for different keyspaces. To learn how, see
+link:https://docs.datastax.com/en/developer/java-driver/4.7/manual/mapper/mapper/#dao-parameterization[DAO parameterization]
+in the driver docs.
 
 Next, we need a component to create our DAO instances: `FruitDaoProducer`. Indeed, Mapper and Dao
 instances are stateful objects, and should be created only once, as application-scoped singletons.
@@ -160,6 +140,7 @@ This component will do exactly that, leveraging Quarkus Dependency Injection con
 [source, java]
 ----
 import com.datastax.oss.driver.api.core.CqlIdentifier;
+import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
@@ -171,14 +152,12 @@ public class FruitDaoProducer {
   private final FruitDaoReactive fruitDaoReactive;
 
   @Inject
-  public FruitDaoProducer(QuarkusCqlSession cqlSession, FruitServiceConfig fruitServiceConfig) {
+  public FruitDaoProducer(QuarkusCqlSession session) {
     // create a mapper
-    FruitMapper mapper = new FruitMapperBuilder(cqlSession).build();
-    // retrieve the keyspace
-    CqlIdentifier keyspace = CqlIdentifier.fromCql(fruitServiceConfig.getKeyspace());
+    FruitMapper mapper = new FruitMapperBuilder(session).build();
     // instantiate our Daos
-    fruitDao = mapper.fruitDao(keyspace);
-    fruitDaoReactive = mapper.fruitDaoReactive(keyspace);
+    fruitDao = mapper.fruitDao();
+    fruitDaoReactive = mapper.fruitDaoReactive();
   }
 
   @Produces
@@ -223,7 +202,7 @@ public class FruitService {
 }
 ----
 
-Note how the service receives a `FruitDao` instance in the constructor. This dao instance is
+Note how the service receives a `FruitDao` instance in the constructor. This DAO instance is
 provided by `FruitDaoProducer` and injected automatically.
 
 The last missing piece is the REST API that will expose GET and POST methods:
@@ -292,8 +271,8 @@ constructor.
 
 === Connecting to Apache Cassandra or DataStax Enterprise (DSE)
 
-The main two properties to configure are: `contact-points`, to access the Cassandra database, and
-`local-datacenter`, which is required by the driver.
+The main properties to configure are: `contact-points`, to access the Cassandra database,
+`local-datacenter`, which is required by the driver, and – optionally – the keyspace to bind to.
 
 A sample configuration should look like this:
 
@@ -301,14 +280,17 @@ A sample configuration should look like this:
 ----
 quarkus.cassandra.contact-points={cassandra_ip}:9042
 quarkus.cassandra.local-datacenter={dc_name}
+quarkus.cassandra.keyspace={keyspace}
 ----
 
-In this example, we are using a single instance running on localhost:
+In this example, we are using a single instance running on localhost, and the keyspace containing
+our data is `k1`:
 
 [source,properties]
 ----
 quarkus.cassandra.contact-points=127.0.0.1:9042
 quarkus.cassandra.local-datacenter=datacenter1
+quarkus.cassandra.keyspace=k1
 ----
 
 If your cluster requires plain text authentication, you can also provide two more settings:
@@ -322,17 +304,18 @@ quarkus.cassandra.auth.password=s3cr3t
 
 === Connecting to a cloud DataStax Astra database
 
-When connecting to Astra, required properties to configure are: `secure-connect-bundle`,
-which should point to a valid path to an Astra secure connect bundle, as well as `username` and
-`password`, since authentication is always required on Astra clusters.
+When connecting to Astra, instead of providing a contact point and a datacenter, you should provide
+`secure-connect-bundle`, which should point to a valid path to an Astra secure connect bundle, as
+well as `username` and`password`, since authentication is always required on Astra clusters.
 
-A sample configuration should look like this:
+A sample configuration for DataStax Astra should look like this:
 
 [source,properties]
 ----
 quarkus.cassandra.cloud.secure-connect-bundle=/path/to/secure-connect-bundle.zip
 quarkus.cassandra.auth.username=john
 quarkus.cassandra.auth.password=s3cr3t
+quarkus.cassandra.keyspace=k1
 ----
 
 === Advanced driver configuration
@@ -460,7 +443,7 @@ public interface FruitMapper {
   // the existing method omitted
 
   @DaoFactory
-  FruitDaoReactive fruitDaoReactive(@DaoKeyspace CqlIdentifier keyspace);
+  FruitDaoReactive fruitDaoReactive();
 }
 
 ----
@@ -475,8 +458,8 @@ public class FruitReactiveService {
   private final FruitDaoReactive fruitDao;
 
   @Inject
-  public FruitReactiveService(FruitMapper fruitMapper, FruitServiceConfig fruitServiceConfig) {
-    fruitDao = fruitMapper.fruitDaoAsync(CqlIdentifier.fromCql(fruitServiceConfig.keyspace));
+  public FruitReactiveService(FruitDaoReactive fruitDao) {
+    this.fruitDao = fruitDao;
   }
 
   public Uni<Void> add(Fruit fruit) {

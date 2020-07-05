@@ -15,9 +15,7 @@
  */
 package com.datastax.oss.quarkus.demo;
 
-import com.datastax.oss.driver.api.core.CqlIdentifier;
 import com.datastax.oss.driver.api.mapper.annotations.DaoFactory;
-import com.datastax.oss.driver.api.mapper.annotations.DaoKeyspace;
 import com.datastax.oss.driver.api.mapper.annotations.Mapper;
 
 /**
@@ -35,20 +33,18 @@ import com.datastax.oss.driver.api.mapper.annotations.Mapper;
 public interface FruitMapper {
 
   /**
-   * Creates a new {@link FruitDao} operating against the given keyspace.
+   * Creates a new {@link FruitDao}. It will operate on the same keyspace as the Quarkus session.
    *
-   * @param keyspace The keyspace to use in the new {@link FruitDao}.
-   * @return a new {@link FruitDao} operating against the given keyspace.
+   * @return a new {@link FruitDao}.
    */
   @DaoFactory
-  FruitDao fruitDao(@DaoKeyspace CqlIdentifier keyspace);
+  FruitDao fruitDao();
 
   /**
-   * Creates a new {@link FruitDao} operating against the given keyspace.
+   * Creates a new {@link FruitDao}. It will operate on the same keyspace as the Quarkus session.
    *
-   * @param keyspace The keyspace to use in the new {@link FruitDao}.
-   * @return a new {@link FruitDao} operating against the given keyspace.
+   * @return a new {@link FruitDao}.
    */
   @DaoFactory
-  FruitDaoReactive fruitDaoReactive(@DaoKeyspace CqlIdentifier keyspace);
+  FruitDaoReactive fruitDaoReactive();
 }

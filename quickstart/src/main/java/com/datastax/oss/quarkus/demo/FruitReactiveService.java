@@ -27,12 +27,7 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class FruitReactiveService {
 
-  private final FruitDaoReactive fruitDao;
-
-  @Inject
-  public FruitReactiveService(FruitDaoReactive fruitDao) {
-    this.fruitDao = fruitDao;
-  }
+  @Inject FruitDaoReactive fruitDao;
 
   public Uni<Void> add(Fruit fruit) {
     return fruitDao.update(fruit);
