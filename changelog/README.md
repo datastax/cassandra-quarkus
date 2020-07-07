@@ -1,3 +1,7 @@
+### 1.0.0-alpha3
+
+- [improvement] Make SmallRye Metrics and Health dependencies non-optional
+
 ### 1.0.0-alpha2
 
 - [improvement] Add more configuration settings (fixes #72, fixes #105)
