@@ -58,12 +58,10 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-smallrye-health</artifactId>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-smallrye-metrics</artifactId>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.datastax.oss</groupId>
