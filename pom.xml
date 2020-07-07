@@ -23,7 +23,7 @@
   <version>1.0.0-alpha3-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Cassandra Quarkus :: Parent</name>
-  <description>DataStax Quarkus extension for Apache Cassandra(R)</description>
+  <description>Quarkus extension for Apache Cassandra(R)</description>
   <url>https://github.com/datastax/cassandra-quarkus</url>
   <inceptionYear>2020</inceptionYear>
   <properties>
