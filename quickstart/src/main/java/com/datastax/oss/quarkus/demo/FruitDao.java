@@ -24,7 +24,7 @@ import com.datastax.oss.driver.api.mapper.annotations.Update;
  * A DAO for retrieving {@link Fruit} instances.
  *
  * @see <a
- *     href="https://docs.datastax.com/en/developer/java-driver/latest/manual/mapper/doas/">Defining
+ *     href="https://docs.datastax.com/en/developer/java-driver/latest/manual/mapper/daos/">Defining
  *     DAOs with the DataStax Java driver object mapper</a>
  */
 @Dao
