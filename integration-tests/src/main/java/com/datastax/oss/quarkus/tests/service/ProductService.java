@@ -26,12 +26,7 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class ProductService {
 
-  private final ProductDao dao;
-
-  @Inject
-  public ProductService(ProductDao dao) {
-    this.dao = dao;
-  }
+  @Inject ProductDao dao;
 
   public void create(Product product) {
     dao.create(product);

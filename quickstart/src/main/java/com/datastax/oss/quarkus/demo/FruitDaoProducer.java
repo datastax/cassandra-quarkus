@@ -15,7 +15,6 @@
  */
 package com.datastax.oss.quarkus.demo;
 
-import com.datastax.oss.driver.api.core.CqlIdentifier;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
@@ -30,11 +29,10 @@ public class FruitDaoProducer {
   private final FruitDaoReactive fruitDaoReactive;
 
   @Inject
-  public FruitDaoProducer(QuarkusCqlSession cqlSession, FruitServiceConfig fruitServiceConfig) {
-    FruitMapper mapper = new FruitMapperBuilder(cqlSession).build();
-    CqlIdentifier keyspace = CqlIdentifier.fromCql(fruitServiceConfig.keyspace);
-    fruitDao = mapper.fruitDao(keyspace);
-    fruitDaoReactive = mapper.fruitDaoReactive(keyspace);
+  public FruitDaoProducer(QuarkusCqlSession session) {
+    FruitMapper mapper = new FruitMapperBuilder(session).build();
+    fruitDao = mapper.fruitDao();
+    fruitDaoReactive = mapper.fruitDaoReactive();
   }
 
   /** @return A {@link FruitDao} singleton instance. */

@@ -35,6 +35,7 @@ import javax.ws.rs.core.MediaType;
 public class FruitResource {
 
   private static final String STORE_NAME = "acme";
+
   @Inject FruitService fruitService;
 
   @GET

@@ -26,12 +26,7 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class ProductReactiveService {
 
-  private final ProductReactiveDao dao;
-
-  @Inject
-  public ProductReactiveService(ProductReactiveDao dao) {
-    this.dao = dao;
-  }
+  @Inject ProductReactiveDao dao;
 
   public Uni<Void> create(Product product) {
     return dao.create(product);

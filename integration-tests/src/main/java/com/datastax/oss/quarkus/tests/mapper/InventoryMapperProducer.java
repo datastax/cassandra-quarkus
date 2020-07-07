@@ -15,7 +15,6 @@
  */
 package com.datastax.oss.quarkus.tests.mapper;
 
-import com.datastax.oss.driver.api.core.CqlIdentifier;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.tests.dao.CustomerDao;
 import com.datastax.oss.quarkus.tests.dao.ProductDao;
@@ -26,28 +25,39 @@ import javax.inject.Inject;
 
 public class InventoryMapperProducer {
 
+  private final QuarkusCqlSession session;
   private final InventoryMapper mapper;
 
   @Inject
-  public InventoryMapperProducer(QuarkusCqlSession cqlSession) {
-    mapper = new InventoryMapperBuilder(cqlSession).build();
+  public InventoryMapperProducer(QuarkusCqlSession session) {
+    this.session = session;
+    mapper = new InventoryMapperBuilder(session).build();
   }
 
   @Produces
   @ApplicationScoped
   ProductDao produceProductDao() {
-    return mapper.productDao(CqlIdentifier.fromCql("k1"));
+    return session
+        .getKeyspace()
+        .map(mapper::productDao)
+        .orElseThrow(() -> new IllegalStateException("Session is not bound to a keyspace"));
   }
 
   @Produces
   @ApplicationScoped
   ProductReactiveDao produceProductReactiveDao() {
-    return mapper.productReactiveDao(CqlIdentifier.fromCql("k1"));
+    return session
+        .getKeyspace()
+        .map(mapper::productReactiveDao)
+        .orElseThrow(() -> new IllegalStateException("Session is not bound to a keyspace"));
   }
 
   @Produces
   @ApplicationScoped
   CustomerDao produceCustomerDao() {
-    return mapper.customerDao(CqlIdentifier.fromCql("k1"));
+    return session
+        .getKeyspace()
+        .map(mapper::customerDao)
+        .orElseThrow(() -> new IllegalStateException("Session is not bound to a keyspace"));
   }
 }

@@ -26,12 +26,7 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class CustomerService {
 
-  private final CustomerDao dao;
-
-  @Inject
-  public CustomerService(CustomerDao dao) {
-    this.dao = dao;
-  }
+  @Inject CustomerDao dao;
 
   public void create(Customer customer) {
     dao.create(customer);
