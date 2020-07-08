@@ -306,7 +306,7 @@ quarkus.cassandra.auth.password=s3cr3t
 
 When connecting to Astra, instead of providing a contact point and a datacenter, you should provide
 `secure-connect-bundle`, which should point to a valid path to an Astra secure connect bundle, as
-well as `username` and`password`, since authentication is always required on Astra clusters.
+well as `username` and `password`, since authentication is always required on Astra clusters.
 
 A sample configuration for DataStax Astra should look like this:
 
