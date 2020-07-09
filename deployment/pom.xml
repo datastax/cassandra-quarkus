@@ -41,6 +41,10 @@
       <groupId>com.datastax.oss.quarkus</groupId>
       <artifactId>cassandra-quarkus-client</artifactId>
     </dependency>
+    <!--
+    Note: the Quarkus CI nightly build checks the dependencies below; before changing any
+    Quarkus dependency, make sure that the build won't break.
+    -->
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-core-deployment</artifactId>
@@ -63,11 +67,23 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-smallrye-health-spi</artifactId>
+      <artifactId>quarkus-smallrye-health-deployment</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-smallrye-metrics-spi</artifactId>
+      <artifactId>quarkus-vertx-http-deployment</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-vertx-core-deployment</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-jsonp-deployment</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-smallrye-metrics-deployment</artifactId>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
