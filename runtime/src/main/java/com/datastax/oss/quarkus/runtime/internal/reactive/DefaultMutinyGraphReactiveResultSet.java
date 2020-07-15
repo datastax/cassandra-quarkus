@@ -21,24 +21,12 @@ import com.datastax.oss.driver.api.core.cql.ExecutionInfo;
 import com.datastax.oss.quarkus.runtime.api.reactive.MutinyGraphReactiveResultSet;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.smallrye.mutiny.Multi;
-import io.smallrye.mutiny.Uni;
-import io.smallrye.mutiny.groups.MultiBroadcast;
-import io.smallrye.mutiny.groups.MultiCollect;
-import io.smallrye.mutiny.groups.MultiConvert;
-import io.smallrye.mutiny.groups.MultiGroup;
-import io.smallrye.mutiny.groups.MultiOnCompletion;
-import io.smallrye.mutiny.groups.MultiOnEvent;
-import io.smallrye.mutiny.groups.MultiOnFailure;
-import io.smallrye.mutiny.groups.MultiOnItem;
-import io.smallrye.mutiny.groups.MultiOverflow;
-import io.smallrye.mutiny.groups.MultiSubscribe;
-import io.smallrye.mutiny.groups.MultiTransform;
-import java.util.concurrent.Executor;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import org.reactivestreams.Subscriber;
+import io.smallrye.mutiny.infrastructure.Infrastructure;
+import io.smallrye.mutiny.operators.AbstractMulti;
+import io.smallrye.mutiny.subscription.MultiSubscriber;
 
-public class DefaultMutinyGraphReactiveResultSet implements MutinyGraphReactiveResultSet {
+public class DefaultMutinyGraphReactiveResultSet extends AbstractMulti<ReactiveGraphNode>
+    implements MutinyGraphReactiveResultSet {
 
   private final Multi<ReactiveGraphNode> multi;
   private final Multi<ExecutionInfo> executionInfos;
@@ -57,98 +45,7 @@ public class DefaultMutinyGraphReactiveResultSet implements MutinyGraphReactiveR
     return executionInfos;
   }
 
-  @Override
-  public MultiSubscribe<ReactiveGraphNode> subscribe() {
-    return multi.subscribe();
-  }
-
-  @Override
-  public MultiOnItem<ReactiveGraphNode> onItem() {
-    return multi.onItem();
-  }
-
-  @Override
-  public <O> O then(Function<Multi<ReactiveGraphNode>, O> stage) {
-    return multi.then(stage);
-  }
-
-  @Override
-  public Uni<ReactiveGraphNode> toUni() {
-    return multi.toUni();
-  }
-
-  @Override
-  public MultiOnFailure<ReactiveGraphNode> onFailure() {
-    return multi.onFailure();
-  }
-
-  @Override
-  public MultiOnFailure<ReactiveGraphNode> onFailure(Predicate<? super Throwable> predicate) {
-    return multi.onFailure(predicate);
-  }
-
-  @Override
-  public MultiOnFailure<ReactiveGraphNode> onFailure(Class<? extends Throwable> aClass) {
-    return multi.onFailure(aClass);
-  }
-
-  @Override
-  public MultiOnEvent<ReactiveGraphNode> on() {
-    return multi.on();
-  }
-
-  @Override
-  public Multi<ReactiveGraphNode> cache() {
-    return multi.cache();
-  }
-
-  @Override
-  public MultiCollect<ReactiveGraphNode> collectItems() {
-    return multi.collectItems();
-  }
-
-  @Override
-  public MultiGroup<ReactiveGraphNode> groupItems() {
-    return multi.groupItems();
-  }
-
-  @Override
-  public Multi<ReactiveGraphNode> emitOn(Executor executor) {
-    return multi.emitOn(executor);
-  }
-
-  @Override
-  public Multi<ReactiveGraphNode> runSubscriptionOn(Executor executor) {
-    return multi.runSubscriptionOn(executor);
-  }
-
-  @Override
-  public MultiOnCompletion<ReactiveGraphNode> onCompletion() {
-    return multi.onCompletion();
-  }
-
-  @Override
-  public MultiTransform<ReactiveGraphNode> transform() {
-    return multi.transform();
-  }
-
-  @Override
-  public MultiOverflow<ReactiveGraphNode> onOverflow() {
-    return multi.onOverflow();
-  }
-
-  @Override
-  public MultiBroadcast<ReactiveGraphNode> broadcast() {
-    return multi.broadcast();
-  }
-
-  @Override
-  public MultiConvert<ReactiveGraphNode> convert() {
-    return multi.convert();
-  }
-
-  @Override
-  public void subscribe(Subscriber<? super ReactiveGraphNode> subscriber) {
-    multi.subscribe(subscriber);
+  public void subscribe(MultiSubscriber<? super ReactiveGraphNode> subscriber) {
+    multi.subscribe(Infrastructure.onMultiSubscription(multi, subscriber));
   }
 }

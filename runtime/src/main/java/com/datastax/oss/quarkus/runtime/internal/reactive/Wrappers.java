@@ -29,7 +29,7 @@ public class Wrappers {
     Multi<T> multi = Multi.createFrom().publisher(source);
     Context context = Vertx.currentContext();
     if (context != null) {
-      multi = multi.emitOn(new VertexContextExecutor(context));
+      multi = multi.emitOn(new VertxContextExecutor(context));
     }
     return multi;
   }
@@ -38,7 +38,7 @@ public class Wrappers {
     Context context = Vertx.currentContext();
     Uni<T> uni = Uni.createFrom().publisher(source);
     if (context != null) {
-      uni = uni.emitOn(new VertexContextExecutor(context));
+      uni = uni.emitOn(new VertxContextExecutor(context));
     }
     return uni;
   }
@@ -47,11 +47,11 @@ public class Wrappers {
     return Uni.createFrom().failure(error);
   }
 
-  private static class VertexContextExecutor implements Executor {
+  private static class VertxContextExecutor implements Executor {
 
     private final Context context;
 
-    public VertexContextExecutor(Context context) {
+    public VertxContextExecutor(Context context) {
       this.context = context;
     }
 

@@ -21,24 +21,11 @@ import com.datastax.oss.driver.api.core.cql.ExecutionInfo;
 import com.datastax.oss.quarkus.runtime.api.reactive.mapper.MutinyMappedReactiveResultSet;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.smallrye.mutiny.Multi;
-import io.smallrye.mutiny.Uni;
-import io.smallrye.mutiny.groups.MultiBroadcast;
-import io.smallrye.mutiny.groups.MultiCollect;
-import io.smallrye.mutiny.groups.MultiConvert;
-import io.smallrye.mutiny.groups.MultiGroup;
-import io.smallrye.mutiny.groups.MultiOnCompletion;
-import io.smallrye.mutiny.groups.MultiOnEvent;
-import io.smallrye.mutiny.groups.MultiOnFailure;
-import io.smallrye.mutiny.groups.MultiOnItem;
-import io.smallrye.mutiny.groups.MultiOverflow;
-import io.smallrye.mutiny.groups.MultiSubscribe;
-import io.smallrye.mutiny.groups.MultiTransform;
-import java.util.concurrent.Executor;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import org.reactivestreams.Subscriber;
+import io.smallrye.mutiny.infrastructure.Infrastructure;
+import io.smallrye.mutiny.operators.AbstractMulti;
+import io.smallrye.mutiny.subscription.MultiSubscriber;
 
-public class DefaultMutinyMappedReactiveResultSet<EntityT>
+public class DefaultMutinyMappedReactiveResultSet<EntityT> extends AbstractMulti<EntityT>
     implements MutinyMappedReactiveResultSet<EntityT> {
   private final Multi<EntityT> multi;
   private final Multi<ExecutionInfo> executionInfos;
@@ -77,97 +64,7 @@ public class DefaultMutinyMappedReactiveResultSet<EntityT>
   }
 
   @Override
-  public MultiSubscribe<EntityT> subscribe() {
-    return multi.subscribe();
-  }
-
-  @Override
-  public MultiOnItem<EntityT> onItem() {
-    return multi.onItem();
-  }
-
-  @Override
-  public <O> O then(Function<Multi<EntityT>, O> stage) {
-    return multi.then(stage);
-  }
-
-  @Override
-  public Uni<EntityT> toUni() {
-    return multi.toUni();
-  }
-
-  @Override
-  public MultiOnFailure<EntityT> onFailure() {
-    return multi.onFailure();
-  }
-
-  @Override
-  public MultiOnFailure<EntityT> onFailure(Predicate<? super Throwable> predicate) {
-    return multi.onFailure(predicate);
-  }
-
-  @Override
-  public MultiOnFailure<EntityT> onFailure(Class<? extends Throwable> aClass) {
-    return multi.onFailure(aClass);
-  }
-
-  @Override
-  public MultiOnEvent<EntityT> on() {
-    return multi.on();
-  }
-
-  @Override
-  public Multi<EntityT> cache() {
-    return multi.cache();
-  }
-
-  @Override
-  public MultiCollect<EntityT> collectItems() {
-    return multi.collectItems();
-  }
-
-  @Override
-  public MultiGroup<EntityT> groupItems() {
-    return multi.groupItems();
-  }
-
-  @Override
-  public Multi<EntityT> emitOn(Executor executor) {
-    return multi.emitOn(executor);
-  }
-
-  @Override
-  public Multi<EntityT> runSubscriptionOn(Executor executor) {
-    return multi.runSubscriptionOn(executor);
-  }
-
-  @Override
-  public MultiOnCompletion<EntityT> onCompletion() {
-    return multi.onCompletion();
-  }
-
-  @Override
-  public MultiTransform<EntityT> transform() {
-    return multi.transform();
-  }
-
-  @Override
-  public MultiOverflow<EntityT> onOverflow() {
-    return multi.onOverflow();
-  }
-
-  @Override
-  public MultiBroadcast<EntityT> broadcast() {
-    return multi.broadcast();
-  }
-
-  @Override
-  public MultiConvert<EntityT> convert() {
-    return multi.convert();
-  }
-
-  @Override
-  public void subscribe(Subscriber<? super EntityT> subscriber) {
-    multi.subscribe(subscriber);
+  public void subscribe(MultiSubscriber<? super EntityT> subscriber) {
+    multi.subscribe(Infrastructure.onMultiSubscription(multi, subscriber));
   }
 }
