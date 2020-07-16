@@ -20,37 +20,42 @@ import com.datastax.oss.driver.api.core.cql.ExecutionInfo;
 import com.datastax.oss.quarkus.runtime.api.reactive.mapper.MutinyMappedReactiveResultSet;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.smallrye.mutiny.Multi;
-import io.smallrye.mutiny.operators.multi.builders.FailedMulti;
+import io.smallrye.mutiny.infrastructure.Infrastructure;
+import io.smallrye.mutiny.operators.AbstractMulti;
+import io.smallrye.mutiny.subscription.MultiSubscriber;
 
 /**
  * A mapped reactive result set that immediately signals the error passed at instantiation to all
  * its subscribers.
  */
-public class FailedMutinyMappedReactiveResultSet<EntityT> extends FailedMulti<EntityT>
+public class FailedMutinyMappedReactiveResultSet<EntityT> extends AbstractMulti<EntityT>
     implements MutinyMappedReactiveResultSet<EntityT> {
 
-  private Throwable error;
+  private final Multi<EntityT> multi;
 
   public FailedMutinyMappedReactiveResultSet(Throwable error) {
-    super(error);
-    this.error = error;
+    this.multi = Multi.createFrom().failure(error);
   }
 
   @NonNull
   @Override
   public Multi<ColumnDefinitions> getColumnDefinitions() {
-    return new FailedMulti<>(error);
+    return multi.onItem().castTo(ColumnDefinitions.class);
   }
 
   @NonNull
   @Override
   public Multi<ExecutionInfo> getExecutionInfos() {
-    return new FailedMulti<>(error);
+    return multi.onItem().castTo(ExecutionInfo.class);
   }
 
   @NonNull
   @Override
   public Multi<Boolean> wasApplied() {
-    return new FailedMulti<>(error);
+    return multi.onItem().castTo(Boolean.class);
+  }
+
+  public void subscribe(MultiSubscriber<? super EntityT> subscriber) {
+    multi.subscribe(Infrastructure.onMultiSubscription(multi, subscriber));
   }
 }
