@@ -49,7 +49,7 @@
       <optional>true</optional>
     </dependency>
     <!--
-    Note: when adding a new Quarkus dependency below, you probably should that its deployment
+    Note: when adding a new Quarkus dependency below, you probably should add its deployment
     equivalent in the deployment module; the Quarkus CI nightly build enforces that and can break if
     it detects a missing deployment dependency.
     -->
