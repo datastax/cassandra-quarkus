@@ -221,24 +221,26 @@ The last missing piece is the REST API that will expose GET and POST methods:
 @Consumes(MediaType.APPLICATION_JSON)
 public class FruitResource {
 
-  private static final String STORE_NAME = "acme";
+  private static final String STORE_ID = "acme";
 
   @Inject FruitService fruitService;
 
   @GET
-  public List<FruitDto> list() {
-    return fruitService.get(STORE_NAME).stream()
-        .map(fruit -> new FruitDto(fruit.getName(), fruit.getDescription()))
-        .collect(Collectors.toList());
+  public List<FruitDto> getAll() {
+    return fruitService.get(STORE_ID).stream().map(this::convertToDto).collect(Collectors.toList());
   }
 
   @POST
   public void add(FruitDto fruit) {
-    fruitService.save(covertFromDto(fruit));
+    fruitService.save(convertFromDto(fruit));
   }
 
-  private Fruit covertFromDto(FruitDto fruitDto) {
-    return new Fruit(fruitDto.getName(), fruitDto.getDescription(), STORE_NAME);
+  private FruitDto convertToDto(Fruit fruit) {
+    return new FruitDto(fruit.getName(), fruit.getDescription());
+  }
+
+  private Fruit convertFromDto(FruitDto fruitDto) {
+    return new Fruit(STORE_ID, fruitDto.getName(), fruitDto.getDescription());
   }
 }
 ----
@@ -503,24 +505,27 @@ Finally, we can create a `FruitReactiveResource`:
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class FruitReactiveResource {
-  private static final String STORE_NAME = "acme";
+
+  private static final String STORE_ID = "acme";
+
   @Inject FruitReactiveService service;
 
   @GET
   public Multi<FruitDto> getAll() {
-    return service
-        .get(STORE_NAME)
-        .map(fruit -> new FruitDto(fruit.getName(), fruit.getDescription()));
+    return service.get(STORE_ID).map(this::convertToDto);
   }
 
   @POST
-  public Multi<FruitDto> add(FruitDto fruitDto) {
-    Fruit fruit = covertFromDto(fruitDto);
-    return service.add(fruit).then(ignored -> getAll());
+  public Uni<Void> add(FruitDto fruitDto) {
+    return service.add(convertFromDto(fruitDto));
   }
 
-  private Fruit covertFromDto(FruitDto fruitDto) {
-    return new Fruit(fruitDto.getName(), fruitDto.getDescription(), STORE_NAME);
+  private FruitDto convertToDto(Fruit fruit) {
+    return new FruitDto(fruit.getName(), fruit.getDescription());
+  }
+
+  private Fruit convertFromDto(FruitDto fruitDto) {
+    return new Fruit(STORE_ID, fruitDto.getName(), fruitDto.getDescription());
   }
 }
 ----

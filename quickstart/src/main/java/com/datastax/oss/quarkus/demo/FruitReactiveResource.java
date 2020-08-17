@@ -34,24 +34,25 @@ import javax.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 public class FruitReactiveResource {
 
-  private static final String STORE_NAME = "acme";
+  private static final String STORE_ID = "acme";
 
   @Inject FruitReactiveService service;
 
   @GET
   public Multi<FruitDto> getAll() {
-    return service
-        .get(STORE_NAME)
-        .map(fruit -> new FruitDto(fruit.getName(), fruit.getDescription()));
+    return service.get(STORE_ID).map(this::convertToDto);
   }
 
   @POST
   public Uni<Void> add(FruitDto fruitDto) {
-    Fruit fruit = covertFromDto(fruitDto);
-    return service.add(fruit);
+    return service.add(convertFromDto(fruitDto));
   }
 
-  private Fruit covertFromDto(FruitDto fruitDto) {
-    return new Fruit(STORE_NAME, fruitDto.getName(), fruitDto.getDescription());
+  private FruitDto convertToDto(Fruit fruit) {
+    return new FruitDto(fruit.getName(), fruit.getDescription());
+  }
+
+  private Fruit convertFromDto(FruitDto fruitDto) {
+    return new Fruit(STORE_ID, fruitDto.getName(), fruitDto.getDescription());
   }
 }
