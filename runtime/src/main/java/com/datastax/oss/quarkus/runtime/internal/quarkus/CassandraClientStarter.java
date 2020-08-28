@@ -36,10 +36,14 @@ public class CassandraClientStarter {
 
   @SuppressWarnings("unused")
   public void startup(
-      @Observes StartupEvent event, QuarkusCqlSession session, CassandraClientConfig config) {
+      @Observes StartupEvent event,
+      QuarkusCqlSession sessionProxy,
+      CassandraClientConfig config,
+      QuarkusCqlSessionState quarkusCqlSessionState) {
     if (config.cassandraClientInitConfig.eagerSessionInit) {
       LOG.debug("Triggering eager initialization of Quarkus session at startup");
-      session.getName();
+      sessionProxy.getName();
+      quarkusCqlSessionState.setInitialized();
     } else {
       LOG.debug("Not triggering eager initialization of Quarkus session at startup");
     }

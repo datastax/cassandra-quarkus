@@ -40,8 +40,18 @@ public class CassandraClientRecorder {
 
   public RuntimeValue<QuarkusCqlSession> buildClient(
       ShutdownContext shutdown, BeanContainer beanContainer) {
+    QuarkusCqlSessionState quarkusCqlSessionState =
+        beanContainer.instance(QuarkusCqlSessionState.class);
     QuarkusCqlSession cqlSession = beanContainer.instance(QuarkusCqlSession.class);
-    shutdown.addShutdownTask(cqlSession::close);
+    shutdown.addShutdownTask(
+        () -> {
+          // invoke close() on session only, if it was initialized.
+          // If the close() will be called on the non-initialized QuarkusCqlSession, it would
+          // trigger the connection and close it immediately
+          if (quarkusCqlSessionState.isInitialized()) {
+            cqlSession.close();
+          }
+        });
     return new RuntimeValue<>(cqlSession);
   }
 
