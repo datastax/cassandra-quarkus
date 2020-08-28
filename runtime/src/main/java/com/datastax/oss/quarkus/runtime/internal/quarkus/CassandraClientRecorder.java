@@ -29,9 +29,12 @@ import io.quarkus.runtime.annotations.Recorder;
 import io.smallrye.metrics.MetricRegistries;
 import javax.enterprise.util.AnnotationLiteral;
 import org.eclipse.microprofile.metrics.MetricRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Recorder
 public class CassandraClientRecorder {
+  private static final Logger LOG = LoggerFactory.getLogger(CassandraClientRecorder.class);
 
   public void configureRuntimeProperties(CassandraClientConfig config) {
     CassandraClientProducer producer = getProducerInstance();
@@ -49,6 +52,7 @@ public class CassandraClientRecorder {
           // If the close() will be called on the non-initialized QuarkusCqlSession, it would
           // trigger the connection and close it immediately
           if (quarkusCqlSessionState.isInitialized()) {
+            LOG.debug("Closing the QuarkusCqlSession.");
             cqlSession.close();
           }
         });
