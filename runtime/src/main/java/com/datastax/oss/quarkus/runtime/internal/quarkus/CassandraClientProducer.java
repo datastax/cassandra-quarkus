@@ -59,7 +59,6 @@ public class CassandraClientProducer {
   @ApplicationScoped
   @Unremovable
   public QuarkusCqlSession createCassandraClient(QuarkusCqlSessionState quarkusCqlSessionState) {
-    quarkusCqlSessionState.setInitialized();
     ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder = createDriverConfigLoaderBuilder();
     configureRuntimeSettings(configLoaderBuilder);
     configureMetricsSettings(configLoaderBuilder);
@@ -69,6 +68,7 @@ public class CassandraClientProducer {
             .withMetricRegistry(metricRegistry)
             .withQuarkusEventLoop(mainEventLoop)
             .withConfigLoader(configLoaderBuilder.build());
+    quarkusCqlSessionState.setInitialized();
     return builder.build();
   }
 
