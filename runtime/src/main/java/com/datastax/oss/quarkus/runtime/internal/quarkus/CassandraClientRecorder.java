@@ -29,9 +29,12 @@ import io.quarkus.runtime.annotations.Recorder;
 import io.smallrye.metrics.MetricRegistries;
 import javax.enterprise.util.AnnotationLiteral;
 import org.eclipse.microprofile.metrics.MetricRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Recorder
 public class CassandraClientRecorder {
+  private static final Logger LOG = LoggerFactory.getLogger(CassandraClientRecorder.class);
 
   public void configureRuntimeProperties(CassandraClientConfig config) {
     CassandraClientProducer producer = getProducerInstance();
@@ -40,8 +43,19 @@ public class CassandraClientRecorder {
 
   public RuntimeValue<QuarkusCqlSession> buildClient(
       ShutdownContext shutdown, BeanContainer beanContainer) {
+    QuarkusCqlSessionState quarkusCqlSessionState =
+        beanContainer.instance(QuarkusCqlSessionState.class);
     QuarkusCqlSession cqlSession = beanContainer.instance(QuarkusCqlSession.class);
-    shutdown.addShutdownTask(cqlSession::close);
+    shutdown.addShutdownTask(
+        () -> {
+          // invoke close() on session only, if it was initialized.
+          // If the close() will be called on the non-initialized QuarkusCqlSession, it would
+          // trigger the connection and close it immediately
+          if (quarkusCqlSessionState.isInitialized()) {
+            LOG.debug("Closing the QuarkusCqlSession.");
+            cqlSession.close();
+          }
+        });
     return new RuntimeValue<>(cqlSession);
   }
 
