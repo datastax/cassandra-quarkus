@@ -17,6 +17,7 @@ package com.datastax.oss.quarkus.runtime.internal.session;
 
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
+import com.datastax.oss.driver.api.core.config.OptionsMap;
 import com.datastax.oss.driver.api.core.context.DriverContext;
 import com.datastax.oss.driver.api.core.session.ProgrammaticArguments;
 import com.datastax.oss.driver.api.core.session.SessionBuilder;
@@ -32,6 +33,7 @@ public class QuarkusCqlSessionBuilder
 
   private MetricRegistry metricRegistry;
   private EventLoopGroup quarkusEventLoop;
+  private OptionsMap quarkusConfig;
 
   public QuarkusCqlSessionBuilder withMetricRegistry(@NonNull MetricRegistry metricRegistry) {
     this.metricRegistry = metricRegistry;
@@ -43,9 +45,36 @@ public class QuarkusCqlSessionBuilder
     return this;
   }
 
+  public QuarkusCqlSessionBuilder withQuarkusConfig(OptionsMap quarkusConfig) {
+    this.quarkusConfig = quarkusConfig;
+    return this;
+  }
+
   @Override
   protected QuarkusCqlSession wrap(@NonNull CqlSession cqlSession) {
     return new DefaultQuarkusCqlSession(cqlSession);
+  }
+
+  @NonNull
+  public QuarkusCqlSessionBuilder withConfigLoader(@Nullable DriverConfigLoader configLoader) {
+    return super.withConfigLoader(overrideWithQuarkusConfig(configLoader));
+  }
+
+  @NonNull
+  @Deprecated
+  protected DriverConfigLoader defaultConfigLoader() {
+    return overrideWithQuarkusConfig(super.defaultConfigLoader());
+  }
+
+  @NonNull
+  protected DriverConfigLoader defaultConfigLoader(@Nullable ClassLoader classLoader) {
+    return overrideWithQuarkusConfig(super.defaultConfigLoader(classLoader));
+  }
+
+  private DriverConfigLoader overrideWithQuarkusConfig(DriverConfigLoader configLoader) {
+    return DriverConfigLoader.compose(
+        DriverConfigLoader.fromMap(quarkusConfig), // takes precedence
+        configLoader);
   }
 
   @Override

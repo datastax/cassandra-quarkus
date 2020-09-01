@@ -15,12 +15,12 @@
  */
 package com.datastax.oss.quarkus.runtime.internal.quarkus;
 
-import com.datastax.dse.driver.api.core.config.DseDriverOption;
 import com.datastax.oss.driver.api.core.CqlSession;
-import com.datastax.oss.driver.api.core.config.DefaultDriverOption;
 import com.datastax.oss.driver.api.core.config.DriverConfig;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
+import com.datastax.oss.driver.api.core.config.OptionsMap;
 import com.datastax.oss.driver.api.core.config.ProgrammaticDriverConfigLoaderBuilder;
+import com.datastax.oss.driver.api.core.config.TypedDriverOption;
 import com.datastax.oss.driver.api.core.context.DriverContext;
 import com.datastax.oss.driver.internal.core.auth.PlainTextAuthProvider;
 import com.datastax.oss.driver.internal.core.config.typesafe.DefaultDriverConfigLoader;
@@ -64,15 +64,16 @@ public class CassandraClientProducer {
   public CompletionStage<QuarkusCqlSession> createCompletionStageOfCassandraClient(
       QuarkusCqlSessionState quarkusCqlSessionState) {
     LOG.trace("Produce CompletionStage<QuarkusCqlSession> bean.");
-    ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder = createDriverConfigLoaderBuilder();
-    configureRuntimeSettings(configLoaderBuilder);
-    configureMetricsSettings(configLoaderBuilder);
-    configureProtocolCompression(configLoaderBuilder);
+    OptionsMap quarkusConfig = new OptionsMap();
+    configureRuntimeSettings(quarkusConfig);
+    configureMetricsSettings(quarkusConfig);
+    configureProtocolCompression(quarkusConfig);
     QuarkusCqlSessionBuilder builder =
         new QuarkusCqlSessionBuilder()
             .withMetricRegistry(metricRegistry)
             .withQuarkusEventLoop(mainEventLoop)
-            .withConfigLoader(configLoaderBuilder.build());
+            .withQuarkusConfig(quarkusConfig)
+            .withConfigLoader(createDriverConfigLoaderBuilder().build());
     return builder
         .buildAsync()
         .whenComplete(
@@ -158,70 +159,66 @@ public class CassandraClientProducer {
     return mainEventLoop;
   }
 
-  private void configureProtocolCompression(
-      ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder) {
-    configLoaderBuilder.withString(DefaultDriverOption.PROTOCOL_COMPRESSION, protocolCompression);
+  private void configureProtocolCompression(OptionsMap optionsMap) {
+    optionsMap.put(TypedDriverOption.PROTOCOL_COMPRESSION, protocolCompression);
   }
 
-  private void configureMetricsSettings(ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder) {
-    configLoaderBuilder.withStringList(
-        DefaultDriverOption.METRICS_NODE_ENABLED, metricsConfig.metricsNodeEnabled);
-    configLoaderBuilder.withStringList(
-        DefaultDriverOption.METRICS_SESSION_ENABLED, metricsConfig.metricsSessionEnabled);
+  private void configureMetricsSettings(OptionsMap optionsMap) {
+    optionsMap.put(TypedDriverOption.METRICS_NODE_ENABLED, metricsConfig.metricsNodeEnabled);
+    optionsMap.put(TypedDriverOption.METRICS_SESSION_ENABLED, metricsConfig.metricsSessionEnabled);
   }
 
-  private void configureRuntimeSettings(ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder) {
+  private void configureRuntimeSettings(OptionsMap optionsMap) {
     // connection settings
     config.cassandraClientConnectionConfig.contactPoints.ifPresent(
-        v -> configLoaderBuilder.withStringList(DefaultDriverOption.CONTACT_POINTS, v));
+        v -> optionsMap.put(TypedDriverOption.CONTACT_POINTS, v));
     config.cassandraClientConnectionConfig.localDatacenter.ifPresent(
-        v ->
-            configLoaderBuilder.withString(DefaultDriverOption.LOAD_BALANCING_LOCAL_DATACENTER, v));
+        v -> optionsMap.put(TypedDriverOption.LOAD_BALANCING_LOCAL_DATACENTER, v));
     config.cassandraClientConnectionConfig.keyspace.ifPresent(
-        v -> configLoaderBuilder.withString(DefaultDriverOption.SESSION_KEYSPACE, v));
+        v -> optionsMap.put(TypedDriverOption.SESSION_KEYSPACE, v));
     // cloud settings
     config.cassandraClientCloudConfig.secureConnectBundle.ifPresent(
         v ->
-            configLoaderBuilder.withString(
-                DefaultDriverOption.CLOUD_SECURE_CONNECT_BUNDLE, v.toAbsolutePath().toString()));
+            optionsMap.put(
+                TypedDriverOption.CLOUD_SECURE_CONNECT_BUNDLE, v.toAbsolutePath().toString()));
     // init settings
-    configLoaderBuilder.withBoolean(
-        DefaultDriverOption.RESOLVE_CONTACT_POINTS,
+    optionsMap.put(
+        TypedDriverOption.RESOLVE_CONTACT_POINTS,
         config.cassandraClientInitConfig.resolveContactPoints);
-    configLoaderBuilder.withBoolean(
-        DefaultDriverOption.RECONNECT_ON_INIT, config.cassandraClientInitConfig.reconnectOnInit);
+    optionsMap.put(
+        TypedDriverOption.RECONNECT_ON_INIT, config.cassandraClientInitConfig.reconnectOnInit);
     // request settings
     config.cassandraClientRequestConfig.requestTimeout.ifPresent(
-        v -> configLoaderBuilder.withDuration(DefaultDriverOption.REQUEST_TIMEOUT, v));
+        v -> optionsMap.put(TypedDriverOption.REQUEST_TIMEOUT, v));
     config.cassandraClientRequestConfig.consistencyLevel.ifPresent(
-        v -> configLoaderBuilder.withString(DefaultDriverOption.REQUEST_CONSISTENCY, v));
+        v -> optionsMap.put(TypedDriverOption.REQUEST_CONSISTENCY, v));
     config.cassandraClientRequestConfig.serialConsistencyLevel.ifPresent(
-        v -> configLoaderBuilder.withString(DefaultDriverOption.REQUEST_SERIAL_CONSISTENCY, v));
+        v -> optionsMap.put(TypedDriverOption.REQUEST_SERIAL_CONSISTENCY, v));
     config.cassandraClientRequestConfig.pageSize.ifPresent(
-        v -> configLoaderBuilder.withInt(DefaultDriverOption.REQUEST_PAGE_SIZE, v));
+        v -> optionsMap.put(TypedDriverOption.REQUEST_PAGE_SIZE, v));
     config.cassandraClientRequestConfig.defaultIdempotence.ifPresent(
-        v -> configLoaderBuilder.withBoolean(DefaultDriverOption.REQUEST_DEFAULT_IDEMPOTENCE, v));
+        v -> optionsMap.put(TypedDriverOption.REQUEST_DEFAULT_IDEMPOTENCE, v));
     // auth settings
     if (config.cassandraClientAuthConfig.username.isPresent()
         && config.cassandraClientAuthConfig.password.isPresent()) {
-      configLoaderBuilder
-          .withClass(DefaultDriverOption.AUTH_PROVIDER_CLASS, PlainTextAuthProvider.class)
-          .withString(
-              DefaultDriverOption.AUTH_PROVIDER_USER_NAME,
-              config.cassandraClientAuthConfig.username.get())
-          .withString(
-              DefaultDriverOption.AUTH_PROVIDER_PASSWORD,
-              config.cassandraClientAuthConfig.password.get());
+      optionsMap.put(
+          TypedDriverOption.AUTH_PROVIDER_CLASS, PlainTextAuthProvider.class.getCanonicalName());
+      optionsMap.put(
+          TypedDriverOption.AUTH_PROVIDER_USER_NAME,
+          config.cassandraClientAuthConfig.username.get());
+      optionsMap.put(
+          TypedDriverOption.AUTH_PROVIDER_PASSWORD,
+          config.cassandraClientAuthConfig.password.get());
     }
     // graph settings
     config.cassandraClientGraphConfig.graphName.ifPresent(
-        v -> configLoaderBuilder.withString(DseDriverOption.GRAPH_NAME, v));
+        v -> optionsMap.put(TypedDriverOption.GRAPH_NAME, v));
     config.cassandraClientGraphConfig.graphReadConsistencyLevel.ifPresent(
-        v -> configLoaderBuilder.withString(DseDriverOption.GRAPH_READ_CONSISTENCY_LEVEL, v));
+        v -> optionsMap.put(TypedDriverOption.GRAPH_READ_CONSISTENCY_LEVEL, v));
     config.cassandraClientGraphConfig.graphWriteConsistencyLevel.ifPresent(
-        v -> configLoaderBuilder.withString(DseDriverOption.GRAPH_WRITE_CONSISTENCY_LEVEL, v));
+        v -> optionsMap.put(TypedDriverOption.GRAPH_WRITE_CONSISTENCY_LEVEL, v));
     config.cassandraClientGraphConfig.graphRequestTimeout.ifPresent(
-        v -> configLoaderBuilder.withDuration(DseDriverOption.GRAPH_TIMEOUT, v));
+        v -> optionsMap.put(TypedDriverOption.GRAPH_TIMEOUT, v));
   }
 
   private static class NonReloadableDriverConfigLoader implements DriverConfigLoader {
