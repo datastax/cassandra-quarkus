@@ -26,7 +26,7 @@
   <url>https://github.com/datastax/cassandra-quarkus/quickstart</url>
   <inceptionYear>2020</inceptionYear>
   <properties>
-    <quarkus.version>1.5.0.Final</quarkus.version>
+    <quarkus.version>1.7.1.Final</quarkus.version>
     <datastax-java-driver.version>4.7.2</datastax-java-driver.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

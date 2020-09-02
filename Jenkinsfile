@@ -102,7 +102,7 @@ pipeline {
         environment {
           // Per-commit builds are only going to run against JDK8
           JABBA_VERSION = '1.8'
-          GRAALVM_VERSION = 'graalvm@19.3.1'
+          GRAALVM_VERSION = 'graalvm@20.1.0'
         }
 
         stages {
