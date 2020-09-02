@@ -60,9 +60,11 @@ import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.BeanContainerBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeansRuntimeInitBuildItem;
 import io.quarkus.deployment.Capabilities;
+import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.Consume;
 import io.quarkus.deployment.annotations.Record;
+import io.quarkus.deployment.builditem.ExtensionSslNativeSupportBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.NativeImageResourceBuildItem;
@@ -193,6 +195,12 @@ class CassandraClientProcessor {
         new ReflectiveClassBuildItem(true, true, DefaultSslEngineFactory.class.getName()),
         new ReflectiveClassBuildItem(true, true, ProgrammaticSslEngineFactory.class.getName()),
         new ReflectiveClassBuildItem(true, true, SniSslEngineFactory.class.getName()));
+  }
+
+  @BuildStep
+  void setupSslSupport(
+      BuildProducer<ExtensionSslNativeSupportBuildItem> extensionSslNativeSupport) {
+    extensionSslNativeSupport.produce(new ExtensionSslNativeSupportBuildItem(CASSANDRA_CLIENT));
   }
 
   @BuildStep
