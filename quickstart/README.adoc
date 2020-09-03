@@ -11,16 +11,7 @@ Just run it as follows (only 9042 port is required for quickstart application):
 
 [source,shell]
 ----
-docker run \
-   --name local-cassandra-instance \
-   -p 7000:7000 \
-   -p 7001:7001 \
-   -p 7199:7199 \
-   -p 9042:9042 \
-   -p 9160:9160 \
-   -p 9404:9404 \
-   -d \
-   launcher.gcr.io/google/cassandra3
+docker run --name local-cassandra-instance cassandra
 ----
 
 **Provision table**
