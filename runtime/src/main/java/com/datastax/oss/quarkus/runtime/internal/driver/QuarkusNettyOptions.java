@@ -154,8 +154,8 @@ public class QuarkusNettyOptions implements NettyOptions {
 
   @Override
   public Future<Void> onClose() {
-    // return immediately completed future. We should not close even loops because they are
-    // managed by the quarkus.
+    // return immediately completed future. We should not close event loops because they are
+    // managed by Quarkus.
     DefaultPromise<Void> promise = new DefaultPromise<>(GlobalEventExecutor.INSTANCE);
     promise.setSuccess(null);
     return promise;
