@@ -15,8 +15,8 @@
  */
 package com.datastax.oss.quarkus.deployment.internal.metrics;
 
-import static com.datastax.oss.quarkus.runtime.internal.metrics.MicroProfileMetricsUpdater.CASSANDRA_METRICS_PREFIX;
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.datastax.oss.quarkus.runtime.internal.context.QuarkusDriverContext.CASSANDRA_METRICS_PREFIX;
+import static org.assertj.core.api.Assertions.*;
 
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.test.CassandraTestResource;

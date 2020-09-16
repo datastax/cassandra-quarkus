@@ -20,8 +20,8 @@ import com.datastax.oss.driver.api.core.session.ProgrammaticArguments;
 import com.datastax.oss.driver.internal.core.context.DefaultDriverContext;
 import com.datastax.oss.driver.internal.core.context.NettyOptions;
 import com.datastax.oss.driver.internal.core.metrics.MetricsFactory;
+import com.datastax.oss.driver.internal.metrics.microprofile.MicroProfileMetricsFactory;
 import com.datastax.oss.quarkus.runtime.internal.driver.QuarkusNettyOptions;
-import com.datastax.oss.quarkus.runtime.internal.metrics.MicroProfileMetricsFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.netty.channel.EventLoopGroup;
@@ -29,6 +29,7 @@ import org.eclipse.microprofile.metrics.MetricRegistry;
 
 public class QuarkusDriverContext extends DefaultDriverContext {
 
+  public static final String CASSANDRA_METRICS_PREFIX = "cassandra";
   private final MetricRegistry metricRegistry;
   private final EventLoopGroup quarkusEventLoop;
 
@@ -44,7 +45,13 @@ public class QuarkusDriverContext extends DefaultDriverContext {
 
   @Override
   protected MetricsFactory buildMetricsFactory() {
-    return new MicroProfileMetricsFactory(this, metricRegistry);
+    return new MicroProfileMetricsFactory(this);
+  }
+
+  @Nullable
+  @Override
+  public MetricRegistry getMetricRegistry() {
+    return metricRegistry;
   }
 
   @Override
@@ -54,5 +61,11 @@ public class QuarkusDriverContext extends DefaultDriverContext {
     } else {
       return super.buildNettyOptions();
     }
+  }
+
+  @NonNull
+  @Override
+  public String getSessionName() {
+    return CASSANDRA_METRICS_PREFIX + "." + super.getSessionName();
   }
 }
