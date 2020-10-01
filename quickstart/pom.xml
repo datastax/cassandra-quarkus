@@ -63,6 +63,10 @@
       <artifactId>java-driver-mapper-runtime</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.datastax.oss</groupId>
+      <artifactId>java-driver-metrics-microprofile</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-resteasy</artifactId>
     </dependency>

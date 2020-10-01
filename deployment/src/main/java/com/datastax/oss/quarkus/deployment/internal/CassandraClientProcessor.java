@@ -50,7 +50,6 @@ import com.datastax.oss.driver.internal.core.tracker.NoopRequestTracker;
 import com.datastax.oss.driver.internal.core.tracker.RequestLogger;
 import com.datastax.oss.quarkus.deployment.api.CassandraClientBuildTimeConfig;
 import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
-import com.datastax.oss.quarkus.runtime.internal.metrics.MetricsConfig;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientProducer;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientRecorder;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientStarter;
@@ -79,10 +78,14 @@ import java.util.Optional;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistryV3d0;
 import org.reactivestreams.Publisher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class CassandraClientProcessor {
 
   public static final String CASSANDRA_CLIENT = "cassandra-client";
+
+  private static final Logger LOG = LoggerFactory.getLogger(CassandraClientProcessor.class);
 
   @BuildStep
   FeatureBuildItem feature() {
@@ -224,6 +227,15 @@ class CassandraClientProcessor {
         new ReflectiveClassBuildItem(true, true, ServerSideTimestampGenerator.class.getName()));
   }
 
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerMetricsFactoryForReflection() {
+    return Collections.singletonList(
+        new ReflectiveClassBuildItem(
+            true,
+            true,
+            "com.datastax.oss.driver.internal.metrics.microprofile.MicroProfileMetricsFactory"));
+  }
+
   @Record(RUNTIME_INIT)
   @BuildStep
   @Consume(SyntheticBeansRuntimeInitBuildItem.class)
@@ -233,28 +245,57 @@ class CassandraClientProcessor {
       CassandraClientBuildTimeConfig buildTimeConfig,
       Optional<MetricsCapabilityBuildItem> metricsCapability) {
     recorder.configureRuntimeProperties(runtimeConfig);
-    configureMetrics(recorder, buildTimeConfig, metricsCapability);
+    if (buildTimeConfig.metricsEnabled) {
+      if (checkMetricsCapabilityPresent(metricsCapability) && checkMetricsFactoryPresent()) {
+        List<String> enabledNodeMetrics =
+            buildTimeConfig.enabledNodeMetrics.orElse(Collections.emptyList());
+        List<String> enabledSessionMetrics =
+            buildTimeConfig.enabledSessionMetrics.orElse(Collections.emptyList());
+        if (checkMetricsPresent(enabledNodeMetrics, enabledSessionMetrics)) {
+          recorder.configureMetrics(enabledNodeMetrics, enabledSessionMetrics);
+        }
+      }
+    }
     recorder.configureCompression(buildTimeConfig.protocolCompression);
     recorder.setInjectedNettyEventLoop(buildTimeConfig.useQuarkusNettyEventLoop);
   }
 
-  private void configureMetrics(
-      CassandraClientRecorder recorder,
-      CassandraClientBuildTimeConfig buildTimeConfig,
+  private boolean checkMetricsCapabilityPresent(
       Optional<MetricsCapabilityBuildItem> metricsCapability) {
-    if (buildTimeConfig.metricsEnabled) {
-      recorder.configureMetrics(
-          new MetricsConfig(
-              buildTimeConfig.metricsNodeEnabled, buildTimeConfig.metricsSessionEnabled, true));
-    } else {
-      recorder.configureMetrics(new MetricsConfig(Optional.empty(), Optional.empty(), false));
+    if (!metricsCapability.isPresent()) {
+      LOG.error(
+          "Metrics were enabled in the configuration, but the Metrics capability is not installed; "
+              + "forcibly disabling metrics. Make to sure include the dependency to the "
+              + "quarkus-smallrye-metrics module in your application when enabling metrics.");
+      return false;
     }
+    return true;
+  }
 
-    if (buildTimeConfig.metricsEnabled && metricsCapability.isPresent()) {
-      recorder.setInjectedMetricRegistry();
-    } else {
-      recorder.setNoopMetricRegistry();
+  private boolean checkMetricsFactoryPresent() {
+    try {
+      Class.forName(
+          "com.datastax.oss.driver.internal.metrics.microprofile.MicroProfileMetricsFactory");
+      return true;
+    } catch (ClassNotFoundException e) {
+      LOG.error(
+          "Metrics were enabled in the configuration, but MicroProfileMetricsFactory class was not in the classpath; "
+              + "forcibly disabling metrics. Make to sure include the dependency to the "
+              + "java-driver-metrics-microprofile module in your application when enabling metrics.");
+      return false;
     }
+  }
+
+  private boolean checkMetricsPresent(
+      List<String> enabledNodeMetrics, List<String> enabledSessionMetrics) {
+    if (enabledNodeMetrics.isEmpty() && enabledSessionMetrics.isEmpty()) {
+      LOG.warn(
+          "Metrics were enabled in the configuration, but no session-level or node-level metrics were defined; "
+              + "forcibly disabling metrics. Make to sure define at least one metric to track using the "
+              + "cassandra.metrics.session.enabled or cassandra.metrics.node.enabled properties.");
+      return false;
+    }
+    return true;
   }
 
   @BuildStep
@@ -268,7 +309,7 @@ class CassandraClientProcessor {
   }
 
   @BuildStep
-  @Record(value = RUNTIME_INIT)
+  @Record(RUNTIME_INIT)
   CassandraClientBuildItem cassandraClient(
       CassandraClientRecorder recorder,
       ShutdownContextBuildItem shutdown,
