@@ -15,30 +15,31 @@
  */
 package com.datastax.oss.quarkus.tests.dao;
 
-import com.datastax.oss.driver.api.core.PagingIterable;
 import com.datastax.oss.driver.api.mapper.annotations.Dao;
 import com.datastax.oss.driver.api.mapper.annotations.Delete;
 import com.datastax.oss.driver.api.mapper.annotations.Insert;
 import com.datastax.oss.driver.api.mapper.annotations.Select;
 import com.datastax.oss.driver.api.mapper.annotations.Update;
 import com.datastax.oss.quarkus.tests.entity.Customer;
+import io.smallrye.mutiny.Multi;
 import java.util.UUID;
+import java.util.concurrent.CompletionStage;
 
 @Dao
 public interface CustomerDao {
 
   @Insert
-  void create(Customer customer);
+  CompletionStage<Void> create(Customer customer);
 
   @Update
-  void update(Customer customer);
+  CompletionStage<Void> update(Customer customer);
 
   @Delete(entityClass = Customer.class)
-  void delete(UUID customerId);
+  CompletionStage<Void> delete(UUID customerId);
 
   @Select
-  Customer findById(UUID customerId);
+  CompletionStage<Customer> findById(UUID customerId);
 
   @Select
-  PagingIterable<Customer> findAll();
+  Multi<Customer> findAll();
 }

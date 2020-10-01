@@ -20,31 +20,41 @@ import com.datastax.oss.quarkus.tests.entity.Product;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import java.util.UUID;
+import java.util.concurrent.CompletionStage;
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
 public class ProductReactiveService {
 
-  @Inject ProductReactiveDao dao;
+  @Inject private CompletionStage<ProductReactiveDao> daoCompletionStage;
+  private Uni<ProductReactiveDao> daoUni;
+
+  // it cannot be done in the constructor, using constructor injection
+  // because such a way of injecting does not work in the native mode.
+  @PostConstruct
+  public void toUni() {
+    daoUni = Uni.createFrom().completionStage(daoCompletionStage);
+  }
 
   public Uni<Void> create(Product product) {
-    return dao.create(product);
+    return daoUni.flatMap(dao -> dao.create(product));
   }
 
   public Uni<Void> update(Product product) {
-    return dao.update(product);
+    return daoUni.flatMap(dao -> dao.update(product));
   }
 
   public Uni<Void> delete(UUID productId) {
-    return dao.delete(productId);
+    return daoUni.flatMap(dao -> dao.delete(productId));
   }
 
   public Uni<Product> findById(UUID productId) {
-    return dao.findById(productId);
+    return daoUni.flatMap(dao -> dao.findById(productId));
   }
 
   public Multi<Product> findAll() {
-    return dao.findAll();
+    return daoUni.toMulti().flatMap(ProductReactiveDao::findAll);
   }
 }

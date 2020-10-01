@@ -17,38 +17,34 @@ package com.datastax.oss.quarkus.tests.service;
 
 import com.datastax.oss.quarkus.tests.dao.ProductDao;
 import com.datastax.oss.quarkus.tests.entity.Product;
-import java.util.ArrayList;
-import java.util.List;
+import io.smallrye.mutiny.Multi;
 import java.util.UUID;
+import java.util.concurrent.CompletionStage;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
 public class ProductService {
 
-  @Inject ProductDao dao;
+  @Inject CompletionStage<ProductDao> daoCompletionStage;
 
-  public void create(Product product) {
-    dao.create(product);
+  public CompletionStage<Void> create(Product product) {
+    return daoCompletionStage.thenCompose(dao -> dao.create(product));
   }
 
-  public void update(Product product) {
-    dao.update(product);
+  public CompletionStage<Void> update(Product product) {
+    return daoCompletionStage.thenCompose(dao -> dao.update(product));
   }
 
-  public void delete(UUID productId) {
-    dao.delete(productId);
+  public CompletionStage<Void> delete(UUID productId) {
+    return daoCompletionStage.thenCompose(dao -> dao.delete(productId));
   }
 
-  public Product findById(UUID productId) {
-    return dao.findById(productId);
+  public CompletionStage<Product> findById(UUID productId) {
+    return daoCompletionStage.thenCompose(dao -> dao.findById(productId));
   }
 
-  public List<Product> findAll() {
-    List<Product> products = new ArrayList<>();
-    for (Product product : dao.findAll()) {
-      products.add(product);
-    }
-    return products;
+  public Multi<Product> findAll() {
+    return Multi.createFrom().completionStage(daoCompletionStage).flatMap(ProductDao::findAll);
   }
 }

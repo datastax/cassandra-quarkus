@@ -38,9 +38,12 @@ import java.util.concurrent.CompletionStage;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import org.eclipse.microprofile.metrics.MetricRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class CassandraClientProducer {
+  private static final Logger LOG = LoggerFactory.getLogger(CassandraClientProducer.class);
 
   private CassandraClientConfig config;
   private MetricsConfig metricsConfig;
@@ -58,7 +61,9 @@ public class CassandraClientProducer {
   @Produces
   @ApplicationScoped
   @Unremovable
-  public QuarkusCqlSession createCassandraClient(QuarkusCqlSessionState quarkusCqlSessionState) {
+  public CompletionStage<QuarkusCqlSession> createCompletionStageOfCassandraClient(
+      QuarkusCqlSessionState quarkusCqlSessionState) {
+    LOG.trace("Produce CompletionStage<QuarkusCqlSession> bean.");
     ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder = createDriverConfigLoaderBuilder();
     configureRuntimeSettings(configLoaderBuilder);
     configureMetricsSettings(configLoaderBuilder);
@@ -68,8 +73,29 @@ public class CassandraClientProducer {
             .withMetricRegistry(metricRegistry)
             .withQuarkusEventLoop(mainEventLoop)
             .withConfigLoader(configLoaderBuilder.build());
-    quarkusCqlSessionState.setInitialized();
-    return builder.build();
+    return builder
+        .buildAsync()
+        .whenComplete(
+            (res, ex) -> {
+              if (ex == null) {
+                LOG.debug("Setting the QuarkusCqlSessionState to initialized.");
+                quarkusCqlSessionState.setInitialized();
+              }
+            });
+  }
+
+  @Produces
+  @ApplicationScoped
+  @Unremovable
+  public QuarkusCqlSession createCassandraClient(CompletionStage<QuarkusCqlSession> sessionFuture) {
+    LOG.trace("Produce QuarkusCqlSession bean.");
+    if (!config.cassandraClientInitConfig.eagerSessionInit) {
+      LOG.info(
+          "Injecting QuarkusCqlSession and setting eager-session-init = false may cause deadlock on the Vert.x thread. "
+              + "Please set it to true, inject only CompletionStage<QuarkusCqlSession>, "
+              + "or assert that initializing of the QuarkusCqlSession in your Application is happening not on the Vert.x event loop.");
+    }
+    return CompletableFutures.getUninterruptibly(sessionFuture);
   }
 
   public void setCassandraClientConfig(CassandraClientConfig config) {

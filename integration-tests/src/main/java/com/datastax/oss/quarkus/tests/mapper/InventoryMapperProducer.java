@@ -19,45 +19,60 @@ import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.tests.dao.CustomerDao;
 import com.datastax.oss.quarkus.tests.dao.ProductDao;
 import com.datastax.oss.quarkus.tests.dao.ProductReactiveDao;
+import java.util.concurrent.CompletionStage;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
 public class InventoryMapperProducer {
 
-  private final QuarkusCqlSession session;
-  private final InventoryMapper mapper;
+  private final CompletionStage<QuarkusCqlSession> sessionCompletionStage;
+  private final CompletionStage<InventoryMapper> mapperCompletionStage;
 
   @Inject
-  public InventoryMapperProducer(QuarkusCqlSession session) {
-    this.session = session;
-    mapper = new InventoryMapperBuilder(session).build();
+  public InventoryMapperProducer(CompletionStage<QuarkusCqlSession> sessionCompletionStage) {
+    this.sessionCompletionStage = sessionCompletionStage;
+    mapperCompletionStage =
+        sessionCompletionStage.thenApply(session -> new InventoryMapperBuilder(session).build());
   }
 
   @Produces
   @ApplicationScoped
-  ProductDao produceProductDao() {
-    return session
-        .getKeyspace()
-        .map(mapper::productDao)
-        .orElseThrow(() -> new IllegalStateException("Session is not bound to a keyspace"));
+  CompletionStage<ProductDao> produceProductDao() {
+    return sessionCompletionStage
+        .thenApply(
+            s ->
+                s.getKeyspace()
+                    .orElseThrow(
+                        () -> new IllegalStateException("Session is not bound to a keyspace")))
+        .thenCompose(
+            keyspace -> mapperCompletionStage.thenCompose(mapper -> mapper.productDao(keyspace)));
   }
 
   @Produces
   @ApplicationScoped
-  ProductReactiveDao produceProductReactiveDao() {
-    return session
-        .getKeyspace()
-        .map(mapper::productReactiveDao)
-        .orElseThrow(() -> new IllegalStateException("Session is not bound to a keyspace"));
+  CompletionStage<ProductReactiveDao> produceProductReactiveDao() {
+    return sessionCompletionStage
+        .thenApply(
+            s ->
+                s.getKeyspace()
+                    .orElseThrow(
+                        () -> new IllegalStateException("Session is not bound to a keyspace")))
+        .thenCompose(
+            keyspace ->
+                mapperCompletionStage.thenCompose(mapper -> mapper.productReactiveDao(keyspace)));
   }
 
   @Produces
   @ApplicationScoped
-  CustomerDao produceCustomerDao() {
-    return session
-        .getKeyspace()
-        .map(mapper::customerDao)
-        .orElseThrow(() -> new IllegalStateException("Session is not bound to a keyspace"));
+  CompletionStage<CustomerDao> produceCustomerDao() {
+    return sessionCompletionStage
+        .thenApply(
+            s ->
+                s.getKeyspace()
+                    .orElseThrow(
+                        () -> new IllegalStateException("Session is not bound to a keyspace")))
+        .thenCompose(
+            keyspace -> mapperCompletionStage.thenCompose(mapper -> mapper.customerDao(keyspace)));
   }
 }

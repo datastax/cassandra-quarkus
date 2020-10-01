@@ -15,30 +15,31 @@
  */
 package com.datastax.oss.quarkus.tests.dao;
 
-import com.datastax.oss.driver.api.core.PagingIterable;
 import com.datastax.oss.driver.api.mapper.annotations.Dao;
 import com.datastax.oss.driver.api.mapper.annotations.Delete;
 import com.datastax.oss.driver.api.mapper.annotations.Insert;
 import com.datastax.oss.driver.api.mapper.annotations.Select;
 import com.datastax.oss.driver.api.mapper.annotations.Update;
 import com.datastax.oss.quarkus.tests.entity.Product;
+import io.smallrye.mutiny.Multi;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Dao
 public interface ProductDao {
 
   @Insert
-  void create(Product product);
+  CompletableFuture<Void> create(Product product);
 
   @Update
-  void update(Product product);
+  CompletableFuture<Void> update(Product product);
 
   @Delete(entityClass = Product.class)
-  void delete(UUID productId);
+  CompletableFuture<Void> delete(UUID productId);
 
   @Select
-  Product findById(UUID productId);
+  CompletableFuture<Product> findById(UUID productId);
 
   @Select
-  PagingIterable<Product> findAll();
+  Multi<Product> findAll();
 }

@@ -17,9 +17,10 @@ package com.datastax.oss.quarkus.tests.resource;
 
 import com.datastax.oss.quarkus.tests.entity.Product;
 import com.datastax.oss.quarkus.tests.service.ProductService;
+import io.smallrye.mutiny.Multi;
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -40,42 +41,45 @@ public class ProductResource {
 
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response createProduct(Product product) {
-    service.create(product);
-    return Response.created(URI.create("/product/" + product.getId())).build();
+  public CompletionStage<Response> createProduct(Product product) {
+    return service
+        .create(product)
+        .thenApply((ignore) -> Response.created(URI.create("/product/" + product.getId())).build());
   }
 
   @PUT
   @Path("/{id}")
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response updateProduct(@PathParam("id") UUID id, Product product) {
+  public CompletionStage<Response> updateProduct(@PathParam("id") UUID id, Product product) {
     product.setId(id);
-    service.update(product);
-    return Response.ok().build();
+    return service.update(product).thenApply((ignore) -> Response.ok().build());
   }
 
   @DELETE
   @Path("/{id}")
-  public Response deleteProduct(@PathParam("id") UUID id) {
-    service.delete(id);
-    return Response.ok().build();
+  public CompletionStage<Response> deleteProduct(@PathParam("id") UUID id) {
+    return service.delete(id).thenApply((ignore) -> Response.ok().build());
   }
 
   @GET
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response getProduct(@PathParam("id") UUID id) {
-    Product product = service.findById(id);
-    if (product == null) {
-      return Response.status(Status.NOT_FOUND).build();
-    } else {
-      return Response.ok(product).build();
-    }
+  public CompletionStage<Response> getProduct(@PathParam("id") UUID id) {
+    return service
+        .findById(id)
+        .thenApply(
+            product -> {
+              if (product == null) {
+                return Response.status(Status.NOT_FOUND).build();
+              } else {
+                return Response.ok(product).build();
+              }
+            });
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public List<Product> getAllProducts() {
+  public Multi<Product> getAllProducts() {
     return service.findAll();
   }
 }

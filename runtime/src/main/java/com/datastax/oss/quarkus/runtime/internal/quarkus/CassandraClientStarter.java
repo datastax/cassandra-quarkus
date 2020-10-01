@@ -18,6 +18,8 @@ package com.datastax.oss.quarkus.runtime.internal.quarkus;
 import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import io.quarkus.runtime.StartupEvent;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Observes;
 import org.slf4j.Logger;
@@ -36,10 +38,13 @@ public class CassandraClientStarter {
 
   @SuppressWarnings("unused")
   public void startup(
-      @Observes StartupEvent event, QuarkusCqlSession sessionProxy, CassandraClientConfig config) {
+      @Observes StartupEvent event,
+      CompletionStage<QuarkusCqlSession> sessionProxy,
+      CassandraClientConfig config)
+      throws ExecutionException, InterruptedException {
     if (config.cassandraClientInitConfig.eagerSessionInit) {
       LOG.debug("Triggering eager initialization of Quarkus session at startup");
-      sessionProxy.getName();
+      sessionProxy.toCompletableFuture().get();
     } else {
       LOG.debug("Not triggering eager initialization of Quarkus session at startup");
     }

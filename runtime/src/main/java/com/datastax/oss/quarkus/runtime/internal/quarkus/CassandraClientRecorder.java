@@ -15,6 +15,7 @@
  */
 package com.datastax.oss.quarkus.runtime.internal.quarkus;
 
+import com.datastax.oss.driver.api.core.AsyncAutoCloseable;
 import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.runtime.internal.metrics.MetricsConfig;
@@ -27,7 +28,10 @@ import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
 import io.smallrye.metrics.MetricRegistries;
+import java.lang.reflect.Type;
+import java.util.concurrent.CompletionStage;
 import javax.enterprise.util.AnnotationLiteral;
+import javax.enterprise.util.TypeLiteral;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,25 +39,30 @@ import org.slf4j.LoggerFactory;
 @Recorder
 public class CassandraClientRecorder {
   private static final Logger LOG = LoggerFactory.getLogger(CassandraClientRecorder.class);
+  private static final Type COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE =
+      new TypeLiteral<CompletionStage<QuarkusCqlSession>>() {}.getType();
 
   public void configureRuntimeProperties(CassandraClientConfig config) {
     CassandraClientProducer producer = getProducerInstance();
     producer.setCassandraClientConfig(config);
   }
 
-  public RuntimeValue<QuarkusCqlSession> buildClient(
+  public RuntimeValue<CompletionStage<QuarkusCqlSession>> buildClient(
       ShutdownContext shutdown, BeanContainer beanContainer) {
     QuarkusCqlSessionState quarkusCqlSessionState =
         beanContainer.instance(QuarkusCqlSessionState.class);
-    QuarkusCqlSession cqlSession = beanContainer.instance(QuarkusCqlSession.class);
+    @SuppressWarnings("unchecked")
+    CompletionStage<QuarkusCqlSession> cqlSession =
+        (CompletionStage<QuarkusCqlSession>)
+            Arc.container().instance(COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE).get();
     shutdown.addShutdownTask(
         () -> {
           // invoke close() on session only, if it was initialized.
           // If the close() will be called on the non-initialized QuarkusCqlSession, it would
           // trigger the connection and close it immediately
           if (quarkusCqlSessionState.isInitialized()) {
-            LOG.debug("Closing the QuarkusCqlSession.");
-            cqlSession.close();
+            LOG.info("Closing the QuarkusCqlSession.");
+            cqlSession.thenAccept(AsyncAutoCloseable::close);
           }
         });
     return new RuntimeValue<>(cqlSession);

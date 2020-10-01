@@ -18,16 +18,17 @@ package com.datastax.oss.quarkus.deployment.internal;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import io.quarkus.builder.item.SimpleBuildItem;
 import io.quarkus.runtime.RuntimeValue;
+import java.util.concurrent.CompletionStage;
 
 public final class CassandraClientBuildItem extends SimpleBuildItem {
-  private final RuntimeValue<QuarkusCqlSession> cqlSession;
+  private final RuntimeValue<CompletionStage<QuarkusCqlSession>> cqlSession;
 
-  public CassandraClientBuildItem(RuntimeValue<QuarkusCqlSession> cqlSession) {
+  public CassandraClientBuildItem(RuntimeValue<CompletionStage<QuarkusCqlSession>> cqlSession) {
     this.cqlSession = cqlSession;
   }
 
   @SuppressWarnings("unused")
-  public RuntimeValue<QuarkusCqlSession> getCqlSession() {
+  public RuntimeValue<CompletionStage<QuarkusCqlSession>> getCqlSession() {
     return cqlSession;
   }
 }

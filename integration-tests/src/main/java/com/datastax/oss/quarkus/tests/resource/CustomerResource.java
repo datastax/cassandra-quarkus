@@ -17,9 +17,10 @@ package com.datastax.oss.quarkus.tests.resource;
 
 import com.datastax.oss.quarkus.tests.entity.Customer;
 import com.datastax.oss.quarkus.tests.service.CustomerService;
+import io.smallrye.mutiny.Multi;
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -40,42 +41,46 @@ public class CustomerResource {
 
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response createCustomer(Customer customer) {
-    service.create(customer);
-    return Response.created(URI.create("/customer/" + customer.getId())).build();
+  public CompletionStage<Response> createCustomer(Customer customer) {
+    return service
+        .create(customer)
+        .thenApply(
+            (ignore) -> Response.created(URI.create("/customer/" + customer.getId())).build());
   }
 
   @PUT
   @Path("/{id}")
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response updateCustomer(@PathParam("id") UUID id, Customer customer) {
+  public CompletionStage<Response> updateCustomer(@PathParam("id") UUID id, Customer customer) {
     customer.setId(id);
-    service.update(customer);
-    return Response.ok().build();
+    return service.update(customer).thenApply((ignore) -> Response.ok().build());
   }
 
   @DELETE
   @Path("/{id}")
-  public Response deleteCustomer(@PathParam("id") UUID id) {
-    service.delete(id);
-    return Response.ok().build();
+  public CompletionStage<Response> deleteCustomer(@PathParam("id") UUID id) {
+    return service.delete(id).thenApply((ignore) -> Response.ok().build());
   }
 
   @GET
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
-  public Response getCustomer(@PathParam("id") UUID id) {
-    Customer customer = service.findById(id);
-    if (customer == null) {
-      return Response.status(Status.NOT_FOUND).build();
-    } else {
-      return Response.ok(customer).build();
-    }
+  public CompletionStage<Response> getCustomer(@PathParam("id") UUID id) {
+    return service
+        .findById(id)
+        .thenApply(
+            customer -> {
+              if (customer == null) {
+                return Response.status(Status.NOT_FOUND).build();
+              } else {
+                return Response.ok(customer).build();
+              }
+            });
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public List<Customer> getAllCustomers() {
+  public Multi<Customer> getAllCustomers() {
     return service.findAll();
   }
 }

@@ -600,6 +600,36 @@ Running it is as simple as executing `./target/quickstart-1.0.0-SNAPSHOT-runner`
 
 You can then point your browser to `http://localhost:8080/fruits.html` and use your application.
 
+== Eager vs Lazy Initialization
+
+This extension allows you to inject either a `QuarkusCqlSession` bean, or the async version of this
+bean, that is, `CompletionStage<QuarkusCqlSession>`.
+
+The most straightforward approach is obviously to inject `QuarkusCqlSession` directly. This
+should work just fine for most applications; however, the `QuarkusCqlSession` bean needs to be
+initialized before it can be used, and this process is blocking.
+
+Fortunately, it is possible to control when the initialization should happen: the
+`quarkus.cassandra.init.eager-session-init` parameter determines if the `QuarkusCqlSession` bean
+should be initialized on its first access (lazy) or when the application is starting (eager).
+The default value of this parameter is `true`, meaning the init process is eager. If you set it to
+`false`, the `QuarkusCqlSession` bean will be initialized lazily on its first access – for example,
+when there is a first REST request that needs to interact with the Cassandra database.
+
+Switching to lazy initialization may speed up your application startup time, and avoid startup
+failures if the Cassandra database is not available. However, it could also prove dangerous if your
+code is fully asynchronous, e.g. if you are using
+https://quarkus.io/guides/reactive-routes[reactive routes]: indeed, the lazy initialization could
+accidentally happen on a thread that is not allowed to block, such as a Vert.x event loop thread.
+Therefore, setting `quarkus.cassandra.init.eager-session-init` to `false` and injecting
+`QuarkusCqlSession` should be avoided in these contexts.
+
+If you want to use reactive routes (or any other asynchronous framework) and keep the lazy
+initialization behavior, you should instead inject only `CompletionStage<QuarkusCqlSession>`.
+When injecting a `CompletionStage<QuarkusCqlSession>`, the initialization process will be triggered
+lazily, but it will happen in the background, in a non-blocking way, leveraging the Vert.x event
+loop. This way you don't risk blocking the Vert.x thread.
+
 == Conclusion
 
 Accessing a Cassandra database from a client application is easy with Quarkus and the Cassandra

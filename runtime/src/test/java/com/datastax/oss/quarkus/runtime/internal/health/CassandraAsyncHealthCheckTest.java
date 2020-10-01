@@ -19,17 +19,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.datastax.oss.driver.api.core.cql.ResultSet;
+import com.datastax.oss.driver.api.core.cql.AsyncResultSet;
 import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.driver.api.core.metadata.Metadata;
 import com.datastax.oss.driver.api.core.metadata.Node;
+import com.datastax.oss.driver.internal.core.util.concurrent.CompletableFutures;
 import com.datastax.oss.driver.shaded.guava.common.collect.ImmutableMap;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.stream.Stream;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponse.State;
@@ -38,18 +42,19 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-public class CassandraHealthCheckTest {
+public class CassandraAsyncHealthCheckTest {
 
   @ParameterizedTest
   @MethodSource("statusDetails")
   public void should_report_status_up_with_data_center_details(
       String dc, String releaseVersion, String clusterName, String cqlVersion, Long numberOfNodes) {
     // given
-    QuarkusCqlSession session =
+    CompletionStage<QuarkusCqlSession> session =
         mockCqlSessionWithResultSet(dc, releaseVersion, clusterName, cqlVersion, numberOfNodes);
 
     // when
-    CassandraHealthCheck cassandraHealthIndicator = new CassandraHealthCheckMock(session);
+    CassandraAsyncHealthCheckMock cassandraHealthIndicator =
+        new CassandraAsyncHealthCheckMock(session);
     cassandraHealthIndicator.init();
 
     // then
@@ -59,7 +64,8 @@ public class CassandraHealthCheckTest {
     expected.put("clusterName", clusterName);
     expected.put("cqlVersion", cqlVersion);
     expected.put("numberOfNodes", numberOfNodes);
-    HealthCheckResponse health = cassandraHealthIndicator.call();
+    HealthCheckResponse health =
+        cassandraHealthIndicator.call().await().atMost(Duration.ofSeconds(1));
     assertThat(health.getState()).isEqualTo(State.UP);
     assertThat(health.getData().get()).isEqualTo(expected);
   }
@@ -68,15 +74,18 @@ public class CassandraHealthCheckTest {
   public void should_return_status_down_when_cql_session_throws() {
     // given
     QuarkusCqlSession session = mock(QuarkusCqlSession.class);
-    when(session.execute(CassandraHealthCheck.HEALTH_CHECK_QUERY))
-        .thenThrow(new RuntimeException("problem"));
+    when(session.executeAsync(CassandraAsyncHealthCheck.HEALTH_CHECK_QUERY))
+        .thenReturn(CompletableFutures.failedFuture(new RuntimeException("problem")));
 
     // when
-    CassandraHealthCheck cassandraHealthIndicator = new CassandraHealthCheckMock(session);
+    CassandraAsyncHealthCheckMock cassandraHealthIndicator =
+        new CassandraAsyncHealthCheckMock(CompletableFuture.completedFuture(session));
     cassandraHealthIndicator.init();
 
     // then
-    HealthCheckResponse health = cassandraHealthIndicator.call();
+    HealthCheckResponse health =
+        cassandraHealthIndicator.call().await().atMost(Duration.ofSeconds(1));
+    ;
     assertThat(health.getState()).isEqualTo(State.DOWN);
     assertThat(health.getData().get()).containsKeys("reason");
   }
@@ -87,11 +96,14 @@ public class CassandraHealthCheckTest {
     QuarkusCqlSession session = mockCqlSessionWithOneNullResult();
 
     // when
-    CassandraHealthCheck cassandraHealthIndicator = new CassandraHealthCheckMock(session);
+    CassandraAsyncHealthCheckMock cassandraHealthIndicator =
+        new CassandraAsyncHealthCheckMock(CompletableFuture.completedFuture(session));
     cassandraHealthIndicator.init();
 
     // then
-    HealthCheckResponse health = cassandraHealthIndicator.call();
+    HealthCheckResponse health =
+        cassandraHealthIndicator.call().await().atMost(Duration.ofSeconds(1));
+    ;
     assertThat(health.getState()).isEqualTo(State.DOWN);
     assertThat(health.getData().get())
         .isEqualTo(ImmutableMap.of("reason", "system.local returned null"));
@@ -100,24 +112,26 @@ public class CassandraHealthCheckTest {
   @NonNull
   private QuarkusCqlSession mockCqlSessionWithOneNullResult() {
     QuarkusCqlSession session = mock(QuarkusCqlSession.class);
-    ResultSet resultSet = mock(ResultSet.class);
+    AsyncResultSet resultSet = mock(AsyncResultSet.class);
     when(resultSet.one()).thenReturn(null);
-    when(session.execute(CassandraHealthCheck.HEALTH_CHECK_QUERY)).thenReturn(resultSet);
+    when(session.executeAsync(CassandraAsyncHealthCheck.HEALTH_CHECK_QUERY))
+        .thenReturn(CompletableFuture.completedFuture(resultSet));
     return session;
   }
 
   @NonNull
-  private QuarkusCqlSession mockCqlSessionWithResultSet(
+  private CompletionStage<QuarkusCqlSession> mockCqlSessionWithResultSet(
       String dc, String releaseVersion, String clusterName, String cqlVersion, Long numberOfNodes) {
     QuarkusCqlSession session = mock(QuarkusCqlSession.class);
-    ResultSet resultSet = mock(ResultSet.class);
+    AsyncResultSet asyncResultSet = mock(AsyncResultSet.class);
     Row row = mock(Row.class);
     when(row.getString("data_center")).thenReturn(dc);
     when(row.getString("release_version")).thenReturn(releaseVersion);
     when(row.getString("cluster_name")).thenReturn(clusterName);
     when(row.getString("cql_version")).thenReturn(cqlVersion);
-    when(resultSet.one()).thenReturn(row);
-    when(session.execute(CassandraHealthCheck.HEALTH_CHECK_QUERY)).thenReturn(resultSet);
+    when(asyncResultSet.one()).thenReturn(row);
+    when(session.executeAsync(CassandraAsyncHealthCheck.HEALTH_CHECK_QUERY))
+        .thenReturn(CompletableFuture.completedFuture(asyncResultSet));
     Metadata metadata = mock(Metadata.class);
     when(session.getMetadata()).thenReturn(metadata);
     Map<UUID, Node> nodes = new LinkedHashMap<>();
@@ -125,7 +139,7 @@ public class CassandraHealthCheckTest {
       nodes.put(UUID.randomUUID(), mock(Node.class));
     }
     when(metadata.getNodes()).thenReturn(nodes);
-    return session;
+    return CompletableFuture.completedFuture(session);
   }
 
   private static Stream<Arguments> statusDetails() {
@@ -135,16 +149,16 @@ public class CassandraHealthCheckTest {
         .build();
   }
 
-  private static class CassandraHealthCheckMock extends CassandraHealthCheck {
+  private static class CassandraAsyncHealthCheckMock extends CassandraAsyncHealthCheck {
 
-    private QuarkusCqlSession quarkusCqlSession;
+    private CompletionStage<QuarkusCqlSession> quarkusCqlSession;
 
-    public CassandraHealthCheckMock(QuarkusCqlSession quarkusCqlSession) {
+    public CassandraAsyncHealthCheckMock(CompletionStage<QuarkusCqlSession> quarkusCqlSession) {
       this.quarkusCqlSession = quarkusCqlSession;
     }
 
     @Override
-    public QuarkusCqlSession beanProvider() {
+    public CompletionStage<QuarkusCqlSession> beanProvider() {
       return quarkusCqlSession;
     }
   }
