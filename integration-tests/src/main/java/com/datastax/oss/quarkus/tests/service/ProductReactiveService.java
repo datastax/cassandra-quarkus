@@ -28,7 +28,7 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class ProductReactiveService {
 
-  @Inject private CompletionStage<ProductReactiveDao> daoCompletionStage;
+  @Inject CompletionStage<ProductReactiveDao> daoCompletionStage;
   private Uni<ProductReactiveDao> daoUni;
 
   // it cannot be done in the constructor, using constructor injection
