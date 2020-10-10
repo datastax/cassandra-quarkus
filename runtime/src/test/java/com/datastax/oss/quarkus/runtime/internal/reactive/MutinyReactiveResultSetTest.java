@@ -54,7 +54,7 @@ class MutinyReactiveResultSetTest {
   }
 
   @Test
-  public void should_validate_failed_mapped_resultSet() {
+  public void should_validate_failed_mapped_result_set() {
     // given
     List<Integer> items = new ArrayList<>();
 
@@ -63,7 +63,7 @@ class MutinyReactiveResultSetTest {
         new FailedMutinyMappedReactiveResultSet<>(new Throwable("error"));
 
     // then
-    resultSet.subscribe().with(items::add);
+    resultSet.onFailure().recoverWithCompletion().subscribe().with(items::add);
     assertThat(items.size()).isEqualTo(0);
   }
 
