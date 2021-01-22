@@ -60,7 +60,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.BeanContainerBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeansRuntimeInitBuildItem;
-import io.quarkus.deployment.Capabilities;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.Consume;
@@ -71,6 +70,7 @@ import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.NativeImageResourceBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.RuntimeInitializedClassBuildItem;
+import io.quarkus.deployment.metrics.MetricsCapabilityBuildItem;
 import io.quarkus.smallrye.health.deployment.spi.HealthBuildItem;
 import java.util.Arrays;
 import java.util.Collections;
@@ -231,9 +231,9 @@ class CassandraClientProcessor {
       CassandraClientRecorder recorder,
       CassandraClientConfig runtimeConfig,
       CassandraClientBuildTimeConfig buildTimeConfig,
-      Capabilities capabilities) {
+      Optional<MetricsCapabilityBuildItem> metricsCapability) {
     recorder.configureRuntimeProperties(runtimeConfig);
-    configureMetrics(recorder, buildTimeConfig, capabilities);
+    configureMetrics(recorder, buildTimeConfig, metricsCapability);
     recorder.configureCompression(buildTimeConfig.protocolCompression);
     recorder.setInjectedNettyEventLoop(buildTimeConfig.useQuarkusNettyEventLoop);
   }
@@ -241,7 +241,7 @@ class CassandraClientProcessor {
   private void configureMetrics(
       CassandraClientRecorder recorder,
       CassandraClientBuildTimeConfig buildTimeConfig,
-      Capabilities capabilities) {
+      Optional<MetricsCapabilityBuildItem> metricsCapability) {
     if (buildTimeConfig.metricsEnabled) {
       recorder.configureMetrics(
           new MetricsConfig(
@@ -250,7 +250,7 @@ class CassandraClientProcessor {
       recorder.configureMetrics(new MetricsConfig(Optional.empty(), Optional.empty(), false));
     }
 
-    if (buildTimeConfig.metricsEnabled && capabilities.isCapabilityPresent(Capabilities.METRICS)) {
+    if (buildTimeConfig.metricsEnabled && metricsCapability.isPresent()) {
       recorder.setInjectedMetricRegistry();
     } else {
       recorder.setNoopMetricRegistry();
