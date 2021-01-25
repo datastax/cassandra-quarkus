@@ -273,7 +273,7 @@ class CassandraClientProcessor {
       CassandraClientRecorder recorder,
       ShutdownContextBuildItem shutdown,
       BeanContainerBuildItem beanContainer) {
-    return new CassandraClientBuildItem(recorder.buildClient(shutdown, beanContainer.getValue()));
+    return new CassandraClientBuildItem(recorder.buildClient(shutdown));
   }
 
   @BuildStep

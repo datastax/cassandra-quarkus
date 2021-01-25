@@ -17,22 +17,14 @@ package com.datastax.oss.quarkus.runtime.internal.quarkus;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class QuarkusCqlSessionState {
-  private final AtomicBoolean initialized;
+public class QuarkusCqlSessionStageBeanState {
+  private final AtomicBoolean produced = new AtomicBoolean(false);
 
-  public static QuarkusCqlSessionState notInitialized() {
-    return new QuarkusCqlSessionState(false);
+  public void setProduced() {
+    produced.set(true);
   }
 
-  private QuarkusCqlSessionState(boolean initialized) {
-    this.initialized = new AtomicBoolean(initialized);
-  }
-
-  public void setInitialized() {
-    initialized.set(true);
-  }
-
-  public boolean isInitialized() {
-    return initialized.get();
+  public boolean isProduced() {
+    return produced.get();
   }
 }

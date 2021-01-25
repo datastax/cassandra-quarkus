@@ -18,7 +18,7 @@ package com.datastax.oss.quarkus.deployment.internal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
-import com.datastax.oss.quarkus.runtime.internal.quarkus.QuarkusCqlSessionState;
+import com.datastax.oss.quarkus.runtime.internal.quarkus.QuarkusCqlSessionStageBeanState;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.quarkus.arc.Arc;
 import io.quarkus.builder.BuildChainBuilder;
@@ -47,18 +47,18 @@ public class CassandraClientBuildItemConsumerEagerInitEnabledTest {
       new TypeLiteral<CompletionStage<QuarkusCqlSession>>() {}.getType();
 
   @Test
-  public void should_have_quarkus_cql_session_in_the_di_container_with_state_initialized() {
+  public void should_have_quarkus_cql_session_in_the_di_container_with_state_produced() {
     assertThat(Arc.container().instance(QuarkusCqlSession.class).get()).isNotNull();
-    assertThat(Arc.container().instance(QuarkusCqlSessionState.class).get().isInitialized())
+    assertThat(Arc.container().instance(QuarkusCqlSessionStageBeanState.class).get().isProduced())
         .isTrue();
   }
 
   @Test
   public void
-      should_have_completion_stage_of_quarkus_cql_session_in_the_di_container_with_state_initialized() {
+      should_have_completion_stage_of_quarkus_cql_session_in_the_di_container_with_state_produced() {
     assertThat(Arc.container().instance(COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE).get())
         .isNotNull();
-    assertThat(Arc.container().instance(QuarkusCqlSessionState.class).get().isInitialized())
+    assertThat(Arc.container().instance(QuarkusCqlSessionStageBeanState.class).get().isProduced())
         .isTrue();
   }
 
