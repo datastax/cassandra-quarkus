@@ -34,6 +34,7 @@ import com.datastax.oss.driver.internal.core.metadata.MetadataManager;
 import com.datastax.oss.driver.internal.core.metadata.NoopNodeStateListener;
 import com.datastax.oss.driver.internal.core.metadata.schema.NoopSchemaChangeListener;
 import com.datastax.oss.driver.internal.core.os.Native;
+import com.datastax.oss.driver.internal.core.retry.ConsistencyDowngradingRetryPolicy;
 import com.datastax.oss.driver.internal.core.retry.DefaultRetryPolicy;
 import com.datastax.oss.driver.internal.core.session.throttling.ConcurrencyLimitingRequestThrottler;
 import com.datastax.oss.driver.internal.core.session.throttling.PassThroughRequestThrottler;
@@ -106,8 +107,10 @@ class CassandraClientProcessor {
 
   @BuildStep
   List<ReflectiveClassBuildItem> registerRetryPoliciesForReflection() {
-    return Collections.singletonList(
-        new ReflectiveClassBuildItem(true, true, DefaultRetryPolicy.class.getName()));
+    return Arrays.asList(
+        new ReflectiveClassBuildItem(true, true, DefaultRetryPolicy.class.getName()),
+        new ReflectiveClassBuildItem(
+            true, true, ConsistencyDowngradingRetryPolicy.class.getName()));
   }
 
   @BuildStep
