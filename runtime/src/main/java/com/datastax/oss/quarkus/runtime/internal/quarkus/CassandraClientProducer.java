@@ -26,14 +26,16 @@ import com.datastax.oss.driver.internal.core.auth.PlainTextAuthProvider;
 import com.datastax.oss.driver.internal.core.config.typesafe.DefaultDriverConfigLoader;
 import com.datastax.oss.driver.internal.core.config.typesafe.DefaultProgrammaticDriverConfigLoaderBuilder;
 import com.datastax.oss.driver.internal.core.util.concurrent.CompletableFutures;
+import com.datastax.oss.driver.internal.metrics.microprofile.MicroProfileMetricsFactory;
 import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
-import com.datastax.oss.quarkus.runtime.internal.metrics.MetricsConfig;
 import com.datastax.oss.quarkus.runtime.internal.session.QuarkusCqlSessionBuilder;
 import com.typesafe.config.ConfigFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.netty.channel.EventLoopGroup;
 import io.quarkus.arc.Unremovable;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import javax.enterprise.context.ApplicationScoped;
@@ -47,10 +49,11 @@ public class CassandraClientProducer {
   private static final Logger LOG = LoggerFactory.getLogger(CassandraClientProducer.class);
 
   private CassandraClientConfig config;
-  private MetricsConfig metricsConfig;
-  private MetricRegistry metricRegistry;
   private String protocolCompression;
   private EventLoopGroup mainEventLoop;
+  private MetricRegistry metricRegistry;
+  private List<String> enabledSessionMetrics = Collections.emptyList();
+  private List<String> enabledNodeMetrics = Collections.emptyList();
 
   @Produces
   @ApplicationScoped
@@ -105,12 +108,16 @@ public class CassandraClientProducer {
     this.config = config;
   }
 
-  public void setMetricsConfig(MetricsConfig metricsConfig) {
-    this.metricsConfig = metricsConfig;
-  }
-
   public void setMetricRegistry(MetricRegistry metricRegistry) {
     this.metricRegistry = metricRegistry;
+  }
+
+  public void setEnabledSessionMetrics(List<String> enabledSessionMetrics) {
+    this.enabledSessionMetrics = enabledSessionMetrics;
+  }
+
+  public void setEnabledNodeMetrics(List<String> enabledNodeMetrics) {
+    this.enabledNodeMetrics = enabledNodeMetrics;
   }
 
   public void setProtocolCompression(String protocolCompression) {
@@ -143,14 +150,6 @@ public class CassandraClientProducer {
     return config;
   }
 
-  public MetricsConfig getMetricsConfig() {
-    return metricsConfig;
-  }
-
-  public MetricRegistry getMetricRegistry() {
-    return metricRegistry;
-  }
-
   public String getProtocolCompression() {
     return protocolCompression;
   }
@@ -165,10 +164,15 @@ public class CassandraClientProducer {
   }
 
   private void configureMetricsSettings(ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder) {
-    configLoaderBuilder.withStringList(
-        DefaultDriverOption.METRICS_NODE_ENABLED, metricsConfig.metricsNodeEnabled);
-    configLoaderBuilder.withStringList(
-        DefaultDriverOption.METRICS_SESSION_ENABLED, metricsConfig.metricsSessionEnabled);
+    // Only configure metrics to use MicroProfileMetricsFactory if a metricRegistry was provided
+    if (metricRegistry != null) {
+      configLoaderBuilder.withClass(
+          DefaultDriverOption.METRICS_FACTORY_CLASS, MicroProfileMetricsFactory.class);
+      configLoaderBuilder.withStringList(
+          DefaultDriverOption.METRICS_NODE_ENABLED, enabledNodeMetrics);
+      configLoaderBuilder.withStringList(
+          DefaultDriverOption.METRICS_SESSION_ENABLED, enabledSessionMetrics);
+    }
   }
 
   private void configureRuntimeSettings(ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder) {

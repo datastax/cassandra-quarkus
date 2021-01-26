@@ -17,8 +17,6 @@ package com.datastax.oss.quarkus.runtime.internal.quarkus;
 
 import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
-import com.datastax.oss.quarkus.runtime.internal.metrics.MetricsConfig;
-import com.datastax.oss.quarkus.runtime.internal.metrics.NoopMetricRegistry;
 import io.netty.channel.EventLoopGroup;
 import io.quarkus.arc.Arc;
 import io.quarkus.netty.MainEventLoopGroup;
@@ -29,6 +27,7 @@ import io.smallrye.metrics.MetricRegistries;
 import java.lang.reflect.Type;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.List;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.enterprise.util.TypeLiteral;
 import org.eclipse.microprofile.metrics.MetricRegistry;
@@ -88,20 +87,13 @@ public class CassandraClientRecorder {
     return new RuntimeValue<>(sessionStage);
   }
 
-  public void configureMetrics(MetricsConfig metricsConfig) {
-    CassandraClientProducer producer = getProducerInstance();
-    producer.setMetricsConfig(metricsConfig);
-  }
-
-  public void setInjectedMetricRegistry() {
+  public void configureMetrics(
+      List<String> enabledNodeMetrics, List<String> enabledSessionMetrics) {
     CassandraClientProducer producer = getProducerInstance();
     MetricRegistry metricRegistry = MetricRegistries.get(MetricRegistry.Type.VENDOR);
     producer.setMetricRegistry(metricRegistry);
-  }
-
-  public void setNoopMetricRegistry() {
-    CassandraClientProducer producer = getProducerInstance();
-    producer.setMetricRegistry(new NoopMetricRegistry());
+    producer.setEnabledNodeMetrics(enabledNodeMetrics);
+    producer.setEnabledSessionMetrics(enabledSessionMetrics);
   }
 
   public void configureCompression(String protocolCompression) {

@@ -74,6 +74,10 @@
       <artifactId>java-driver-mapper-runtime</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.datastax.oss</groupId>
+      <artifactId>java-driver-metrics-microprofile</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.lz4</groupId>
       <artifactId>lz4-java</artifactId>
       <scope>runtime</scope>
