@@ -57,11 +57,12 @@
     </dependency>
     <dependency>
       <groupId>com.datastax.oss</groupId>
-      <artifactId>java-driver-metrics-microprofile</artifactId>
+      <artifactId>java-driver-mapper-runtime</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.datastax.oss</groupId>
-      <artifactId>java-driver-mapper-runtime</artifactId>
+      <artifactId>java-driver-metrics-microprofile</artifactId>
       <optional>true</optional>
     </dependency>
     <!--

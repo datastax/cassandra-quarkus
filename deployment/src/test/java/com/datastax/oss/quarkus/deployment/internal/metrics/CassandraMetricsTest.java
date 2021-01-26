@@ -15,9 +15,9 @@
  */
 package com.datastax.oss.quarkus.deployment.internal.metrics;
 
-import static com.datastax.oss.quarkus.runtime.internal.context.QuarkusDriverContext.CASSANDRA_METRICS_PREFIX;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.quarkus.test.QuarkusUnitTest;
@@ -93,6 +93,6 @@ public class CassandraMetricsTest {
   }
 
   private boolean filterAllCassandraMetrics(MetricID v) {
-    return v.getName().startsWith(CASSANDRA_METRICS_PREFIX);
+    return v.getName().startsWith(CassandraClientConfig.CONFIG_NAME);
   }
 }

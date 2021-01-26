@@ -552,43 +552,50 @@ You can now interact with your reactive REST service:
 If you are using the `quarkus-smallrye-health` extension, `cassandra-quarkus` will automatically
 add a readiness health check to validate the connection to the cluster.
 
-So when you access the `/health/ready` endpoint of your application you will have information about
-the connection validation status.
+This way, when you access the `/health/ready` endpoint of your application, you will have
+information about the connection validation status.
 
 TIP: This behavior can be disabled by setting the `quarkus.cassandra.health.enabled` property to
 `false` in your `application.properties`.
 
 == Metrics
 
-If you are using the `quarkus-smallrye-metrics` extension, `cassandra-quarkus` can provide metrics
-about QuarkusCqlSession and Cassandra nodes.
+The Cassandra Quarkus client can provide metrics about the Cassandra session and about individual
+Cassandra nodes.
 
-TIP: This behavior must first be enabled by setting the `quarkus.cassandra.metrics.enabled`
+This behavior must first be enabled by setting the `quarkus.cassandra.metrics.enabled`
 property to `true` in your `application.properties`.
 
-The next step that you need to do is set explicitly which metrics should be enabled.
+Then you will also need to add two additional dependencies:
 
-The `quarkus.cassandra.metrics.session-enabled` and `quarkus.cassandra.metrics.node-enabled`
-properties should be used for enabling metrics; the former should contain a list of session-level
-metrics to enable, while the latter should contain a list of node-level metrics to enable. Both
-properties accept a comma-separated list of valid metric names.
+1. `io.quarkus:quarkus-smallrye-metrics`, which enables metrics globally; and
+2. `com.datastax.oss:java-driver-metrics-microprofile`, which enables Cassandra metrics.
 
-For example, to enable `session.connected-nodes`, `session.bytes-sent`, and
-`node.pool.open-connections` you should add the following settings to your `application.properties`:
+The next step that you need to do is set explicitly which metrics should be enabled: the
+`quarkus.cassandra.metrics.session.enabled` and `quarkus.cassandra.metrics.node.enabled` properties
+should be used for enabling metrics; the former should contain a list of session-level metrics to
+enable, while the latter should contain a list of node-level metrics to enable. Both properties
+accept a comma-separated list of valid metric names.
+
+For example, to enable the following metric names: `session.connected-nodes`, `session.bytes-sent`,
+and `node.pool.open-connections`, you should add the following settings to your
+`application.properties`:
 
 [source, properties]
 ----
 quarkus.cassandra.metrics.enabled=true
-quarkus.cassandra.metrics.session-enabled=connected-nodes,bytes-sent
-quarkus.cassandra.metrics.node-enabled=pool.open-connections
+quarkus.cassandra.metrics.session.enabled=connected-nodes,bytes-sent
+quarkus.cassandra.metrics.node.enabled=pool.open-connections
 ----
 
-For the full list of available metrics, please refer to the
-link:https://docs.datastax.com/en/developer/java-driver/latest/manual/core/configuration/reference/[driver settings reference]
-and the `advanced.metrics` section.
+For the full list of available metric names, please refer to the
+link:https://docs.datastax.com/en/developer/java-driver/latest/manual/core/configuration/reference/[driver
+settings reference] page; search for the `advanced.metrics` section. Also, Cassandra driver metrics
+are explained in detail in the
+https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/[driver manual].
 
-When metrics are properly enabled and when you access the `/metrics` endpoint of your application,
-you will see metric reports for all enabled metrics.
+When metrics are properly enabled, metric reports for all enabled metrics are available at the
+`/metrics` REST endpoint of your application.
 
 == Building a native executable
 

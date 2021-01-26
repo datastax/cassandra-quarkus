@@ -36,25 +36,41 @@ public class CassandraClientBuildTimeConfig {
   @ConfigItem(name = "health.enabled", defaultValue = "true")
   public boolean healthEnabled;
 
-  /** Whether or not metrics are published in case the smallrye-metrics extension is present. */
+  /**
+   * Whether or not metrics for the Cassandra driver should be published.
+   *
+   * <p>Note that you need to include two additional dependencies in your application when enabling
+   * Cassandra metrics: quarkus-smallrye-metrics, which will enable metrics globally, and
+   * java-driver-metrics-microprofile, which will enable driver-specific metrics.
+   *
+   * <p>You also need to enable at least one individual metric to track, otherwise the driver won't
+   * feed any metric into the registry: see {@link #enabledSessionMetrics} and {@link
+   * #enabledNodeMetrics}.
+   */
   @ConfigItem(name = "metrics.enabled", defaultValue = "false")
   public boolean metricsEnabled;
 
   /**
-   * List of enabled session-level metrics. They will be taken into account only, if metrics.enabled
-   * set to true. If not set, it will default to empty list. For more information, please see
-   * java-driver reference.conf.
+   * List of enabled session-level metrics. They will be taken into account only if {@link
+   * #metricsEnabled} is set to true. If not set, it will default to empty list.
+   *
+   * <p>For more information on available metrics, see <a
+   * href="https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/#configuration>Metrics
+   * configuration</a> in the Java driver manual.
    */
-  @ConfigItem(name = "metrics.session-enabled")
-  public Optional<List<String>> metricsSessionEnabled;
+  @ConfigItem(name = "metrics.session.enabled")
+  public Optional<List<String>> enabledSessionMetrics;
 
   /**
-   * List of enabled node-level metrics. They will be taken into account only, if metrics.enabled
-   * set to true. If not set, it will default to empty list. For more information, please see
-   * java-driver reference.conf.
+   * List of enabled node-level metrics. They will be taken into account only if {@link
+   * #metricsEnabled} os set to true. If not set, it will default to empty list.
+   *
+   * <p>For more information on available metrics, see <a
+   * href="https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/#configuration>Metrics
+   * configuration</a> in the Java driver manual.
    */
-  @ConfigItem(name = "metrics.node-enabled", defaultValue = "")
-  public Optional<List<String>> metricsNodeEnabled;
+  @ConfigItem(name = "metrics.node.enabled")
+  public Optional<List<String>> enabledNodeMetrics;
 
   /**
    * The name of the algorithm used to compress protocol frames.

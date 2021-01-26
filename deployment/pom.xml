@@ -115,6 +115,11 @@
       <artifactId>cassandra-quarkus-test-framework</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.datastax.oss</groupId>
+      <artifactId>java-driver-metrics-microprofile</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
