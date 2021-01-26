@@ -22,18 +22,18 @@ import javax.inject.Inject;
 
 /**
  * A service that manages {@link Fruit} objects using reactive-style programming. This service
- * leverages the {@link FruitDaoReactive} DAO.
+ * leverages the {@link ReactiveFruitDao} DAO.
  */
 @ApplicationScoped
-public class FruitReactiveService {
+public class ReactiveFruitService {
 
-  @Inject FruitDaoReactive fruitDao;
+  @Inject ReactiveFruitDao fruitDao;
 
   public Uni<Void> add(Fruit fruit) {
     return fruitDao.update(fruit);
   }
 
-  public Multi<Fruit> get(String id) {
-    return fruitDao.findById(id);
+  public Multi<Fruit> getAll() {
+    return fruitDao.findAll();
   }
 }

@@ -27,19 +27,22 @@ To complete this quickstart guide, you need:
 
 * an IDE;
 * JDK 1.8+ installed with `JAVA_HOME` configured appropriately;
-* GraalVM installed with `GRAALVM_HOME` configured appropriately if you want to use the native mode;
+* GraalVM installed with `GRAALVM_HOME` configured appropriately, if you want to use the native
+  mode;
 * Apache Maven 3.5.3+;
-* A running Apache Cassandra database, or Docker installed;
+* A running link:https://cassandra.apache.org[Apache Cassandra],
+  link:https://www.datastax.fr/products/datastax-enterprise[DataStax Enterprise] (DSE) or
+  link:https://astra.datastax.com[DataStax Astra] database; or alternatively, a fresh Docker
+  installation.
 
 == Architecture
 
 This quickstart guide shows how to build a REST application using the
 link:https://github.com/datastax/cassandra-quarkus[Cassandra Quarkus extension].
 
-This extension allows you to connect to an Apache Cassandra,
-link:https://www.datastax.fr/products/datastax-enterprise[DataStax Enterprise] (DSE) or
-link:https://astra.datastax.com[DataStax Astra] database, using the
-link:https://docs.datastax.com/en/developer/java-driver/latest[DataStax driver for Cassandra].
+This extension allows you to connect to an Apache Cassandra, DataStax Enterprise (DSE) or DataStax
+Astra database, using the link:https://docs.datastax.com/en/developer/java-driver/latest[DataStax
+Java driver].
 
 In this guide, we will also use the
 link:https://docs.datastax.com/en/developer/java-driver/latest/manual/mapper[DataStax Object Mapper]
@@ -77,31 +80,31 @@ First, let's create the `Fruit` bean as follows:
 [source,java]
 ----
 @Entity
+@PropertyStrategy(mutable = false)
 public class Fruit {
 
-    @PartitionKey private String storeId;
-    @ClusteringColumn private String name;
-    private String description;
+    @PartitionKey
+    private final String name;
 
-    public Fruit() {}
+    private final String description;
 
-    public Fruit(String storeId, String name, String description) {
-      this.storeId = storeId;
+    public Fruit(String name, String description) {
       this.name = name;
       this.description = description;
     }
-  // getters, setters, hashCode and equals omitted for brevity
+  // getters, hashCode, equals, toString methods omitted for brevity
 }
 ----
 
-We are using DataStax Java driver Object Mapper, which is why this class is annotated with an
-`@Entity`. Also, the `storeId` field represents a Cassandra partition key and `name` represents a
-clustering column, and so we are using the corresponding annotations from the Object Mapper library.
-It will allow the Mapper to generate proper CQL queries underneath.
+We are using the DataStax Java driver Object Mapper, which is why this class is annotated with
+`@Entity`. Also, the `name` field represents a Cassandra partition key, and so we are using the
+corresponding annotations from the Object Mapper library. This will allow the Mapper to generate
+proper CQL queries underneath.
 
-IMPORTANT: Entity classes are required to have a default no-arg constructor.
+IMPORTANT: Entity classes are normally required to have a default no-arg constructor, unless they
+are annotated with `@PropertyStrategy(mutable = false)`.
 
-To leverage the Mapper logic in this app we need to create a DAO:
+The next step is to create a DAO:
 
 [source,java]
 ----
@@ -111,13 +114,14 @@ public interface FruitDao {
   void update(Fruit fruit);
 
   @Select
-  PagingIterable<Fruit> findById(String id);
+  PagingIterable<Fruit> findAll();
 }
 ----
 
-This class exposes operations that will be used in the REST service.
+This class exposes operations that will be used in the REST service. Again, the annotation `@Dao`
+comes from the DataStax Java driver Object Mapper.
 
-Finally, the Mapper itself:
+Finally, let's create the Mapper itself:
 
 [source,java]
 ----
@@ -128,22 +132,24 @@ public interface FruitMapper {
 }
 ----
 
-The mapper is responsible for constructing instances of `FruitDao`. In the example above, the
-`FruitDao` instance will be connected to the same keyspace as the underlying session. More on that
-below.
+The `@Mapper` annotation is yet another annotation recognized by the DataStax Java driver Object
+Mapper. A mapper is responsible for constructing instances of DAOs – in this case, `FruitDao`.
+
+Each DAO needs to operate on a specific keyspace. In our example, `FruitDao` will be connected to
+the same keyspace as the underlying Cassandra client. This keyspace is configured with the
+property `quarkus.cassandra.keyspace` – more on that below.
 
 TIP: It is also possible to create DAO instances for different keyspaces. To learn how, see
-link:https://docs.datastax.com/en/developer/java-driver/4.7/manual/mapper/mapper/#dao-parameterization[DAO parameterization]
-in the driver docs.
+link:https://docs.datastax.com/en/developer/java-driver/latest/manual/mapper/mapper/#dao-parameterization[DAO
+parameterization] in the driver docs.
 
-Next, we need a component to create our DAO instances: `FruitDaoProducer`. Indeed, Mapper and Dao
-instances are stateful objects, and should be created only once, as application-scoped singletons.
-This component will do exactly that, leveraging Quarkus Dependency Injection container:
+Next, we need a component to transform our DAO instances into CDI beans: `FruitDaoProducer`. Indeed,
+Mapper and Dao instances are stateful objects, and should be created only once, as
+application-scoped singletons. This component will do exactly that, leveraging Quarkus Dependency
+Injection container:
 
 [source, java]
 ----
-import com.datastax.oss.driver.api.core.CqlIdentifier;
-import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
@@ -152,15 +158,13 @@ import javax.inject.Inject;
 public class FruitDaoProducer {
 
   private final FruitDao fruitDao;
-  private final FruitDaoReactive fruitDaoReactive;
 
   @Inject
   public FruitDaoProducer(QuarkusCqlSession session) {
     // create a mapper
     FruitMapper mapper = new FruitMapperBuilder(session).build();
-    // instantiate our Daos
+    // instantiate our Dao
     fruitDao = mapper.fruitDao();
-    fruitDaoReactive = mapper.fruitDaoReactive();
   }
 
   @Produces
@@ -168,17 +172,20 @@ public class FruitDaoProducer {
   FruitDao produceFruitDao() {
     return fruitDao;
   }
-
-  @Produces
-  @ApplicationScoped
-  FruitDaoReactive produceFruitDaoReactive() {
-    return fruitDaoReactive;
-  }
 }
 ----
 
-Note how the `QuarkusCqlSession` instance is injected automatically by the cassandra-quarkus
-extension in the `FruitDaoProducer` constructor.
+Note how a `QuarkusCqlSession` instance is injected automatically in the `FruitDaoProducer`
+constructor.
+
+TIP: The
+link:https://javadoc.io/doc/com.datastax.oss.quarkus/cassandra-quarkus-client/latest/com/datastax/oss/quarkus/runtime/api/session/QuarkusCqlSession.html[`QuarkusCqlSession`
+bean] is your main entry point to the Cassandra client; it is a specialized Cassandra driver session
+instance with a few methods tailored especially for Quarkus. Read its javadocs carefully!
+
+Here, the `QuarkusCqlSession` instance is being used to create our DAOs, that will be later injected
+in other components; but of course, you can also inject a `QuarkusCqlSession` instance in your own
+components directly, for example if you don't want to use the Object Mapper at all.
 
 Now create a `FruitService` that will be the business layer of our application and store/load the
 fruits from the Cassandra database.
@@ -199,8 +206,8 @@ public class FruitService {
     dao.update(fruit);
   }
 
-  public List<Fruit> get(String id) {
-    return dao.findById(id).all();
+  public List<Fruit> getAll() {
+    return dao.findAll().all();
   }
 }
 ----
@@ -217,13 +224,11 @@ The last missing piece is the REST API that will expose GET and POST methods:
 @Consumes(MediaType.APPLICATION_JSON)
 public class FruitResource {
 
-  private static final String STORE_ID = "acme";
-
   @Inject FruitService fruitService;
 
   @GET
   public List<FruitDto> getAll() {
-    return fruitService.get(STORE_ID).stream().map(this::convertToDto).collect(Collectors.toList());
+    return fruitService.getAll().stream().map(this::convertToDto).collect(Collectors.toList());
   }
 
   @POST
@@ -241,16 +246,14 @@ public class FruitResource {
 }
 ----
 
-The `list` and `add` operations are executed for the `storeId` "acme". This is the partition key of
-our data model. We can easily retrieve all rows from cassandra using that partition key.
-They will be sorted by the clustering column. `FruitResource` is using `FruitService` which
-encapsulates the data access logic.
+Notice how `FruitResource` is being injected a `FruitService` instance automatically.
 
 When creating the REST API we should not share the same entity object between REST API and data
 access layers. They should not be coupled to allow the API to evolve independently of the storage
 layer. This is the reason why the API is using a `FruitDto` class. This class will be used by
 Quarkus to convert JSON to java objects for client requests and java objects to JSON for the
-responses. The translation is done by quarkus-resteasy extension.
+responses. The translation is done by Quarkus RestEasy extension, which is included in this guide's
+pom.xml file.
 
 [source,java]
 ----
@@ -276,7 +279,7 @@ constructor.
 
 === Connecting to Apache Cassandra or DataStax Enterprise (DSE)
 
-The main properties to configure are: `contact-points`, to access the Cassandra database,
+The main properties to configure are `contact-points`, to access the Cassandra database,
 `local-datacenter`, which is required by the driver, and – optionally – the keyspace to bind to.
 
 A sample configuration should look like this:
@@ -309,9 +312,12 @@ quarkus.cassandra.auth.password=s3cr3t
 
 === Connecting to a cloud DataStax Astra database
 
-When connecting to Astra, instead of providing a contact point and a datacenter, you should provide
-`secure-connect-bundle`, which should point to a valid path to an Astra secure connect bundle, as
-well as `username` and `password`, since authentication is always required on Astra clusters.
+When connecting to link:https://astra.datastax.com[DataStax Astra], instead of providing a contact
+point and a datacenter, you should provide a so-called _secure connect bundle_, which should point
+to a valid path to an Astra secure connect bundle file. You will also need to provide a username and
+password, since authentication is always required on Astra clusters.
+
+You can download your secure connect bundle from the Astra web console.
 
 A sample configuration for DataStax Astra should look like this:
 
@@ -326,31 +332,32 @@ quarkus.cassandra.keyspace=k1
 === Advanced driver configuration
 
 You can configure other Java driver settings using `application.conf` or `application.json` files.
-They need to be located in the classpath of your application.
-All settings will be passed automatically to the underlying driver configuration mechanism.
-Settings defined in `application.properties` with the `quarkus.cassandra` prefix will have priority
-over settings defined in `application.conf` or `application.json`.
+They need to be located in the classpath of your application. All settings will be passed
+automatically to the underlying driver configuration mechanism. Settings defined in
+`application.properties` with the `quarkus.cassandra` prefix will have priority over settings
+defined in `application.conf` or `application.json`.
 
 To see the full list of settings, please refer to the
-link:https://docs.datastax.com/en/developer/java-driver/latest/manual/core/configuration/reference/[driver settings reference].
+link:https://docs.datastax.com/en/developer/java-driver/latest/manual/core/configuration/reference/[driver
+settings reference].
 
 == Running a Cassandra Database
 
-By default, `CassandraClient` is configured to access a local Cassandra database on port 9042 (the
-default Cassandra port).
+By default, the Cassandra client is configured to access a local Cassandra database on port 9042
+(the default Cassandra port).
 
-IMPORTANT: Make sure that the setting `quarkus.cassandra.local-datacenter`
-matches the datacenter of your Cassandra cluster.
+IMPORTANT: Make sure that the setting `quarkus.cassandra.local-datacenter` matches the datacenter of
+your Cassandra cluster.
 
 TIP: If you don't know the name of your local datacenter, this value can be found by running the
 following CQL query: `SELECT data_center FROM system.local`.
 
 If you want to use Docker to run a Cassandra database, you can use the following command to launch
-one:
+one in the background:
 
 [source,shell]
 ----
-docker run --name local-cassandra-instance cassandra
+docker run --name local-cassandra-instance -p 9042:9042 -d cassandra
 ----
 
 Next you need to create the keyspace and table that will be used by your application. If you are
@@ -359,32 +366,33 @@ using Docker, run the following commands:
 [source,shell]
 ----
 docker exec -it local-cassandra-instance cqlsh -e "CREATE KEYSPACE IF NOT EXISTS k1 WITH replication = {'class':'SimpleStrategy', 'replication_factor':1}"
-docker exec -it local-cassandra-instance cqlsh -e "CREATE TABLE IF NOT EXISTS k1.fruit(id text, name text, description text, PRIMARY KEY((id), name))"
+docker exec -it local-cassandra-instance cqlsh -e "CREATE TABLE IF NOT EXISTS k1.fruit(name text PRIMARY KEY, description text)"
 ----
 
-If you're running Cassandra locally you can execute the cqlsh commands directly:
+You can also use the CQLSH utility interactively interrogate with your database:
 
 [source,shell]
 ----
-cqlsh -e "CREATE KEYSPACE IF NOT EXISTS k1 WITH replication = {'class':'SimpleStrategy', 'replication_factor':1}
-cqlsh -e "CREATE TABLE IF NOT EXISTS k1.fruit(id text, name text, description text, PRIMARY KEY((id), name))
+docker exec -it local-cassandra-instance cqlsh
 ----
 
 == Testing the REST API
 
 In the project root directory:
 
-- Run `mvn clean package` and then `java -jar ./target/cassandra-quarkus-quickstart-*-runner.jar`
-- Or run the application in dev mode: `mvn clean quarkus:dev`
+- Run `mvn clean package` and then `java -jar ./target/cassandra-quarkus-quickstart-*-runner.jar` to
+  start the application;
+- Or better yet, run the application in dev mode: `mvn clean quarkus:dev`.
 
 Now you can use curl commands to interact with the underlying REST API.
+
 To create a fruit:
 
 [source,shell]
 ----
 curl --header "Content-Type: application/json" \
   --request POST \
-  --data '{"name":"curl_product","description":"this was created via curl"}' \
+  --data '{"name":"apple","description":"red and tasty"}' \
   http://localhost:8080/fruits
 ----
 
@@ -399,47 +407,49 @@ curl -X GET http://localhost:8080/fruits
 
 Now let's add a simple web page to interact with our `FruitResource`.
 
-Quarkus automatically serves static resources located under the `META-INF/resources` directory.
-In the `src/main/resources/META-INF/resources` directory, add a `fruits.html` file with the content
-from link:https://github.com/datastax/cassandra-quarkus/tree/master/quickstart/src/main/resources/META-INF/resources/fruits.html[this file] in it.
+Quarkus automatically serves static resources located under the `META-INF/resources` directory. In
+the `src/main/resources/META-INF/resources` directory, add a `fruits.html` file with the contents
+from link:src/main/resources/META-INF/resources/fruits.html[this file] in it.
 
 You can now interact with your REST service:
 
-* start Quarkus with `mvn clean quarkus:dev`
-* open a browser to `http://localhost:8080/fruits.html`
-* add new fruits to the list via the form
+* If you haven't done yet, start your application with `mvn clean quarkus:dev`;
+* Point your browser to `http://localhost:8080/fruits.html`;
+* Add new fruits to the list via the form.
 
 [[reactive]]
 == Reactive Cassandra Client
 
-With `QuarkusCqlSession`, you have access to a series of reactive methods that integrate seamlessly
-with Quarkus and Mutiny.
+The
+link:https://javadoc.io/doc/com.datastax.oss.quarkus/cassandra-quarkus-client/latest/com/datastax/oss/quarkus/runtime/api/session/QuarkusCqlSession.html[`QuarkusCqlSession`
+interface] gives you access to a series of reactive methods that integrate seamlessly with Quarkus
+and its reactive framework, Mutiny.
 
 TIP:  If you're not familiar with Mutiny, read the
 link:https://quarkus.io/guides/getting-started-reactive[Getting Started with Reactive guide] first.
 
-Let's rewrite the previous example using reactive programming with Mutiny.
+Let's rewrite our application using reactive programming with Mutiny.
 
-Firstly, we need to implement the `@Dao` that works in a reactive way:
+Firstly, we need to declare another DAO interface that works in a reactive way:
 
 [source,java]
 ----
 @Dao
-public interface FruitDaoReactive {
+public interface ReactiveFruitDao {
 
   @Update
   Uni<Void> updateAsync(Fruit fruitDao);
 
   @Select
-  MutinyMappedReactiveResultSet<Fruit> findByIdAsync(String id);
+  MutinyMappedReactiveResultSet<Fruit> findAll();
 }
 
 ----
 
-Please note the usage of `MutinyMappedReactiveResultSet` - it is a specialized `Mutiny` type
-converted from the original `Publisher` returned by the driver, which also exposes a few extra
-methods, e.g. to obtain the query execution info. If you don't need anything in that interface,
-you can also simply declare your method to return `Multi`: `Multi<Fruit> findByIdAsync(String id)`,
+Note the usage of `MutinyMappedReactiveResultSet` - it is a specialized `Mutiny` type converted from
+the original `Publisher` returned by the driver, which also exposes a few extra methods, e.g. to
+obtain the query execution info. If you don't need anything in that interface, you can also simply
+declare your method to return `Multi`: `Multi<Fruit> findAll()`,
 
 Similarly, the method `updateAsync` returns a `Uni` - it is automatically converted from the
 original result set returned by the driver.
@@ -452,7 +462,7 @@ publisher is expected to emit at most one row, then complete. This is suitable f
 (they return no rows), or for read queries guaranteed to return one row at most (count queries, for
 example).
 
-Next, we need to adapt the `FruitMapper` to construct a `FruitDaoReactive` instance:
+Next, we need to adapt the `FruitMapper` to construct a `ReactiveFruitDao` instance:
 
 [source, java]
 ----
@@ -461,22 +471,58 @@ public interface FruitMapper {
   // the existing method omitted
 
   @DaoFactory
-  FruitDaoReactive fruitDaoReactive();
+  ReactiveFruitDao reactiveFruitDao();
 }
 
 ----
 
-Now, we can create a `FruitReactiveService` that leverages the reactive `@Dao`:
+Now we need to modify our `FruitDaoProducer` above so that it will also produce a `ReactiveFruitDao`
+application-scoped bean:
+
+[source, java]
+----
+import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
+
+public class FruitDaoProducer {
+
+  private final FruitDao fruitDao;
+  private final ReactiveFruitDao reactiveFruitDao;
+
+  @Inject
+  public FruitDaoProducer(QuarkusCqlSession session) {
+    FruitMapper mapper = new FruitMapperBuilder(session).build();
+    fruitDao = mapper.fruitDao();
+    reactiveFruitDao = mapper.reactiveFruitDao();
+  }
+
+  @Produces
+  @ApplicationScoped
+  FruitDao produceFruitDao() {
+    return fruitDao;
+  }
+
+  @Produces
+  @ApplicationScoped
+  ReactiveFruitDao produceReactiveFruitDao() {
+    return reactiveFruitDao;
+  }
+}
+----
+
+Now, we can create a `ReactiveFruitService` that leverages our reactive DAO:
 
 [source, java]
 ----
 @ApplicationScoped
-public class FruitReactiveService {
+public class ReactiveFruitService {
 
-  private final FruitDaoReactive fruitDao;
+  private final ReactiveFruitDao fruitDao;
 
   @Inject
-  public FruitReactiveService(FruitDaoReactive fruitDao) {
+  public ReactiveFruitService(ReactiveFruitDao fruitDao) {
     this.fruitDao = fruitDao;
   }
 
@@ -484,44 +530,26 @@ public class FruitReactiveService {
     return fruitDao.update(fruit);
   }
 
-  public Multi<Fruit> get(String id) {
-    return fruitDao.findById(id);
+  public Multi<Fruit> getAll() {
+    return fruitDao.findAll();
   }
 }
 ----
 
-NOTE: The `get()` method above returns `Multi`, and the `add()` method returns `Uni`; these types
-are compatible with the Quarkus reactive REST API.
-
-To integrate the reactive logic with REST API, you need to have a dependency to
-`quarkus-resteasy-mutiny`:
-
-[source, xml]
-----
-<dependency>
-  <groupId>io.quarkus</groupId>
-  <artifactId>quarkus-resteasy-mutiny</artifactId>
-</dependency>
-----
-
-It provides an integration layer between `Multi`, `Uni` and the REST API.
-
-Finally, we can create a `FruitReactiveResource`:
+Finally, we can create a `ReactiveFruitResource`:
 
 [source, java]
 ----
 @Path("/reactive-fruits")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class FruitReactiveResource {
+public class ReactiveFruitResource {
 
-  private static final String STORE_ID = "acme";
-
-  @Inject FruitReactiveService service;
+  @Inject ReactiveFruitService service;
 
   @GET
   public Multi<FruitDto> getAll() {
-    return service.get(STORE_ID).map(this::convertToDto);
+    return service.getAll().map(this::convertToDto);
   }
 
   @POST
@@ -534,27 +562,49 @@ public class FruitReactiveResource {
   }
 
   private Fruit convertFromDto(FruitDto fruitDto) {
-    return new Fruit(STORE_ID, fruitDto.getName(), fruitDto.getDescription());
+    return new Fruit(fruitDto.getName(), fruitDto.getDescription());
   }
 }
 ----
 
-NOTE: All methods exposed via REST interface are returning reactive types from the Mutiny API.
+The above resource is exposing a new endpoint, `reactive-fruits`. Its capabilities are identical to
+the ones that we created before with `FruitResource`, but everything is handled in a reactive
+fashion, without any blocking operation.
+
+NOTE: The `getAll()` method above returns `Multi`, and the `add()` method returns `Uni`. These types
+are the same Mutiny types that we met before; they are automatically recognized by the Quarkus
+reactive REST API, so we don't need to convert them into JSON ourselves.
+
+To effectively integrate the reactive logic with the REST API, your application needs to declare a
+dependency to the Quarkus RestEasy Mutiny extension:
+
+[source, xml]
+----
+<dependency>
+  <groupId>io.quarkus</groupId>
+  <artifactId>quarkus-resteasy-mutiny</artifactId>
+</dependency>
+----
+
+This dependency is already included in this guide's pom.xml, but if you are starting a new project
+from scratch, make sure to include it.
 
 == Testing the reactive REST API
 
 Run the application in dev mode as explained above, then you can use curl commands to interact with
-the underlying REST API. To create a fruit in a reactive way:
+the underlying REST API.
+
+To create a fruit using the reactive REST endpoint:
 
 [source,shell]
 ----
 curl --header "Content-Type: application/json" \
   --request POST \
-  --data '{"name":"async_product","description":"this was created via curl"}' \
+  --data '{"name":"banana","description":"yellow and sweet"}' \
   http://localhost:8080/reactive-fruits
 ----
 
-To retrieve fruits:
+To retrieve fruits with the reactive REST endpoint:
 
 [source,shell]
 ----
@@ -563,35 +613,66 @@ curl -X GET http://localhost:8080/reactive-fruits
 
 == Creating a reactive frontend
 
-Now let's add a simple web page to interact with our `FruitReactiveResource`. In the
+Now let's add a simple web page to interact with our `ReactiveFruitResource`. In the
 `src/main/resources/META-INF/resources` directory, add a `reactive-fruits.html` file with the
-content from
-link:https://github.com/datastax/cassandra-quarkus/tree/master/quickstart/src/main/resources/META-INF/resources/reactive-fruits.html[this
-file] in it.
+contents from link:src/main/resources/META-INF/resources/reactive-fruits.html[this file] in it.
 
 You can now interact with your reactive REST service:
 
-* start Quarkus with `mvn clean quarkus:dev`
-* open a browser to `http://localhost:8080/reactive-fruits.html`
-* add new fruits to the list via the form
+* If you haven't done yet, start your application with `mvn clean quarkus:dev`;
+* Point your browser to `http://localhost:8080/reactive-fruits.html`;
+* Add new fruits to the list via the form.
 
-== Connection Health Check
+== Health Checks
 
-If you are using the `quarkus-smallrye-health` extension, `cassandra-quarkus` will automatically
-add a readiness health check to validate the connection to the cluster.
+If you are using the Quarkus SmallRye Health extension, then the Cassandra client will automatically
+add a readiness health check to validate the connection to the Cassandra cluster. This extension
+is already included in this guide's pom.xml, but you can also include it manually:
 
-When a readiness health check is available, you can access the `/health/ready` endpoint of your
-application and have information about the connection validation status.
+[source, xml]
+----
+<dependency>
+  <groupId>io.quarkus</groupId>
+  <artifactId>quarkus-smallrye-health</artifactId>
+</dependency>
+----
 
-TIP: This behavior can be disabled by setting the `quarkus.cassandra.health.enabled` property to
-`false` in your `application.properties`.
+When health checks are available, you can access the `/health/ready` endpoint of your application
+and have information about the connection validation status.
+
+Running in dev mode with `mvn clean quarkus:dev`, if you point your browser to
+http://localhost:8080/health/ready you should see an output similar to the following one:
+
+[source, text]
+----
+{
+    "status": "UP",
+    "checks": [
+        {
+            "name": "DataStax Apache Cassandra Driver health check",
+            "status": "UP",
+            "data": {
+                "cqlVersion": "3.4.4",
+                "releaseVersion": "3.11.7",
+                "clusterName": "Test Cluster",
+                "datacenter": "datacenter1",
+                "numberOfNodes": 1
+            }
+        }
+    ]
+}
+----
+
+TIP: If you need health checks globally enabled in your application, but don't want to activate
+Cassandra health checks, you can disable Cassandra health checks by setting the
+`quarkus.cassandra.health.enabled` property to `false` in your `application.properties`.
 
 == Metrics
 
 The Cassandra Quarkus client can provide metrics about the Cassandra session and about individual
 Cassandra nodes.
 
-This behavior must first be enabled by setting the `quarkus.cassandra.metrics.enabled`
+This behavior is opt-in; it must first be enabled by setting the `quarkus.cassandra.metrics.enabled`
 property to `true` in your `application.properties`.
 
 Then you will also need to add two additional dependencies:
@@ -599,15 +680,20 @@ Then you will also need to add two additional dependencies:
 1. `io.quarkus:quarkus-smallrye-metrics`, which enables metrics globally; and
 2. `com.datastax.oss:java-driver-metrics-microprofile`, which enables Cassandra metrics.
 
-The next step that you need to do is set explicitly which metrics should be enabled: the
+These dependencies are already included in this guide's pom.xml.
+
+The next step that you need to do is to define which Cassandra metrics should be enabled. The
 `quarkus.cassandra.metrics.session.enabled` and `quarkus.cassandra.metrics.node.enabled` properties
 should be used for enabling metrics; the former should contain a list of session-level metrics to
 enable, while the latter should contain a list of node-level metrics to enable. Both properties
 accept a comma-separated list of valid metric names.
 
-For example, to enable the following metric names: `session.connected-nodes`, `session.bytes-sent`,
-and `node.pool.open-connections`, you should add the following settings to your
-`application.properties`:
+For example, let's assume that you wish to enable the following three Cassandra metrics:
+
+* Session-leel metrics: `session.connected-nodes` and `session.bytes-sent`;
+* Node-level metrics: `node.pool.open-connections`.
+
+Then you should add the following settings to your `application.properties`:
 
 [source, properties]
 ----
@@ -616,7 +702,10 @@ quarkus.cassandra.metrics.session.enabled=connected-nodes,bytes-sent
 quarkus.cassandra.metrics.node.enabled=pool.open-connections
 ----
 
-For the full list of available metric names, please refer to the
+This guide's application.properties file has already many metrics enabled; you can use its metrics
+list as a good starting point for exposing useful Cassandra metrics in your application.
+
+TIP: For the full list of available metric names, please refer to the
 link:https://docs.datastax.com/en/developer/java-driver/latest/manual/core/configuration/reference/[driver
 settings reference] page; search for the `advanced.metrics` section. Also, Cassandra driver metrics
 are explained in detail in the
@@ -625,16 +714,21 @@ https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/[d
 When metrics are properly enabled, metric reports for all enabled metrics are available at the
 `/metrics` REST endpoint of your application.
 
+Running in dev mode with `mvn clean quarkus:dev`, if you point your browser to
+http://localhost:8080/metrics you should see a list of metrics; search for metrics whose names start
+with `vendor_cassandra`.
+
 == Running in native mode
 
-You can compile the application into a native binary using:
+If you installed GraalVM, you can compile the application into a native binary using:
 
 [source,shell]
 ----
 mvn clean package -Dnative
 ----
 
-Then running it is as simple as executing:
+Beware that native compilation can take a significant amount of time! Once the compilation is done,
+you can run the native executable as follows:
 
 [source,shell]
 ----
@@ -667,16 +761,16 @@ to block, such as a Vert.x event loop thread. Therefore, setting
 `quarkus.cassandra.init.eager-session-init` to `false` and injecting `QuarkusCqlSession` should be
 avoided in these contexts.
 
-If you want to use reactive routes (or any other asynchronous framework) and keep the lazy
-initialization behavior, you should instead inject only `CompletionStage<QuarkusCqlSession>`.
-When injecting a `CompletionStage<QuarkusCqlSession>`, the initialization process will be triggered
-lazily, but it will happen in the background, in a non-blocking way, leveraging the Vert.x event
-loop. This way you don't risk blocking the Vert.x thread.
+If you want to use Vert.x (or any other reactive framework) and keep the lazy initialization
+behavior, you should instead inject only `CompletionStage<QuarkusCqlSession>`. When injecting a
+`CompletionStage<QuarkusCqlSession>`, the initialization process will be triggered lazily, but it
+will happen in the background, in a non-blocking way, leveraging the Vert.x event loop. This way you
+don't risk blocking the Vert.x thread.
 
 Alternatively, you can set `quarkus.cassandra.init.eager-session-init` to true: in this case the
 session bean will be initialized eagerly during application startup, on the Quarkus main thread.
 This would eliminate any risk of blocking a Vert.x thread, at the cost of making your startup time
-longer.
+(much) longer.
 
 == Conclusion
 

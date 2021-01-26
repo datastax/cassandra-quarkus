@@ -41,10 +41,11 @@ public interface FruitMapper {
   FruitDao fruitDao();
 
   /**
-   * Creates a new {@link FruitDao}. It will operate on the same keyspace as the Quarkus session.
+   * Creates a new {@link ReactiveFruitDao}. It will operate on the same keyspace as the Quarkus
+   * session.
    *
-   * @return a new {@link FruitDao}.
+   * @return a new {@link ReactiveFruitDao}.
    */
   @DaoFactory
-  FruitDaoReactive fruitDaoReactive();
+  ReactiveFruitDao reactiveFruitDao();
 }

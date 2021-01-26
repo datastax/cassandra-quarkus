@@ -22,31 +22,32 @@ import com.datastax.oss.quarkus.runtime.api.reactive.mapper.MutinyMappedReactive
 import io.smallrye.mutiny.Uni;
 
 /**
- * A DAO for retrieving {@link Fruit} instances using reactive-style programming and Mutiny types.
+ * A DAO for retrieving {@link com.datastax.oss.quarkus.demo.Fruit} instances using reactive-style
+ * programming and Mutiny types.
  *
  * @see <a
  *     href="https://docs.datastax.com/en/developer/java-driver/latest/manual/mapper/doas/">Defining
  *     DAOs with the DataStax Java driver object mapper</a>
  */
 @Dao
-public interface FruitDaoReactive {
+public interface ReactiveFruitDao {
 
   /**
-   * Creates or updates the given {@link Fruit} in the database.
+   * Creates or updates the given {@link com.datastax.oss.quarkus.demo.Fruit} in the database.
    *
-   * @param fruit The {@link Fruit} to create or update. Cannot be null.
+   * @param fruit The {@link com.datastax.oss.quarkus.demo.Fruit} to create or update. Cannot be
+   *     null.
    * @return A {@link Uni} that will complete when the query completes.
    */
   @Update
   Uni<Void> update(Fruit fruit);
 
   /**
-   * Finds all the fruits defined for the given store id.
+   * Finds all the fruits.
    *
-   * @param storeId The store id to query. Cannot be null.
    * @return A {@linkplain MutinyMappedReactiveResultSet Mutiny publisher} that will emit all the
    *     results found in the database.
    */
   @Select
-  MutinyMappedReactiveResultSet<Fruit> findById(String storeId);
+  MutinyMappedReactiveResultSet<Fruit> findAll();
 }

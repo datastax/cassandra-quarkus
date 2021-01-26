@@ -26,13 +26,13 @@ import javax.inject.Inject;
 public class FruitDaoProducer {
 
   private final FruitDao fruitDao;
-  private final FruitDaoReactive fruitDaoReactive;
+  private final ReactiveFruitDao reactiveFruitDao;
 
   @Inject
   public FruitDaoProducer(QuarkusCqlSession session) {
     FruitMapper mapper = new FruitMapperBuilder(session).build();
     fruitDao = mapper.fruitDao();
-    fruitDaoReactive = mapper.fruitDaoReactive();
+    reactiveFruitDao = mapper.reactiveFruitDao();
   }
 
   /** @return A {@link FruitDao} singleton instance. */
@@ -42,10 +42,10 @@ public class FruitDaoProducer {
     return fruitDao;
   }
 
-  /** @return A {@link FruitDaoReactive} singleton instance. */
+  /** @return A {@link ReactiveFruitDao} singleton instance. */
   @Produces
   @ApplicationScoped
-  FruitDaoReactive produceFruitDaoReactive() {
-    return fruitDaoReactive;
+  ReactiveFruitDao produceReactiveFruitDao() {
+    return reactiveFruitDao;
   }
 }

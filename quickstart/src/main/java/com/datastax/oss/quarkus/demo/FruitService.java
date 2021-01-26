@@ -29,7 +29,7 @@ public class FruitService {
     dao.update(fruit);
   }
 
-  public List<Fruit> get(String id) {
-    return dao.findById(id).all();
+  public List<Fruit> getAll() {
+    return dao.findAll().all();
   }
 }
