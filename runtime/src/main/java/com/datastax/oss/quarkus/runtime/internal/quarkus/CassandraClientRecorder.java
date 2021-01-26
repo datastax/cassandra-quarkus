@@ -15,12 +15,10 @@
  */
 package com.datastax.oss.quarkus.runtime.internal.quarkus;
 
-import com.datastax.oss.driver.api.core.AsyncAutoCloseable;
 import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import io.netty.channel.EventLoopGroup;
 import io.quarkus.arc.Arc;
-import io.quarkus.arc.runtime.BeanContainer;
 import io.quarkus.netty.MainEventLoopGroup;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.ShutdownContext;
@@ -28,6 +26,7 @@ import io.quarkus.runtime.annotations.Recorder;
 import io.smallrye.metrics.MetricRegistries;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.enterprise.util.TypeLiteral;
@@ -46,25 +45,46 @@ public class CassandraClientRecorder {
     producer.setCassandraClientConfig(config);
   }
 
-  public RuntimeValue<CompletionStage<QuarkusCqlSession>> buildClient(
-      ShutdownContext shutdown, BeanContainer beanContainer) {
-    QuarkusCqlSessionState quarkusCqlSessionState =
-        beanContainer.instance(QuarkusCqlSessionState.class);
+  public RuntimeValue<CompletionStage<QuarkusCqlSession>> buildClient(ShutdownContext shutdown) {
+    LOG.trace("Requesting production of session stage bean");
     @SuppressWarnings("unchecked")
-    CompletionStage<QuarkusCqlSession> cqlSession =
+    CompletionStage<QuarkusCqlSession> sessionStage =
         (CompletionStage<QuarkusCqlSession>)
             Arc.container().instance(COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE).get();
+    LOG.trace("Session stage bean produced: {}", sessionStage);
     shutdown.addShutdownTask(
         () -> {
-          // invoke close() on session only, if it was initialized.
-          // If the close() will be called on the non-initialized QuarkusCqlSession, it would
-          // trigger the connection and close it immediately
-          if (quarkusCqlSessionState.isInitialized()) {
-            LOG.info("Closing the QuarkusCqlSession.");
-            cqlSession.thenAccept(AsyncAutoCloseable::close);
+          // invoke methods on the session stage bean only if it was produced;
+          // trying to access a non-produced bean here would
+          // trigger its production, and thus the initialization of the underlying session.
+          QuarkusCqlSessionStageBeanState sessionState =
+              Arc.container().instance(QuarkusCqlSessionStageBeanState.class).get();
+          LOG.trace(
+              "Executing shutdown hook, session stage bean produced = {}",
+              sessionState.isProduced());
+          if (sessionState.isProduced()) {
+            CompletableFuture<QuarkusCqlSession> sessionFuture = sessionStage.toCompletableFuture();
+            LOG.trace(
+                "Session future done = {}, cancelled = {}",
+                sessionFuture.isDone(),
+                sessionFuture.isCancelled());
+            try {
+              QuarkusCqlSession session = sessionFuture.getNow(null);
+              LOG.trace("Session object = {}", session);
+              if (session != null) {
+                LOG.info("Closing Quarkus session.");
+                session.close();
+              } else {
+                LOG.info("Cancelling Quarkus session initialization.");
+                sessionFuture.cancel(true);
+              }
+            } catch (RuntimeException e) {
+              // no need to log this again, it was logged already
+              LOG.trace("Quarkus session could not be closed normally.", e);
+            }
           }
         });
-    return new RuntimeValue<>(cqlSession);
+    return new RuntimeValue<>(sessionStage);
   }
 
   public void configureMetrics(

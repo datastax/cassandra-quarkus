@@ -30,10 +30,9 @@ import io.netty.channel.FixedRecvByteBufAllocator;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
-import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.EventExecutorGroup;
 import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GlobalEventExecutor;
+import io.netty.util.concurrent.SucceededFuture;
 import io.netty.util.internal.PlatformDependent;
 import java.time.Duration;
 import java.util.concurrent.ThreadFactory;
@@ -54,7 +53,6 @@ public class QuarkusNettyOptions implements NettyOptions {
       EventLoopGroup ioEventLoopGroup,
       EventLoopGroup adminEventLoopGroup) {
     this.config = context.getConfig().getDefaultProfile();
-    boolean daemon = config.getBoolean(DefaultDriverOption.NETTY_DAEMON);
     // The following options are ignored when using Quarkus Netty event loops:
     // NETTY_IO_SHUTDOWN_QUIET_PERIOD
     // NETTY_IO_SHUTDOWN_TIMEOUT
@@ -63,12 +61,12 @@ public class QuarkusNettyOptions implements NettyOptions {
     // NETTY_ADMIN_SHUTDOWN_TIMEOUT
     // NETTY_ADMIN_SHUTDOWN_UNIT
 
-    ThreadFactory safeFactory = new BlockingOperation.SafeThreadFactory();
-
     this.ioEventLoopGroup = ioEventLoopGroup;
     this.adminEventLoopGroup = adminEventLoopGroup;
 
     // setup the Timer
+    ThreadFactory safeFactory = new BlockingOperation.SafeThreadFactory();
+    boolean daemon = config.getBoolean(DefaultDriverOption.NETTY_DAEMON);
     ThreadFactory timerThreadFactory =
         new ThreadFactoryBuilder()
             .setThreadFactory(safeFactory)
@@ -86,12 +84,21 @@ public class QuarkusNettyOptions implements NettyOptions {
               + "Please set advanced.netty.timer.tick-duration to 100 ms or higher.",
           tickDuration.toMillis());
     }
-    timer =
+    HashedWheelTimer timer =
         new HashedWheelTimer(
             timerThreadFactory,
             tickDuration.toNanos(),
             TimeUnit.NANOSECONDS,
             config.getInt(DefaultDriverOption.NETTY_TIMER_TICKS_PER_WHEEL));
+    timer.start();
+    this.ioEventLoopGroup
+        .terminationFuture()
+        .addListener(
+            future -> {
+              LOG.trace("Stopping Netty timer");
+              timer.stop();
+            });
+    this.timer = timer;
   }
 
   @Override
@@ -156,9 +163,7 @@ public class QuarkusNettyOptions implements NettyOptions {
   public Future<Void> onClose() {
     // return immediately completed future. We should not close event loops because they are
     // managed by Quarkus.
-    DefaultPromise<Void> promise = new DefaultPromise<>(GlobalEventExecutor.INSTANCE);
-    promise.setSuccess(null);
-    return promise;
+    return new SucceededFuture<>(adminEventLoopGroup.next(), null);
   }
 
   @Override

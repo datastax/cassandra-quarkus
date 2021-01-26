@@ -37,6 +37,7 @@ import io.quarkus.arc.Unremovable;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import org.eclipse.microprofile.metrics.MetricRegistry;
@@ -57,16 +58,16 @@ public class CassandraClientProducer {
   @Produces
   @ApplicationScoped
   @Unremovable
-  public QuarkusCqlSessionState quarkusCqlSessionState() {
-    return QuarkusCqlSessionState.notInitialized();
+  public QuarkusCqlSessionStageBeanState quarkusCqlSessionState() {
+    return new QuarkusCqlSessionStageBeanState();
   }
 
   @Produces
   @ApplicationScoped
   @Unremovable
   public CompletionStage<QuarkusCqlSession> createCompletionStageOfCassandraClient(
-      QuarkusCqlSessionState quarkusCqlSessionState) {
-    LOG.trace("Produce CompletionStage<QuarkusCqlSession> bean.");
+      QuarkusCqlSessionStageBeanState sessionStageBeanState) {
+    LOG.trace("Producing CompletionStage<QuarkusCqlSession> bean");
     ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder = createDriverConfigLoaderBuilder();
     configureRuntimeSettings(configLoaderBuilder);
     configureMetricsSettings(configLoaderBuilder);
@@ -76,31 +77,31 @@ public class CassandraClientProducer {
             .withMetricRegistry(metricRegistry)
             .withQuarkusEventLoop(mainEventLoop)
             .withConfigLoader(configLoaderBuilder.build());
-    return builder
-        .buildAsync()
-        .whenComplete(
-            (res, ex) -> {
-              if (ex == null) {
-                LOG.debug("Setting the QuarkusCqlSessionState to initialized.");
-                quarkusCqlSessionState.setInitialized();
-              }
-            });
+    CompletionStage<QuarkusCqlSession> sessionFuture = builder.buildAsync();
+    sessionStageBeanState.setProduced();
+    return sessionFuture;
   }
 
   @Produces
   @ApplicationScoped
   @Unremovable
-  public QuarkusCqlSession createCassandraClient(CompletionStage<QuarkusCqlSession> sessionFuture) {
-    LOG.trace("Produce QuarkusCqlSession bean.");
-    if (!config.cassandraClientInitConfig.eagerSessionInit) {
+  public QuarkusCqlSession createCassandraClient(CompletionStage<QuarkusCqlSession> sessionFuture)
+      throws ExecutionException, InterruptedException {
+    LOG.trace(
+        "Producing QuarkusCqlSession bean, eagerSessionInit = {}",
+        config.cassandraClientInitConfig.eagerSessionInit);
+    if (!config.cassandraClientInitConfig.eagerSessionInit
+        && config.cassandraClientInitConfig.eagerSessionInitInfo) {
       LOG.info(
           "Injecting QuarkusCqlSession and setting eager-session-init = false may cause problems if the lazy initialization process "
               + "happens on a thread that is not allowed to block, such as Vert.x thread.");
       LOG.info(
           "Please either set eager-session-init to true, or inject CompletionStage<QuarkusCqlSession> instead, "
               + "or make sure that the lazy initialization process in your application is not happening on a Vert.x thread.");
+      LOG.info(
+          "Set the config property eager-session-init-info to false to suppress this message.");
     }
-    return CompletableFutures.getUninterruptibly(sessionFuture);
+    return sessionFuture.toCompletableFuture().get();
   }
 
   public void setCassandraClientConfig(CassandraClientConfig config) {

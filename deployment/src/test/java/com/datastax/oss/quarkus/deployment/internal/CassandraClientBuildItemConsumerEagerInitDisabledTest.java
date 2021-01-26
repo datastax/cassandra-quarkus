@@ -18,7 +18,7 @@ package com.datastax.oss.quarkus.deployment.internal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
-import com.datastax.oss.quarkus.runtime.internal.quarkus.QuarkusCqlSessionState;
+import com.datastax.oss.quarkus.runtime.internal.quarkus.QuarkusCqlSessionStageBeanState;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.quarkus.arc.Arc;
 import io.quarkus.builder.BuildChainBuilder;
@@ -53,42 +53,41 @@ public class CassandraClientBuildItemConsumerEagerInitDisabledTest {
 
   @Test
   @Order(1)
-  public void should_have_quarkus_cql_session_in_the_di_container_with_state_not_initialized() {
+  public void should_have_quarkus_cql_session_in_the_di_container_with_state_not_produced() {
     assertThat(Arc.container().instance(QuarkusCqlSession.class).get()).isNotNull();
-    assertThat(Arc.container().instance(QuarkusCqlSessionState.class).get().isInitialized())
+    assertThat(Arc.container().instance(QuarkusCqlSessionStageBeanState.class).get().isProduced())
         .isFalse();
   }
 
   @Test
   @Order(2)
   public void
-      should_have_completion_stage_of_quarkus_cql_session_in_the_di_container_with_state_not_initialized() {
+      should_have_completion_stage_of_quarkus_cql_session_in_the_di_container_with_state_not_produced() {
     assertThat(Arc.container().instance(COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE).get())
         .isNotNull();
-    assertThat(Arc.container().instance(QuarkusCqlSessionState.class).get().isInitialized())
+    assertThat(Arc.container().instance(QuarkusCqlSessionStageBeanState.class).get().isProduced())
         .isFalse();
   }
 
   @Test
   @Order(3)
-  public void should_initialize_the_quarkus_cql_session_when_accessed_for_the_first_time() {
+  public void should_mark_quarkus_cql_session_produced_when_accessed_for_the_first_time() {
     Arc.container().instance(QuarkusCqlSession.class).get().getName();
-    assertThat(Arc.container().instance(QuarkusCqlSessionState.class).get().isInitialized())
+    assertThat(Arc.container().instance(QuarkusCqlSessionStageBeanState.class).get().isProduced())
         .isTrue();
   }
 
   @Test
   @Order(3)
-  @SuppressWarnings("unchecked")
   public void
-      should_initialize_the_completion_stage_of_quarkus_cql_session_when_accessed_for_the_first_time()
+      should_mark_completion_stage_of_quarkus_cql_session_produced_when_accessed_for_the_first_time()
           throws ExecutionException, InterruptedException {
+    @SuppressWarnings("unchecked")
     CompletionStage<QuarkusCqlSession> completionStage =
         (CompletionStage<QuarkusCqlSession>)
             Arc.container().instance(COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE).get();
     completionStage.toCompletableFuture().get();
-
-    assertThat(Arc.container().instance(QuarkusCqlSessionState.class).get().isInitialized())
+    assertThat(Arc.container().instance(QuarkusCqlSessionStageBeanState.class).get().isProduced())
         .isTrue();
   }
 
