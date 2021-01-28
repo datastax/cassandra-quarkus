@@ -40,12 +40,6 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <!--
-    The graalvmHome property is required when running integration tests in native mode.
-     It must point to a valid GraalVM installation root.
-     -->
-    <!--suppress UnresolvedMavenProperty -->
-    <graalvmHome>${env.GRAALVM_HOME}</graalvmHome>
   </properties>
   <modules>
     <module>bom-runtime</module>
