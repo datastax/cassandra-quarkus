@@ -27,8 +27,8 @@ To complete this quickstart guide, you need:
 
 * an IDE;
 * JDK 1.8+ installed with `JAVA_HOME` configured appropriately;
-* GraalVM installed with `GRAALVM_HOME` configured appropriately, if you want to use the native
-  mode;
+* link:https://www.graalvm.org/[GraalVM] installed with `GRAALVM_HOME` configured appropriately, if
+  you want to link:https://quarkus.io/guides/building-native-image[use the native mode];
 * Apache Maven 3.5.3+;
 * A running link:https://cassandra.apache.org[Apache Cassandra],
   link:https://www.datastax.fr/products/datastax-enterprise[DataStax Enterprise] (DSE) or
@@ -720,7 +720,8 @@ with `vendor_cassandra`.
 
 == Running in native mode
 
-If you installed GraalVM, you can compile the application into a native binary using:
+If you installed GraalVM, you can link:https://quarkus.io/guides/building-native-image[build a
+native image] using:
 
 [source,shell]
 ----
