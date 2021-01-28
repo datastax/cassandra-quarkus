@@ -27,20 +27,18 @@ import javax.ws.rs.core.MediaType;
 
 /**
  * A REST resource exposing reactive endpoints for creating and retrieving {@link Fruit} objects in
- * the database, leveraging the {@link FruitReactiveService} component.
+ * the database, leveraging the {@link ReactiveFruitService} component.
  */
 @Path("/reactive-fruits")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class FruitReactiveResource {
+public class ReactiveFruitResource {
 
-  private static final String STORE_ID = "acme";
-
-  @Inject FruitReactiveService service;
+  @Inject ReactiveFruitService service;
 
   @GET
   public Multi<FruitDto> getAll() {
-    return service.get(STORE_ID).map(this::convertToDto);
+    return service.getAll().map(this::convertToDto);
   }
 
   @POST
@@ -53,6 +51,6 @@ public class FruitReactiveResource {
   }
 
   private Fruit convertFromDto(FruitDto fruitDto) {
-    return new Fruit(STORE_ID, fruitDto.getName(), fruitDto.getDescription());
+    return new Fruit(fruitDto.getName(), fruitDto.getDescription());
   }
 }

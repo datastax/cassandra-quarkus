@@ -55,7 +55,6 @@
     <module>deployment</module>
     <module>integration-tests</module>
     <module>quickstart</module>
-    <module>documentation</module>
   </modules>
   <build>
     <pluginManagement>

@@ -39,12 +39,11 @@ public interface FruitDao {
   void update(Fruit fruit);
 
   /**
-   * Finds all the fruits defined for the given store id.
+   * Finds all the fruits.
    *
-   * @param storeId The store id to query. Cannot be null.
    * @return An {@linkplain PagingIterable iterable} containing all the results found in the
    *     database.
    */
   @Select
-  PagingIterable<Fruit> findById(String storeId);
+  PagingIterable<Fruit> findAll();
 }

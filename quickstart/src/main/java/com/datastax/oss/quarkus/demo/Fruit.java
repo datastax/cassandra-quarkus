@@ -15,42 +15,29 @@
  */
 package com.datastax.oss.quarkus.demo;
 
-import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
+import com.datastax.oss.driver.api.mapper.annotations.PropertyStrategy;
 import java.util.Objects;
 
 /**
- * Represents the name and description of a fruit, for a given store.
+ * Represents the name and description of a fruit.
  *
  * @see <a
  *     href="https://docs.datastax.com/en/developer/java-driver/latest/manual/mapper/entities/">Defining
  *     entities with the DataStax Java driver object mapper</a>
  */
 @Entity
+@PropertyStrategy(mutable = false)
 public class Fruit {
 
-  @PartitionKey private String storeId;
+  @PartitionKey private final String name;
 
-  @ClusteringColumn private String name;
+  private final String description;
 
-  private String description;
-
-  public Fruit() {}
-
-  public Fruit(String storeId, String name, String description) {
+  public Fruit(String name, String description) {
     this.name = name;
     this.description = description;
-    this.storeId = storeId;
-  }
-
-  /** @return The store id for which this fruit was defined. */
-  public String getStoreId() {
-    return storeId;
-  }
-
-  public void setStoreId(String storeId) {
-    this.storeId = storeId;
   }
 
   /** @return The fruit name. */
@@ -58,17 +45,9 @@ public class Fruit {
     return name;
   }
 
-  public void setName(String name) {
-    this.name = name;
-  }
-
   /** @return The fruit description. */
   public String getDescription() {
     return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
   }
 
   @Override
@@ -76,28 +55,16 @@ public class Fruit {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Fruit that = (Fruit) o;
-    return Objects.equals(storeId, that.storeId)
-        && Objects.equals(description, that.description)
-        && Objects.equals(name, that.name);
+    return Objects.equals(description, that.description) && Objects.equals(name, that.name);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(storeId, description, name);
+    return Objects.hash(description, name);
   }
 
   @Override
   public String toString() {
-    return "Fruit{"
-        + "name='"
-        + name
-        + '\''
-        + ", description='"
-        + description
-        + '\''
-        + ", storeId='"
-        + storeId
-        + '\''
-        + '}';
+    return String.format("Fruit{name='%s', description='%s'}", name, description);
   }
 }
