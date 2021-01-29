@@ -47,6 +47,7 @@
     <module>test-framework</module>
     <module>runtime</module>
     <module>deployment</module>
+    <module>mapper-processor</module>
     <module>integration-tests</module>
     <module>quickstart</module>
   </modules>

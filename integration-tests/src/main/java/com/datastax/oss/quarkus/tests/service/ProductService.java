@@ -26,25 +26,25 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class ProductService {
 
-  @Inject CompletionStage<ProductDao> daoCompletionStage;
+  @Inject ProductDao productDao;
 
   public CompletionStage<Void> create(Product product) {
-    return daoCompletionStage.thenCompose(dao -> dao.create(product));
+    return productDao.create(product);
   }
 
   public CompletionStage<Void> update(Product product) {
-    return daoCompletionStage.thenCompose(dao -> dao.update(product));
+    return productDao.update(product);
   }
 
   public CompletionStage<Void> delete(UUID productId) {
-    return daoCompletionStage.thenCompose(dao -> dao.delete(productId));
+    return productDao.delete(productId);
   }
 
   public CompletionStage<Product> findById(UUID productId) {
-    return daoCompletionStage.thenCompose(dao -> dao.findById(productId));
+    return productDao.findById(productId);
   }
 
   public Multi<Product> findAll() {
-    return Multi.createFrom().completionStage(daoCompletionStage).flatMap(ProductDao::findAll);
+    return productDao.findAll();
   }
 }

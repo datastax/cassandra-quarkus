@@ -15,24 +15,23 @@
  */
 package com.datastax.oss.quarkus.tests.mapper;
 
-import com.datastax.oss.driver.api.core.CqlIdentifier;
 import com.datastax.oss.driver.api.mapper.annotations.DaoFactory;
-import com.datastax.oss.driver.api.mapper.annotations.DaoKeyspace;
 import com.datastax.oss.driver.api.mapper.annotations.Mapper;
 import com.datastax.oss.quarkus.tests.dao.CustomerDao;
 import com.datastax.oss.quarkus.tests.dao.ProductDao;
 import com.datastax.oss.quarkus.tests.dao.ProductReactiveDao;
+import io.smallrye.mutiny.Uni;
 import java.util.concurrent.CompletionStage;
 
 @Mapper
 public interface InventoryMapper {
 
   @DaoFactory
-  CompletionStage<ProductDao> productDao(@DaoKeyspace CqlIdentifier keyspace);
+  ProductDao productDaoSync();
 
   @DaoFactory
-  CompletionStage<ProductReactiveDao> productReactiveDao(@DaoKeyspace CqlIdentifier keyspace);
+  Uni<ProductReactiveDao> productDaoReactive();
 
   @DaoFactory
-  CompletionStage<CustomerDao> customerDao(@DaoKeyspace CqlIdentifier keyspace);
+  CompletionStage<CustomerDao> customerDaoAsync();
 }

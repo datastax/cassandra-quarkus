@@ -22,8 +22,7 @@ import com.datastax.oss.quarkus.runtime.api.reactive.mapper.MutinyMappedReactive
 import io.smallrye.mutiny.Uni;
 
 /**
- * A DAO for retrieving {@link com.datastax.oss.quarkus.demo.Fruit} instances using reactive-style
- * programming and Mutiny types.
+ * A DAO for retrieving {@link Fruit} instances using reactive-style programming and Mutiny types.
  *
  * @see <a
  *     href="https://docs.datastax.com/en/developer/java-driver/latest/manual/mapper/doas/">Defining
@@ -33,10 +32,9 @@ import io.smallrye.mutiny.Uni;
 public interface ReactiveFruitDao {
 
   /**
-   * Creates or updates the given {@link com.datastax.oss.quarkus.demo.Fruit} in the database.
+   * Creates or updates the given {@link Fruit} in the database.
    *
-   * @param fruit The {@link com.datastax.oss.quarkus.demo.Fruit} to create or update. Cannot be
-   *     null.
+   * @param fruit The {@link Fruit} to create or update. Cannot be null.
    * @return A {@link Uni} that will complete when the query completes.
    */
   @Update
