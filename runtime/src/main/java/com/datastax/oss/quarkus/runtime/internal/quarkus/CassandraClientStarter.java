@@ -17,19 +17,24 @@ package com.datastax.oss.quarkus.runtime.internal.quarkus;
 
 import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
+import com.datastax.oss.quarkus.runtime.internal.mapper.DaoBeanProducer;
+import com.datastax.oss.quarkus.runtime.internal.mapper.MapperBeanProducer;
 import io.quarkus.runtime.StartupEvent;
-import java.util.concurrent.CompletableFuture;
+import io.smallrye.mutiny.Uni;
+import java.time.Duration;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A component that triggers eager initialization of {@link QuarkusCqlSession}.
+ * A component that triggers eager initialization of {@link QuarkusCqlSession} and DAOs.
  *
  * @see <a href="https://quarkus.io/guides/cdi-reference#eager-instantiation-of-beans">Eager
  *     Instantiation of Beans</a>
@@ -39,29 +44,61 @@ public class CassandraClientStarter {
 
   private static final Logger LOG = LoggerFactory.getLogger(CassandraClientStarter.class);
 
+  @Inject CassandraClientConfig config;
+
+  @Inject Instance<CompletionStage<QuarkusCqlSession>> sessionStages;
+
+  @Inject @MapperBeanProducer Instance<Object> mappers;
+
+  @Inject @DaoBeanProducer Instance<Object> daos;
+
   @SuppressWarnings("unused")
-  public void startup(
-      @Observes StartupEvent event,
-      CompletionStage<QuarkusCqlSession> sessionStage,
-      CassandraClientConfig config)
+  public void startup(@Observes StartupEvent event)
       throws ExecutionException, InterruptedException {
     if (config.cassandraClientInitConfig.eagerSessionInit) {
-      LOG.info("Eagerly initializing Quarkus session");
-      // calling any method on the sessionStage bean will trigger its production, and thus
-      // its initialization in CassandraClientProducer.createCompletionStageOfCassandraClient()
-      CompletableFuture<QuarkusCqlSession> sessionFuture = sessionStage.toCompletableFuture();
+      LOG.info("Eagerly initializing Quarkus Cassandra client");
+      initializeSessions();
+      initializeGeneratedBeans(mappers, "mapper");
+      initializeGeneratedBeans(daos, "DAO");
+    } else {
+      LOG.debug(
+          "Eager initialization of Quarkus Cassandra client at startup is disabled by configuration");
+    }
+  }
+
+  private void initializeSessions() throws InterruptedException, ExecutionException {
+    Duration timeout = config.cassandraClientInitConfig.eagerSessionInitTimeout;
+    for (CompletionStage<QuarkusCqlSession> sessionStage : sessionStages) {
       try {
-        sessionFuture.get(
-            config.cassandraClientInitConfig.eagerSessionInitTimeout.toNanos(),
-            TimeUnit.NANOSECONDS);
+        sessionStage.toCompletableFuture().get(timeout.toNanos(), TimeUnit.NANOSECONDS);
       } catch (TimeoutException e) {
         LOG.warn(
-            "Eager initialization of Quarkus session did not complete within {}; "
+            "Eager initialization of a Quarkus Cassandra session bean did not complete within {}; "
                 + "resuming application startup with uninitialized session",
-            config.cassandraClientInitConfig.eagerSessionInitTimeout);
+            timeout);
       }
-    } else {
-      LOG.debug("Not triggering eager initialization of Quarkus session at startup");
+    }
+  }
+
+  private void initializeGeneratedBeans(Instance<Object> beans, String beanName)
+      throws InterruptedException, ExecutionException {
+    Duration timeout = config.cassandraClientInitConfig.eagerSessionInitTimeout;
+    for (Object bean : beans) {
+      try {
+        if (bean instanceof CompletionStage) {
+          ((CompletionStage<?>) bean)
+              .toCompletableFuture()
+              .get(timeout.toNanos(), TimeUnit.NANOSECONDS);
+        } else if (bean instanceof Uni) {
+          ((Uni<?>) bean).await().atMost(timeout);
+        }
+      } catch (TimeoutException | io.smallrye.mutiny.TimeoutException e) {
+        LOG.warn(
+            "Eager initialization of a {} bean did not complete within {}; "
+                + "resuming application startup with uninitialized bean",
+            beanName,
+            timeout);
+      }
     }
   }
 }

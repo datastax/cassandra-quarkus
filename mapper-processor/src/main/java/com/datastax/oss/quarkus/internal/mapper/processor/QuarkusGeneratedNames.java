@@ -17,11 +17,14 @@ package com.datastax.oss.quarkus.internal.mapper.processor;
 
 import com.datastax.oss.driver.api.mapper.annotations.Mapper;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
+import com.datastax.oss.quarkus.runtime.internal.mapper.DaoBeanProducer;
+import com.datastax.oss.quarkus.runtime.internal.mapper.MapperBeanProducer;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
 import io.smallrye.mutiny.Uni;
 import java.util.concurrent.CompletionStage;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.lang.model.element.TypeElement;
@@ -40,6 +43,12 @@ public class QuarkusGeneratedNames {
   public static final ClassName APPLICATION_SCOPED = ClassName.get(ApplicationScoped.class);
 
   public static final ClassName UNI = ClassName.get(Uni.class);
+
+  public static final ClassName DEFAULT = ClassName.get(Default.class);
+
+  public static final ClassName MAPPER_BEAN_PRODUCER = ClassName.get(MapperBeanProducer.class);
+
+  public static final ClassName DAO_BEAN_PRODUCER = ClassName.get(DaoBeanProducer.class);
 
   public static ClassName daoProducer(TypeElement mapperInterface) {
     String custom = mapperInterface.getAnnotation(Mapper.class).builderName();
