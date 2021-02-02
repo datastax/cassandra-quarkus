@@ -115,9 +115,9 @@
         <configuration>
           <annotationProcessorPaths>
             <path>
-              <groupId>com.datastax.oss</groupId>
-              <artifactId>java-driver-mapper-processor</artifactId>
-              <version>${datastax-java-driver.version}</version>
+              <groupId>com.datastax.oss.quarkus</groupId>
+              <artifactId>cassandra-quarkus-mapper-processor</artifactId>
+              <version>${project.version}</version>
             </path>
           </annotationProcessorPaths>
         </configuration>

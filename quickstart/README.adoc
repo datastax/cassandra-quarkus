@@ -97,12 +97,12 @@ public class Fruit {
 ----
 
 We are using the DataStax Java driver Object Mapper, which is why this class is annotated with
-`@Entity`. Also, the `name` field represents a Cassandra partition key, and so we are using the
-corresponding annotations from the Object Mapper library. This will allow the Mapper to generate
-proper CQL queries underneath.
+`@Entity`. Also, the `name` field represents a Cassandra partition key, and so we are annotating it
+with `@PartitionKey` – another annotation from the Object Mapper library. This will allow the Mapper
+to generate proper CQL queries underneath.
 
 IMPORTANT: Entity classes are normally required to have a default no-arg constructor, unless they
-are annotated with `@PropertyStrategy(mutable = false)`.
+are annotated with `@PropertyStrategy(mutable = false)`, which is the case here.
 
 The next step is to create a DAO:
 
@@ -119,7 +119,10 @@ public interface FruitDao {
 ----
 
 This class exposes operations that will be used in the REST service. Again, the annotation `@Dao`
-comes from the DataStax Java driver Object Mapper.
+comes from the DataStax Java driver Object Mapper. Note also the special return type of the
+`findAll` method,
+link:https://docs.datastax.com/en/drivers/java/latest/com/datastax/oss/driver/api/core/PagingIterable.html[`PagingIterable`]:
+it's the base type of result sets returned by the driver.
 
 Finally, let's create the Mapper itself:
 
@@ -135,58 +138,6 @@ public interface FruitMapper {
 The `@Mapper` annotation is yet another annotation recognized by the DataStax Java driver Object
 Mapper. A mapper is responsible for constructing instances of DAOs – in this case, `FruitDao`.
 
-Each DAO needs to operate on a specific keyspace. In our example, `FruitDao` will be connected to
-the same keyspace as the underlying Cassandra client. This keyspace is configured with the
-property `quarkus.cassandra.keyspace` – more on that below.
-
-TIP: It is also possible to create DAO instances for different keyspaces. To learn how, see
-link:https://docs.datastax.com/en/developer/java-driver/latest/manual/mapper/mapper/#dao-parameterization[DAO
-parameterization] in the driver docs.
-
-Next, we need a component to transform our DAO instances into CDI beans: `FruitDaoProducer`. Indeed,
-Mapper and Dao instances are stateful objects, and should be created only once, as
-application-scoped singletons. This component will do exactly that, leveraging Quarkus Dependency
-Injection container:
-
-[source, java]
-----
-import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-
-public class FruitDaoProducer {
-
-  private final FruitDao fruitDao;
-
-  @Inject
-  public FruitDaoProducer(QuarkusCqlSession session) {
-    // create a mapper
-    FruitMapper mapper = new FruitMapperBuilder(session).build();
-    // instantiate our Dao
-    fruitDao = mapper.fruitDao();
-  }
-
-  @Produces
-  @ApplicationScoped
-  FruitDao produceFruitDao() {
-    return fruitDao;
-  }
-}
-----
-
-Note how a `QuarkusCqlSession` instance is injected automatically in the `FruitDaoProducer`
-constructor.
-
-TIP: The
-link:https://javadoc.io/doc/com.datastax.oss.quarkus/cassandra-quarkus-client/latest/com/datastax/oss/quarkus/runtime/api/session/QuarkusCqlSession.html[`QuarkusCqlSession`
-bean] is your main entry point to the Cassandra client; it is a specialized Cassandra driver session
-instance with a few methods tailored especially for Quarkus. Read its javadocs carefully!
-
-Here, the `QuarkusCqlSession` instance is being used to create our DAOs, that will be later injected
-in other components; but of course, you can also inject a `QuarkusCqlSession` instance in your own
-components directly, for example if you don't want to use the Object Mapper at all.
-
 Now create a `FruitService` that will be the business layer of our application and store/load the
 fruits from the Cassandra database.
 
@@ -195,12 +146,7 @@ fruits from the Cassandra database.
 @ApplicationScoped
 public class FruitService {
 
-  private final FruitDao dao;
-
-  @Inject
-  public FruitService(FruitDao dao) {
-    this.dao = dao;
-  }
+  @Inject private FruitDao dao;
 
   public void save(Fruit fruit) {
     dao.update(fruit);
@@ -213,7 +159,22 @@ public class FruitService {
 ----
 
 Note how the service receives a `FruitDao` instance in the constructor. This DAO instance is
-provided by `FruitDaoProducer` and injected automatically.
+injected automatically.
+
+The Cassandra Quarkus extension allows you to inject any of the following beans in your own
+components:
+
+- The
+link:https://javadoc.io/doc/com.datastax.oss.quarkus/cassandra-quarkus-client/latest/com/datastax/oss/quarkus/runtime/api/session/QuarkusCqlSession.html[`QuarkusCqlSession`]
+bean: this application-scoped, singleton bean is your main entry point to the Cassandra client; it
+is a specialized Cassandra driver session instance with a few methods tailored especially for
+Quarkus. Read its javadocs carefully!
+- All `@Mapper`-annotated interfaces in your project.
+- All `@Dao`-annotated interfaces in your project, as long as they are produced by a corresponding
+`@DaoFactory`-annotated method declared in a mapper interface from your project.
+
+In our example, both `FruitMapper` and `FruitDao` could be injected anywhere. We chose to inject
+`FruitDao` in `FruitService`.
 
 The last missing piece is the REST API that will expose GET and POST methods:
 
@@ -438,7 +399,7 @@ Firstly, we need to declare another DAO interface that works in a reactive way:
 public interface ReactiveFruitDao {
 
   @Update
-  Uni<Void> updateAsync(Fruit fruitDao);
+  Uni<Void> updateAsync(Fruit fruit);
 
   @Select
   MutinyMappedReactiveResultSet<Fruit> findAll();
@@ -474,42 +435,6 @@ public interface FruitMapper {
   ReactiveFruitDao reactiveFruitDao();
 }
 
-----
-
-Now we need to modify our `FruitDaoProducer` above so that it will also produce a `ReactiveFruitDao`
-application-scoped bean:
-
-[source, java]
-----
-import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-
-public class FruitDaoProducer {
-
-  private final FruitDao fruitDao;
-  private final ReactiveFruitDao reactiveFruitDao;
-
-  @Inject
-  public FruitDaoProducer(QuarkusCqlSession session) {
-    FruitMapper mapper = new FruitMapperBuilder(session).build();
-    fruitDao = mapper.fruitDao();
-    reactiveFruitDao = mapper.reactiveFruitDao();
-  }
-
-  @Produces
-  @ApplicationScoped
-  FruitDao produceFruitDao() {
-    return fruitDao;
-  }
-
-  @Produces
-  @ApplicationScoped
-  ReactiveFruitDao produceReactiveFruitDao() {
-    return reactiveFruitDao;
-  }
-}
 ----
 
 Now, we can create a `ReactiveFruitService` that leverages our reactive DAO:

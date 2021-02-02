@@ -24,7 +24,7 @@ import java.time.Duration;
 public class CassandraClientInitConfig {
 
   /**
-   * Whether to eagerly initialize the session at application startup.
+   * Whether to eagerly initialize the session and all DAOs at application startup.
    *
    * <p>When false, the {@link com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession
    * QuarkusCqlSession} instance will be initialized on its first access. This is usually fine for

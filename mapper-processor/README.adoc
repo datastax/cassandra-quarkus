@@ -1,0 +1,4 @@
+= Cassandra Quarkus - Mapper Processor
+
+The annotation processor for generating DAO producers.
+
