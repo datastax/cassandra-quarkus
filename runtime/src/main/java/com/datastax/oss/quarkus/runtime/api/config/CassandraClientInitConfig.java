@@ -103,4 +103,14 @@ public class CassandraClientInitConfig {
    */
   @ConfigItem(name = "resolve-contact-points", defaultValue = "false")
   public boolean resolveContactPoints;
+
+  /**
+   * Whether or not the DataStax Java driver should use the Netty event loop provided by the Quarkus
+   * framework.
+   *
+   * <p>When set to true, the driver will not create its own event loops; instead, it will use the
+   * main event loop provided by Quarkus. The default is true.
+   */
+  @ConfigItem(name = "use-quarkus-event-loop", defaultValue = "true")
+  public boolean useQuarkusEventLoop;
 }

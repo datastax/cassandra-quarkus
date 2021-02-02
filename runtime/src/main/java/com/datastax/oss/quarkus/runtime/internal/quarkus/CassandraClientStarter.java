@@ -45,44 +45,36 @@ public class CassandraClientStarter {
   private static final Logger LOG = LoggerFactory.getLogger(CassandraClientStarter.class);
 
   @Inject CassandraClientConfig config;
-
-  @Inject Instance<CompletionStage<QuarkusCqlSession>> sessionStages;
-
+  @Inject Instance<CompletionStage<QuarkusCqlSession>> sessions;
   @Inject @MapperBeanProducer Instance<Object> mappers;
-
   @Inject @DaoBeanProducer Instance<Object> daos;
 
+  private Duration timeout;
+
   @SuppressWarnings("unused")
-  public void startup(@Observes StartupEvent event)
+  public void onStartup(@Observes StartupEvent event)
       throws ExecutionException, InterruptedException {
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(
+          "CassandraClientStarter.startup, eager = {}, sessions = {}, mappers = {}, daos = {}",
+          config.cassandraClientInitConfig.eagerSessionInit,
+          sessions.stream().count(),
+          mappers.stream().count(),
+          daos.stream().count());
+    }
     if (config.cassandraClientInitConfig.eagerSessionInit) {
-      LOG.info("Eagerly initializing Quarkus Cassandra client");
-      initializeSessions();
-      initializeGeneratedBeans(mappers, "mapper");
-      initializeGeneratedBeans(daos, "DAO");
+      timeout = config.cassandraClientInitConfig.eagerSessionInitTimeout;
+      initializeBeans(sessions, "session");
+      initializeBeans(mappers, "mapper");
+      initializeBeans(daos, "DAO");
     } else {
       LOG.debug(
           "Eager initialization of Quarkus Cassandra client at startup is disabled by configuration");
     }
   }
 
-  private void initializeSessions() throws InterruptedException, ExecutionException {
-    Duration timeout = config.cassandraClientInitConfig.eagerSessionInitTimeout;
-    for (CompletionStage<QuarkusCqlSession> sessionStage : sessionStages) {
-      try {
-        sessionStage.toCompletableFuture().get(timeout.toNanos(), TimeUnit.NANOSECONDS);
-      } catch (TimeoutException e) {
-        LOG.warn(
-            "Eager initialization of a Quarkus Cassandra session bean did not complete within {}; "
-                + "resuming application startup with uninitialized session",
-            timeout);
-      }
-    }
-  }
-
-  private void initializeGeneratedBeans(Instance<Object> beans, String beanName)
+  private void initializeBeans(Instance<?> beans, String beanName)
       throws InterruptedException, ExecutionException {
-    Duration timeout = config.cassandraClientInitConfig.eagerSessionInitTimeout;
     for (Object bean : beans) {
       try {
         if (bean instanceof CompletionStage) {

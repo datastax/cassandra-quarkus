@@ -20,56 +20,56 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.Meter.Id;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
+import io.quarkus.bootstrap.model.AppArtifact;
+import io.quarkus.builder.Version;
 import io.quarkus.test.QuarkusUnitTest;
 import io.quarkus.test.common.QuarkusTestResource;
+import java.util.Arrays;
 import javax.inject.Inject;
-import org.eclipse.microprofile.metrics.Counter;
-import org.eclipse.microprofile.metrics.Gauge;
-import org.eclipse.microprofile.metrics.Metered;
-import org.eclipse.microprofile.metrics.Metric;
-import org.eclipse.microprofile.metrics.MetricID;
-import org.eclipse.microprofile.metrics.MetricRegistry;
-import org.eclipse.microprofile.metrics.annotation.RegistryType;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 @QuarkusTestResource(CassandraTestResource.class)
-public class CassandraMetricsTest {
+public class CassandraMetricsMicrometerTest {
 
   @Inject QuarkusCqlSession cqlSession;
 
-  @Inject
-  @RegistryType(type = MetricRegistry.Type.VENDOR)
-  MetricRegistry registry;
+  @Inject MeterRegistry registry;
 
   @RegisterExtension
   static final QuarkusUnitTest config =
       new QuarkusUnitTest()
           .setArchiveProducer(
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
+          .setForcedDependencies(
+              Arrays.asList(
+                  new AppArtifact("io.quarkus", "quarkus-micrometer", Version.getVersion()),
+                  new AppArtifact("io.quarkus", "quarkus-resteasy", Version.getVersion())))
           .withConfigurationResource("application-metrics.properties");
 
   @Test
-  @SuppressWarnings("unchecked")
   public void should_expose_driver_metrics_via_meter_registry() {
     // when
     cqlSession.execute("select *  from system.local");
 
     // then
-    registry.getMetrics().entrySet().stream()
-        .filter(v -> filterAllCassandraMetrics(v.getKey()))
+    registry.getMeters().stream()
+        .filter(metric -> filterAllCassandraMetrics(metric.getId()))
         .forEach(
-            m -> {
-              Metric metric = m.getValue();
+            metric -> {
               if (metric instanceof Gauge) {
-                assertThat(((Gauge<Number>) metric).getValue().longValue())
-                    .isGreaterThanOrEqualTo(0L);
-              } else if (metric instanceof Metered) {
-                assertThat(((Metered) metric).getCount()).isGreaterThanOrEqualTo(0);
+                assertThat(((Gauge) metric).value()).isGreaterThanOrEqualTo(0L);
               } else if (metric instanceof Counter) {
-                assertThat(((Counter) metric).getCount()).isGreaterThanOrEqualTo(0);
+                assertThat(((Counter) metric).count()).isGreaterThanOrEqualTo(0);
+              } else if (metric instanceof Timer) {
+                assertThat(((Timer) metric).count()).isGreaterThanOrEqualTo(0);
               } else {
                 throw new IllegalArgumentException("unsupported metric type");
               }
@@ -86,13 +86,13 @@ public class CassandraMetricsTest {
         37; // number of metrics from java-driver in application-metrics.properties
     assertThat(
             (int)
-                registry.getMetrics().keySet().stream()
-                    .filter(this::filterAllCassandraMetrics)
+                registry.getMeters().stream()
+                    .filter(metric -> filterAllCassandraMetrics(metric.getId()))
                     .count())
         .isEqualTo(numberOfRootMetrics);
   }
 
-  private boolean filterAllCassandraMetrics(MetricID v) {
-    return v.getName().startsWith(CassandraClientConfig.CONFIG_NAME);
+  private boolean filterAllCassandraMetrics(Id id) {
+    return id.getName().startsWith(CassandraClientConfig.CONFIG_NAME);
   }
 }

@@ -82,10 +82,6 @@
       <artifactId>quarkus-jsonp-deployment</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-smallrye-metrics-deployment</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
       <scope>test</scope>
@@ -101,23 +97,23 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-smallrye-health</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-smallrye-metrics</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>com.datastax.oss.quarkus</groupId>
       <artifactId>cassandra-quarkus-test-framework</artifactId>
       <scope>test</scope>
     </dependency>
+    <!--
+    Metrics: add both microprofile and micrometer driver modules,
+    but don't add corresponding metrics extensions as two metrics providers
+    cannot coexist; the tests will add the appropriate module dynamically.
+     -->
     <dependency>
       <groupId>com.datastax.oss</groupId>
       <artifactId>java-driver-metrics-microprofile</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.datastax.oss</groupId>
+      <artifactId>java-driver-metrics-micrometer</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -64,14 +64,14 @@ The solution is located in the
 link:https://github.com/datastax/cassandra-quarkus/tree/master/quickstart[quickstart directory] of
 the Cassandra Quarkus extension GitHub repository.
 
-== Creating a blank Maven project
+== Creating a Blank Maven Project
 
 First, create a new Maven project and copy the `pom.xml` file that is present in the `quickstart`
 directory.
 
 The `pom.xml` is importing all the Quarkus extensions and dependencies you need.
 
-== Creating a JSON REST service
+== Creating a JSON REST Service
 
 In this example, we will create an application to manage a list of fruits.
 
@@ -121,8 +121,7 @@ public interface FruitDao {
 This class exposes operations that will be used in the REST service. Again, the annotation `@Dao`
 comes from the DataStax Java driver Object Mapper. Note also the special return type of the
 `findAll` method,
-link:https://docs.datastax.com/en/drivers/java/latest/com/datastax/oss/driver/api/core/PagingIterable.html[`PagingIterable`]:
-it's the base type of result sets returned by the driver.
+link:https://docs.datastax.com/en/drivers/java/latest/com/datastax/oss/driver/api/core/PagingIterable.html[`PagingIterable`]: it's the base type of result sets returned by the driver.
 
 Finally, let's create the Mapper itself:
 
@@ -173,7 +172,8 @@ Quarkus. Read its javadocs carefully!
 - All `@Dao`-annotated interfaces in your project, as long as they are produced by a corresponding
 `@DaoFactory`-annotated method declared in a mapper interface from your project.
 
-In our example, both `FruitMapper` and `FruitDao` could be injected anywhere. We chose to inject
+In our example, both `FruitMapper` and `FruitDao` could be injected anywhere.
+We chose to inject
 `FruitDao` in `FruitService`.
 
 The last missing piece is the REST API that will expose GET and POST methods:
@@ -233,10 +233,9 @@ public class FruitDto {
 }
 ----
 
-IMPORTANT: DTO classes used by the JSON serialization layer are required to have a default no-arg
-constructor.
+IMPORTANT: DTO classes used by the JSON serialization layer are required to have a default no-arg constructor.
 
-== Configuring the Cassandra database
+== Connecting to the Cassandra Database
 
 === Connecting to Apache Cassandra or DataStax Enterprise (DSE)
 
@@ -271,7 +270,7 @@ quarkus.cassandra.auth.username=john
 quarkus.cassandra.auth.password=s3cr3t
 ----
 
-=== Connecting to a cloud DataStax Astra database
+=== Connecting to a DataStax Astra Cloud Database
 
 When connecting to link:https://astra.datastax.com[DataStax Astra], instead of providing a contact
 point and a datacenter, you should provide a so-called _secure connect bundle_, which should point
@@ -290,7 +289,7 @@ quarkus.cassandra.auth.password=s3cr3t
 quarkus.cassandra.keyspace=k1
 ----
 
-=== Advanced driver configuration
+=== Advanced Driver Configuration
 
 You can configure other Java driver settings using `application.conf` or `application.json` files.
 They need to be located in the classpath of your application. All settings will be passed
@@ -302,7 +301,7 @@ To see the full list of settings, please refer to the
 link:https://docs.datastax.com/en/developer/java-driver/latest/manual/core/configuration/reference/[driver
 settings reference].
 
-== Running a Cassandra Database
+== Running a Local Cassandra Database
 
 By default, the Cassandra client is configured to access a local Cassandra database on port 9042
 (the default Cassandra port).
@@ -341,8 +340,7 @@ docker exec -it local-cassandra-instance cqlsh
 
 In the project root directory:
 
-- Run `mvn clean package` and then `java -jar ./target/cassandra-quarkus-quickstart-*-runner.jar` to
-  start the application;
+- Run `mvn clean package` and then `java -jar ./target/cassandra-quarkus-quickstart-*-runner.jar` to start the application;
 - Or better yet, run the application in dev mode: `mvn clean quarkus:dev`.
 
 Now you can use curl commands to interact with the underlying REST API.
@@ -364,7 +362,7 @@ To retrieve fruits:
 curl -X GET http://localhost:8080/fruits
 ----
 
-== Creating a frontend
+== Creating a Frontend
 
 Now let's add a simple web page to interact with our `FruitResource`.
 
@@ -379,7 +377,7 @@ You can now interact with your REST service:
 * Add new fruits to the list via the form.
 
 [[reactive]]
-== Reactive Cassandra Client
+== Reactive Programming with the Cassandra Client
 
 The
 link:https://javadoc.io/doc/com.datastax.oss.quarkus/cassandra-quarkus-client/latest/com/datastax/oss/quarkus/runtime/api/session/QuarkusCqlSession.html[`QuarkusCqlSession`
@@ -425,7 +423,7 @@ example).
 
 Next, we need to adapt the `FruitMapper` to construct a `ReactiveFruitDao` instance:
 
-[source, java]
+[source,java]
 ----
 @Mapper
 public interface FruitMapper {
@@ -439,7 +437,7 @@ public interface FruitMapper {
 
 Now, we can create a `ReactiveFruitService` that leverages our reactive DAO:
 
-[source, java]
+[source,java]
 ----
 @ApplicationScoped
 public class ReactiveFruitService {
@@ -463,7 +461,7 @@ public class ReactiveFruitService {
 
 Finally, we can create a `ReactiveFruitResource`:
 
-[source, java]
+[source,java]
 ----
 @Path("/reactive-fruits")
 @Produces(MediaType.APPLICATION_JSON)
@@ -503,7 +501,7 @@ reactive REST API, so we don't need to convert them into JSON ourselves.
 To effectively integrate the reactive logic with the REST API, your application needs to declare a
 dependency to the Quarkus RestEasy Mutiny extension:
 
-[source, xml]
+[source,xml]
 ----
 <dependency>
   <groupId>io.quarkus</groupId>
@@ -514,7 +512,7 @@ dependency to the Quarkus RestEasy Mutiny extension:
 This dependency is already included in this guide's pom.xml, but if you are starting a new project
 from scratch, make sure to include it.
 
-== Testing the reactive REST API
+== Testing the Reactive REST API
 
 Run the application in dev mode as explained above, then you can use curl commands to interact with
 the underlying REST API.
@@ -536,7 +534,7 @@ To retrieve fruits with the reactive REST endpoint:
 curl -X GET http://localhost:8080/reactive-fruits
 ----
 
-== Creating a reactive frontend
+== Creating a Reactive Frontend
 
 Now let's add a simple web page to interact with our `ReactiveFruitResource`. In the
 `src/main/resources/META-INF/resources` directory, add a `reactive-fruits.html` file with the
@@ -551,10 +549,11 @@ You can now interact with your reactive REST service:
 == Health Checks
 
 If you are using the Quarkus SmallRye Health extension, then the Cassandra client will automatically
-add a readiness health check to validate the connection to the Cassandra cluster. This extension
-is already included in this guide's pom.xml, but you can also include it manually:
+add a readiness health check to validate the connection to the Cassandra cluster. This extension is
+already included in this guide's pom.xml, but if you need to include it manually in your
+application, add the following:
 
-[source, xml]
+[source,xml]
 ----
 <dependency>
   <groupId>io.quarkus</groupId>
@@ -568,7 +567,7 @@ and have information about the connection validation status.
 Running in dev mode with `mvn clean quarkus:dev`, if you point your browser to
 http://localhost:8080/health/ready you should see an output similar to the following one:
 
-[source, text]
+[source,text]
 ----
 {
     "status": "UP",
@@ -595,53 +594,122 @@ Cassandra health checks, you can disable Cassandra health checks by setting the
 == Metrics
 
 The Cassandra Quarkus client can provide metrics about the Cassandra session and about individual
-Cassandra nodes.
+Cassandra nodes. It supports both Micrometer and MicroProfile.
 
-This behavior is opt-in; it must first be enabled by setting the `quarkus.cassandra.metrics.enabled`
-property to `true` in your `application.properties`.
+The first step to enable metrics is to add a few additional dependencies depending on the metrics
+framework you plan to use.
 
-Then you will also need to add two additional dependencies:
+=== Enabling Metrics with Micrometer
 
-1. `io.quarkus:quarkus-smallrye-metrics`, which enables metrics globally; and
-2. `com.datastax.oss:java-driver-metrics-microprofile`, which enables Cassandra metrics.
+Micrometer is the recommended metrics framework in Quarkus applications since Quarkus 1.9.
 
-These dependencies are already included in this guide's pom.xml.
+To enable Micrometer metrics in your application, you need to add the following to your pom.xml.
 
-The next step that you need to do is to define which Cassandra metrics should be enabled. The
-`quarkus.cassandra.metrics.session.enabled` and `quarkus.cassandra.metrics.node.enabled` properties
-should be used for enabling metrics; the former should contain a list of session-level metrics to
-enable, while the latter should contain a list of node-level metrics to enable. Both properties
-accept a comma-separated list of valid metric names.
+For Quarkus 1.11+:
+
+[source,xml]
+----
+<dependency>
+  <groupId>com.datastax.oss</groupId>
+  <artifactId>java-driver-metrics-micrometer</artifactId>
+</dependency>
+<dependency>
+  <groupId>io.quarkus</groupId>
+  <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
+</dependency>
+----
+
+For Quarkus < 1.11:
+
+[source,xml]
+----
+<dependency>
+  <groupId>com.datastax.oss</groupId>
+  <artifactId>java-driver-metrics-micrometer</artifactId>
+</dependency>
+<dependency>
+  <groupId>io.quarkus</groupId>
+  <artifactId>quarkus-micrometer</artifactId>
+</dependency>
+<dependency>
+  <groupId>io.micrometer</groupId>
+  <artifactId>micrometer-registry-prometheus</artifactId>
+</dependency>
+----
+
+This guide uses Micrometer, so the above dependencies are already included in this guide's pom.xml.
+
+=== Enabling Metrics with MicroProfile Metrics
+
+Remove any dependency to Micrometer from your pom.xml, then add the following ones instead:
+
+[source,xml]
+----
+<dependency>
+  <groupId>com.datastax.oss</groupId>
+  <artifactId>java-driver-metrics-microprofile</artifactId>
+</dependency>
+<dependency>
+  <groupId>io.quarkus</groupId>
+  <artifactId>quarkus-smallrye-metrics</artifactId>
+</dependency>
+----
+
+=== Enabling Cassandra Metrics
+
+Even when metrics are enabled in your application, the Cassandra client will not report any metrics,
+unless you opt-in for this feature. So your next step is to enable Cassandra metrics in your
+`application.properties` file.
+
+[source,properties]
+----
+quarkus.cassandra.metrics.enabled=true
+----
+
+The final step that you need to do is to define which specific Cassandra metrics you would like the
+Cassandra client to report. There are several metrics that can be enabled, but they are all disabled
+by default. Also, the Cassandra client distinguishes two kinds of metrics: session-level metrics
+(the metric is global to the session object) or node-level metrics (each node contacted by the
+Cassandra client gets its own metric value).
+
+TIP: For the full list of available metric names, please refer to the
+link:https://docs.datastax.com/en/developer/java-driver/latest/manual/core/configuration/reference/[driver
+settings reference] page; search for the `advanced.metrics` section.
+Also, Cassandra driver metrics are covered in detail in the
+https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/[driver manual].
+
+The `quarkus.cassandra.metrics.session.enabled` and `quarkus.cassandra.metrics.node.enabled`
+properties should be used for enabling metrics; the former should contain a list of session-level
+metrics to enable, while the latter should contain a list of node-level metrics to enable. Both
+properties accept a comma-separated list of valid metric names.
 
 For example, let's assume that you wish to enable the following three Cassandra metrics:
 
-* Session-leel metrics: `session.connected-nodes` and `session.bytes-sent`;
-* Node-level metrics: `node.pool.open-connections`.
+* Session-level: `session.connected-nodes` and `session.bytes-sent`;
+* Node-level: `node.pool.open-connections`.
 
 Then you should add the following settings to your `application.properties`:
 
-[source, properties]
+[source,properties]
 ----
 quarkus.cassandra.metrics.enabled=true
 quarkus.cassandra.metrics.session.enabled=connected-nodes,bytes-sent
 quarkus.cassandra.metrics.node.enabled=pool.open-connections
 ----
 
-This guide's application.properties file has already many metrics enabled; you can use its metrics
+This guide's `application.properties` file has already many metrics enabled; you can use its metrics
 list as a good starting point for exposing useful Cassandra metrics in your application.
-
-TIP: For the full list of available metric names, please refer to the
-link:https://docs.datastax.com/en/developer/java-driver/latest/manual/core/configuration/reference/[driver
-settings reference] page; search for the `advanced.metrics` section. Also, Cassandra driver metrics
-are explained in detail in the
-https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/[driver manual].
 
 When metrics are properly enabled, metric reports for all enabled metrics are available at the
 `/metrics` REST endpoint of your application.
 
 Running in dev mode with `mvn clean quarkus:dev`, if you point your browser to
-http://localhost:8080/metrics you should see a list of metrics; search for metrics whose names start
-with `vendor_cassandra`.
+`http://localhost:8080/metrics` you should see a list of metrics; search for metrics whose names
+contain `cassandra`.
+
+IMPORTANT: For Cassandra metrics to show up, the Cassandra client needs to be initialized and
+connected; if you are using lazy initialization (see below), you won't see any Cassandra metrics
+until your application actually connects and hits the database for the first time.
 
 == Running in native mode
 
@@ -665,12 +733,12 @@ You can then point your browser to `http://localhost:8080/fruits.html` and use y
 
 == Eager vs Lazy Initialization
 
-This extension allows you to inject either a `QuarkusCqlSession` bean, or the async version of this
-bean, that is, `CompletionStage<QuarkusCqlSession>`.
+This extension allows you to inject either a `QuarkusCqlSession` bean, or the asynchronous version
+of this bean, that is, `CompletionStage<QuarkusCqlSession>`.
 
-The most straightforward approach is obviously to inject `QuarkusCqlSession` directly. This
-should work just fine for most applications; however, the `QuarkusCqlSession` bean needs to be
-initialized before it can be used, and this process is blocking.
+The most straightforward approach is obviously to inject `QuarkusCqlSession` directly. This should
+work just fine for most applications; however, the `QuarkusCqlSession` bean needs to be initialized
+before it can be used, and this process is blocking.
 
 Fortunately, it is possible to control when the initialization should happen: the
 `quarkus.cassandra.init.eager-session-init` parameter determines if the `QuarkusCqlSession` bean
@@ -701,5 +769,5 @@ This would eliminate any risk of blocking a Vert.x thread, at the cost of making
 == Conclusion
 
 Accessing a Cassandra database from a client application is easy with Quarkus and the Cassandra
-extension, which provides configuration and native support for the DataStax Java driver for
-Apache Cassandra.
+extension, which provides configuration and native support for the DataStax Java driver for Apache
+Cassandra.

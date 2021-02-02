@@ -18,8 +18,6 @@ package com.datastax.oss.quarkus.deployment.api;
 import io.quarkus.runtime.annotations.ConfigItem;
 import io.quarkus.runtime.annotations.ConfigPhase;
 import io.quarkus.runtime.annotations.ConfigRoot;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * This class holds build-time configuration items for the Cassandra Quarkus extension.
@@ -39,38 +37,32 @@ public class CassandraClientBuildTimeConfig {
   /**
    * Whether or not metrics for the Cassandra driver should be published.
    *
-   * <p>Note that you need to include two additional dependencies in your application when enabling
-   * Cassandra metrics: quarkus-smallrye-metrics, which will enable metrics globally, and
-   * java-driver-metrics-microprofile, which will enable driver-specific metrics.
+   * <p>Note that you need to include additional dependencies in your application when enabling
+   * Cassandra metrics.
    *
-   * <p>You also need to enable at least one individual metric to track, otherwise the driver won't
-   * feed any metric into the registry: see {@link #enabledSessionMetrics} and {@link
-   * #enabledNodeMetrics}.
+   * <p>If you are using Micrometer, you should add: quarkus-micrometer-registry-prometheus, which
+   * will enable metrics globally with reporting via Prometheus, and java-driver-metrics-micrometer,
+   * which will enable driver-specific metrics to be reported.
+   *
+   * <p>If you are using MicroProfile metrics, you should add: quarkus-smallrye-metrics, which will
+   * enable metrics globally, and java-driver-metrics-microprofile, which will enable
+   * driver-specific metrics to be reported.
+   *
+   * <p>Lastly, you also need to enable at least one individual metric to track, otherwise the
+   * driver won't feed any metric into the registry. For example:
+   *
+   * <pre>{@code
+   * quarkus.cassandra.metrics.enabled=true
+   * quarkus.cassandra.metrics.session.enabled=cql-requests,cql-client-timeouts
+   * quarkus.cassandra.metrics.node.enabled=pool.open-connections,pool.in-flight,cql-messages
+   * }</pre>
+   *
+   * <p>For more information on available metrics, see <a
+   * href="https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/#configuration>Metrics
+   * configuration</a> in the Java driver manual.
    */
   @ConfigItem(name = "metrics.enabled", defaultValue = "false")
   public boolean metricsEnabled;
-
-  /**
-   * List of enabled session-level metrics. They will be taken into account only if {@link
-   * #metricsEnabled} is set to true. If not set, it will default to empty list.
-   *
-   * <p>For more information on available metrics, see <a
-   * href="https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/#configuration>Metrics
-   * configuration</a> in the Java driver manual.
-   */
-  @ConfigItem(name = "metrics.session.enabled")
-  public Optional<List<String>> enabledSessionMetrics;
-
-  /**
-   * List of enabled node-level metrics. They will be taken into account only if {@link
-   * #metricsEnabled} os set to true. If not set, it will default to empty list.
-   *
-   * <p>For more information on available metrics, see <a
-   * href="https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/#configuration>Metrics
-   * configuration</a> in the Java driver manual.
-   */
-  @ConfigItem(name = "metrics.node.enabled")
-  public Optional<List<String>> enabledNodeMetrics;
 
   /**
    * The name of the algorithm used to compress protocol frames.
@@ -88,14 +80,4 @@ public class CassandraClientBuildTimeConfig {
    */
   @ConfigItem(name = "protocol.compression", defaultValue = "none")
   public String protocolCompression;
-
-  /**
-   * Whether or not the DataStax Java driver should use the Netty event loop provided by the Quarkus
-   * framework.
-   *
-   * <p>When set to true, the driver will not create its own event loops; instead, it will use the
-   * main event loop provided by Quarkus. The default is true.
-   */
-  @ConfigItem(name = "use-quarkus-netty-event-loop", defaultValue = "true")
-  public boolean useQuarkusNettyEventLoop;
 }

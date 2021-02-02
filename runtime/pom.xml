@@ -55,9 +55,21 @@
       <groupId>org.apache.tinkerpop</groupId>
       <artifactId>tinkergraph-gremlin</artifactId>
     </dependency>
+    <!-- Driver Object Mapper -->
     <dependency>
       <groupId>com.datastax.oss</groupId>
       <artifactId>java-driver-mapper-runtime</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <!--
+    Metrics: the extension works with both Micrometer and MicroProfile.
+    Users must declare 2 dependencies:
+    - The driver metrics module (java-driver-metrics-micrometer or java-driver-metrics-microprofile)
+    - The metrics extension module (quarkus-micrometer or quarkus-smallrye-metrics for MicroProfile)
+    -->
+    <dependency>
+      <groupId>com.datastax.oss</groupId>
+      <artifactId>java-driver-metrics-micrometer</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -89,10 +101,6 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-smallrye-health</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-smallrye-metrics</artifactId>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>

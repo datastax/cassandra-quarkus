@@ -26,7 +26,8 @@
   <url>https://github.com/datastax/cassandra-quarkus/quickstart</url>
   <inceptionYear>2020</inceptionYear>
   <properties>
-    <quarkus.version>1.7.1.Final</quarkus.version>
+    <java.version>1.8</java.version>
+    <quarkus.version>1.11.0.Final</quarkus.version>
     <datastax-java-driver.version>4.10.0</datastax-java-driver.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -64,7 +65,7 @@
     </dependency>
     <dependency>
       <groupId>com.datastax.oss</groupId>
-      <artifactId>java-driver-metrics-microprofile</artifactId>
+      <artifactId>java-driver-metrics-micrometer</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -84,7 +85,7 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-smallrye-metrics</artifactId>
+      <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -145,8 +146,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.0</version>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
           <annotationProcessorPaths>
             <path>
               <groupId>com.datastax.oss.quarkus</groupId>

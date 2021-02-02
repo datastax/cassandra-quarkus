@@ -15,43 +15,36 @@
  */
 package com.datastax.oss.quarkus.runtime.internal.quarkus;
 
-import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
-import io.netty.channel.EventLoopGroup;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.quarkus.arc.Arc;
-import io.quarkus.netty.MainEventLoopGroup;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
-import io.smallrye.metrics.MetricRegistries;
 import java.lang.reflect.Type;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.enterprise.util.TypeLiteral;
 import org.eclipse.microprofile.metrics.MetricRegistry;
+import org.eclipse.microprofile.metrics.annotation.RegistryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Recorder
 public class CassandraClientRecorder {
+
   private static final Logger LOG = LoggerFactory.getLogger(CassandraClientRecorder.class);
+
   private static final Type COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE =
       new TypeLiteral<CompletionStage<QuarkusCqlSession>>() {}.getType();
 
-  public void configureRuntimeProperties(CassandraClientConfig config) {
-    CassandraClientProducer producer = getProducerInstance();
-    producer.setCassandraClientConfig(config);
-  }
-
   public RuntimeValue<CompletionStage<QuarkusCqlSession>> buildClient(ShutdownContext shutdown) {
-    LOG.trace("Requesting production of session stage bean");
+    LOG.debug("CassandraClientRecorder.buildClient");
     @SuppressWarnings("unchecked")
     CompletionStage<QuarkusCqlSession> sessionStage =
         (CompletionStage<QuarkusCqlSession>)
             Arc.container().instance(COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE).get();
-    LOG.trace("Session stage bean produced: {}", sessionStage);
     shutdown.addShutdownTask(
         () -> {
           // invoke methods on the session stage bean only if it was produced;
@@ -59,18 +52,18 @@ public class CassandraClientRecorder {
           // trigger its production, and thus the initialization of the underlying session.
           QuarkusCqlSessionStageBeanState sessionState =
               Arc.container().instance(QuarkusCqlSessionStageBeanState.class).get();
-          LOG.trace(
+          LOG.debug(
               "Executing shutdown hook, session stage bean produced = {}",
               sessionState.isProduced());
           if (sessionState.isProduced()) {
             CompletableFuture<QuarkusCqlSession> sessionFuture = sessionStage.toCompletableFuture();
-            LOG.trace(
+            LOG.debug(
                 "Session future done = {}, cancelled = {}",
                 sessionFuture.isDone(),
                 sessionFuture.isCancelled());
             try {
               QuarkusCqlSession session = sessionFuture.getNow(null);
-              LOG.trace("Session object = {}", session);
+              LOG.debug("Session object = {}", session);
               if (session != null) {
                 LOG.info("Closing Quarkus session.");
                 session.close();
@@ -87,31 +80,41 @@ public class CassandraClientRecorder {
     return new RuntimeValue<>(sessionStage);
   }
 
-  public void configureMetrics(
-      List<String> enabledNodeMetrics, List<String> enabledSessionMetrics) {
+  private abstract static class RegistryTypeQualifier extends AnnotationLiteral<RegistryType>
+      implements RegistryType {}
+
+  public void configureMicrometerMetrics() {
+    LOG.info("Enabling Cassandra metrics using Micrometer");
+    MeterRegistry meterRegistry = Arc.container().instance(MeterRegistry.class).get();
     CassandraClientProducer producer = getProducerInstance();
-    MetricRegistry metricRegistry = MetricRegistries.get(MetricRegistry.Type.VENDOR);
+    producer.setMetricRegistry(meterRegistry);
+    producer.setMetricsFactoryClassName(
+        "com.datastax.oss.driver.internal.metrics.micrometer.MicrometerMetricsFactory");
+  }
+
+  public void configureMicroProfileMetrics() {
+    LOG.info("Enabling Cassandra metrics using MicroProfile");
+    MetricRegistry metricRegistry =
+        Arc.container()
+            .instance(
+                MetricRegistry.class,
+                new RegistryTypeQualifier() {
+                  @Override
+                  public MetricRegistry.Type type() {
+                    return MetricRegistry.Type.VENDOR;
+                  }
+                })
+            .get();
+    CassandraClientProducer producer = getProducerInstance();
     producer.setMetricRegistry(metricRegistry);
-    producer.setEnabledNodeMetrics(enabledNodeMetrics);
-    producer.setEnabledSessionMetrics(enabledSessionMetrics);
+    producer.setMetricsFactoryClassName(
+        "com.datastax.oss.driver.internal.metrics.microprofile.MicroProfileMetricsFactory");
   }
 
   public void configureCompression(String protocolCompression) {
+    LOG.debug("Configuring protocol compression {}", protocolCompression);
     CassandraClientProducer producer = getProducerInstance();
     producer.setProtocolCompression(protocolCompression);
-  }
-
-  public void setInjectedNettyEventLoop(boolean useQuarkusNettyEventLoop) {
-    CassandraClientProducer producer = getProducerInstance();
-
-    if (useQuarkusNettyEventLoop) {
-      EventLoopGroup mainEventLoop =
-          Arc.container()
-              .instance(EventLoopGroup.class, new AnnotationLiteral<MainEventLoopGroup>() {})
-              .get();
-
-      producer.setMainEventLoop(mainEventLoop);
-    }
   }
 
   private CassandraClientProducer getProducerInstance() {

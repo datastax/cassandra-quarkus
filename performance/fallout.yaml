@@ -139,7 +139,7 @@ workload:
             DSE_THIRD_ADDRESS=$(echo ${FALLOUT_SERVER_PRODUCT_CONTACT_POINTS} | cut -d "," -f 3)
             DSE_ADDRESSES="${DSE_FIRST_ADDRESS}:9042, ${DSE_SECOND_ADDRESS}:9042, ${DSE_THIRD_ADDRESS}:9042"
             sed -i "s/127.0.0.1:9042/$DSE_ADDRESSES/g" src/main/resources/application.properties
-            echo "quarkus.cassandra.use-quarkus-netty-event-loop={{useQuarkusNettyEventLoop}}" >> src/main/resources/application.properties
+            echo "quarkus.cassandra.init.use-quarkus-event-loop={{useQuarkusNettyEventLoop}}" >> src/main/resources/application.properties
 
             # compile and start quickstart app
 

@@ -34,6 +34,10 @@ public class CassandraClientConfig {
   @ConfigItem(name = ConfigItem.PARENT)
   public CassandraClientConnectionConfig cassandraClientConnectionConfig;
 
+  /** The metrics settings. */
+  @ConfigItem(name = "metrics")
+  public CassandraClientMetricsConfig cassandraClientMetricsConfig;
+
   /** The cloud (DataStax Astra) configuration settings. */
   @ConfigItem(name = "cloud")
   public CassandraClientCloudConfig cassandraClientCloudConfig;
