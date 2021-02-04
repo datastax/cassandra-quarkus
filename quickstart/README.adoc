@@ -27,8 +27,9 @@ To complete this quickstart guide, you need:
 
 * an IDE;
 * JDK 1.8+ installed with `JAVA_HOME` configured appropriately;
-* link:https://www.graalvm.org/[GraalVM] installed with `GRAALVM_HOME` configured appropriately, if
-  you want to link:https://quarkus.io/guides/building-native-image[use the native mode];
+* link:https://www.graalvm.org/[GraalVM] installed with the `GRAALVM_HOME` environment variable
+  configured appropriately, if you want to
+  link:https://quarkus.io/guides/building-native-image[use the native mode];
 * Apache Maven 3.5.3+;
 * A running link:https://cassandra.apache.org[Apache Cassandra],
   link:https://www.datastax.fr/products/datastax-enterprise[DataStax Enterprise] (DSE) or
@@ -38,22 +39,18 @@ To complete this quickstart guide, you need:
 == Architecture
 
 This quickstart guide shows how to build a REST application using the
-link:https://github.com/datastax/cassandra-quarkus[Cassandra Quarkus extension].
+link:https://github.com/datastax/cassandra-quarkus[Cassandra Quarkus extension], which allows you to
+connect to an Apache Cassandra, DataStax Enterprise (DSE) or DataStax Astra database, using the
+link:https://docs.datastax.com/en/developer/java-driver/latest[DataStax Java driver].
 
-This extension allows you to connect to an Apache Cassandra, DataStax Enterprise (DSE) or DataStax
-Astra database, using the link:https://docs.datastax.com/en/developer/java-driver/latest[DataStax
-Java driver].
-
-In this guide, we will also use the
+This guide will also use the
 link:https://docs.datastax.com/en/developer/java-driver/latest/manual/mapper[DataStax Object Mapper]
-to simplify the Data Access Layer code.
+– a powerful Java-to-CQL mapping framework that greatly simplifies your application's data access
+layer code by sparing you the hassle of writing your CQL queries by hand.
 
 The application built in this quickstart guide is quite simple: the user can add elements in a list
-using a form, and the items list is updated.
-
-All the information between the browser and the server is formatted as JSON.
-
-The elements are stored in the Cassandra database.
+using a form, and the items list is updated. All the information between the browser and the server
+is formatted as JSON, and the elements are stored in the Cassandra database.
 
 == Solution
 
@@ -71,11 +68,11 @@ directory.
 
 The `pom.xml` is importing all the Quarkus extensions and dependencies you need.
 
-== Creating a JSON REST Service
+== Creating the Data Model and Data Access Objects
 
 In this example, we will create an application to manage a list of fruits.
 
-First, let's create the `Fruit` bean as follows:
+First, let's create our data model – represented by the `Fruit` class – as follows:
 
 [source,java]
 ----
@@ -96,15 +93,23 @@ public class Fruit {
 }
 ----
 
-We are using the DataStax Java driver Object Mapper, which is why this class is annotated with
-`@Entity`. Also, the `name` field represents a Cassandra partition key, and so we are annotating it
-with `@PartitionKey` – another annotation from the Object Mapper library. This will allow the Mapper
-to generate proper CQL queries underneath.
+As stated above, we are using the DataStax Object Mapper. In other words, we are not going to write
+our CQL queries manually; instead, we will annotate our data model with a few annotations, and the
+mapper will generate proper CQL queries underneath.
+
+This is why the `Fruit` class is annotated with `@Entity`: this annotation marks it as an _entity
+class_ that is mapped to a Cassandra table. Its instances are meant to be automatically persisted
+into, and retrieved from, the Cassandra database. Here, the table name will be inferred from the
+class name: `fruit`.
+
+Also, the `name` field represents a Cassandra partition key, and so we are annotating it with
+`@PartitionKey` – another annotation from the Object Mapper library.
 
 IMPORTANT: Entity classes are normally required to have a default no-arg constructor, unless they
 are annotated with `@PropertyStrategy(mutable = false)`, which is the case here.
 
-The next step is to create a DAO:
+The next step is to create a DAO (Data Access Object) interface that will manage instances of
+`Fruit` entities:
 
 [source,java]
 ----
@@ -118,12 +123,15 @@ public interface FruitDao {
 }
 ----
 
-This class exposes operations that will be used in the REST service. Again, the annotation `@Dao`
-comes from the DataStax Java driver Object Mapper. Note also the special return type of the
-`findAll` method,
-link:https://docs.datastax.com/en/drivers/java/latest/com/datastax/oss/driver/api/core/PagingIterable.html[`PagingIterable`]: it's the base type of result sets returned by the driver.
+This interface exposes operations that will be used in our REST service. Again, the annotation
+`@Dao` comes from the DataStax Object Mapper, which will also automatically generate an
+implementation of this interface for you.
 
-Finally, let's create the Mapper itself:
+Note also the special return type of the `findAll` method,
+link:https://docs.datastax.com/en/drivers/java/latest/com/datastax/oss/driver/api/core/PagingIterable.html[`PagingIterable`]:
+it's the base type of result sets returned by the driver.
+
+Finally, let's create the a Mapper interface:
 
 [source,java]
 ----
@@ -134,11 +142,14 @@ public interface FruitMapper {
 }
 ----
 
-The `@Mapper` annotation is yet another annotation recognized by the DataStax Java driver Object
-Mapper. A mapper is responsible for constructing instances of DAOs – in this case, `FruitDao`.
+The `@Mapper` annotation is yet another annotation recognized by the DataStax Object Mapper. A
+mapper is responsible for constructing instances of DAOs – in this case, out mapper is constructing
+an instance of our only DAO, `FruitDao`.
 
-Now create a `FruitService` that will be the business layer of our application and store/load the
-fruits from the Cassandra database.
+== Creating a Service & JSON REST Endpoint
+
+Now let's create a `FruitService` that will be the business layer of our application and store/load
+the fruits from the Cassandra database.
 
 [source,java]
 ----
@@ -157,23 +168,22 @@ public class FruitService {
 }
 ----
 
-Note how the service receives a `FruitDao` instance in the constructor. This DAO instance is
-injected automatically.
+Note how the service is being injected a `FruitDao` instance. This DAO instance is injected
+automatically.
 
 The Cassandra Quarkus extension allows you to inject any of the following beans in your own
 components:
 
+- All `@Mapper`-annotated interfaces in your project.
+- All `@Dao`-annotated interfaces in your project, as long as they are produced by a corresponding
+`@DaoFactory`-annotated method declared in a mapper interface from your project.
 - The
 link:https://javadoc.io/doc/com.datastax.oss.quarkus/cassandra-quarkus-client/latest/com/datastax/oss/quarkus/runtime/api/session/QuarkusCqlSession.html[`QuarkusCqlSession`]
 bean: this application-scoped, singleton bean is your main entry point to the Cassandra client; it
 is a specialized Cassandra driver session instance with a few methods tailored especially for
 Quarkus. Read its javadocs carefully!
-- All `@Mapper`-annotated interfaces in your project.
-- All `@Dao`-annotated interfaces in your project, as long as they are produced by a corresponding
-`@DaoFactory`-annotated method declared in a mapper interface from your project.
 
-In our example, both `FruitMapper` and `FruitDao` could be injected anywhere.
-We chose to inject
+In our example, both `FruitMapper` and `FruitDao` could be injected anywhere. We chose to inject
 `FruitDao` in `FruitService`.
 
 The last missing piece is the REST API that will expose GET and POST methods:
@@ -202,19 +212,18 @@ public class FruitResource {
   }
 
   private Fruit convertFromDto(FruitDto fruitDto) {
-    return new Fruit(STORE_ID, fruitDto.getName(), fruitDto.getDescription());
+    return new Fruit(fruitDto.getName(), fruitDto.getDescription());
   }
 }
 ----
 
 Notice how `FruitResource` is being injected a `FruitService` instance automatically.
 
-When creating the REST API we should not share the same entity object between REST API and data
-access layers. They should not be coupled to allow the API to evolve independently of the storage
-layer. This is the reason why the API is using a `FruitDto` class. This class will be used by
-Quarkus to convert JSON to java objects for client requests and java objects to JSON for the
-responses. The translation is done by Quarkus RestEasy extension, which is included in this guide's
-pom.xml file.
+It is generally not recommended using the same entity object between the REST API and the data
+access layer. These layers should indeed be decoupled and use distinct APIs in order to allow each
+API to evolve independently of the other. This is the reason why our REST API is using a different
+object: the `FruitDto` class – the word DTO stands for "Data Transfer Object". This DTO object will
+be automatically converted to and from JSON in HTTP messages:
 
 [source,java]
 ----
@@ -233,14 +242,39 @@ public class FruitDto {
 }
 ----
 
-IMPORTANT: DTO classes used by the JSON serialization layer are required to have a default no-arg constructor.
+The translation to and from JSON is done automatically by the Quarkus RestEasy extension, which is
+included in this guide's pom.xml file. If you want to add it manually to your application, add the
+below snippet to your application's ppm.xml file:
+
+[source,xml]
+----
+<dependency>
+  <groupId>io.quarkus</groupId>
+  <artifactId>quarkus-resteasy</artifactId>
+</dependency>
+<dependency>
+  <groupId>io.quarkus</groupId>
+  <artifactId>quarkus-resteasy-jsonb</artifactId>
+</dependency>
+----
+
+IMPORTANT: DTO classes used by the JSON serialization layer are required to have a default no-arg
+constructor.
+
+The conversion from DTO to JSON is handled automatically for us, but we still must convert from
+`Fruit` to `FruitDto` and vice versa. This must be done manually, which is why we have two
+conversion methods declared in `FruitResource`: `convertToDto` and `convertFromDto`.
+
+TIP: In our example, `Fruit` and `FruitDto` are very similar, so you might wonder why not use
+`Fruit` everywhere. In real life cases though, it's not uncommon to see DTOs and entities having
+very different structures.
 
 == Connecting to the Cassandra Database
 
 === Connecting to Apache Cassandra or DataStax Enterprise (DSE)
 
-The main properties to configure are `contact-points`, to access the Cassandra database,
-`local-datacenter`, which is required by the driver, and – optionally – the keyspace to bind to.
+The main properties to configure are: `contact-points`, to access the Cassandra database;
+`local-datacenter`, which is required by the driver; and – optionally – the keyspace to bind to.
 
 A sample configuration should look like this:
 
@@ -261,7 +295,7 @@ quarkus.cassandra.local-datacenter=datacenter1
 quarkus.cassandra.keyspace=k1
 ----
 
-If your cluster requires plain text authentication, you can also provide two more settings:
+If your cluster requires plain text authentication, you must also provide two more settings:
 `username` and `password`.
 
 [source,properties]
@@ -274,10 +308,11 @@ quarkus.cassandra.auth.password=s3cr3t
 
 When connecting to link:https://astra.datastax.com[DataStax Astra], instead of providing a contact
 point and a datacenter, you should provide a so-called _secure connect bundle_, which should point
-to a valid path to an Astra secure connect bundle file. You will also need to provide a username and
-password, since authentication is always required on Astra clusters.
+to a valid path to an Astra secure connect bundle file. You can download your secure connect bundle
+from the Astra web console.
 
-You can download your secure connect bundle from the Astra web console.
+You will also need to provide a username and password, since authentication is always required on
+Astra clusters.
 
 A sample configuration for DataStax Astra should look like this:
 
@@ -329,7 +364,7 @@ docker exec -it local-cassandra-instance cqlsh -e "CREATE KEYSPACE IF NOT EXISTS
 docker exec -it local-cassandra-instance cqlsh -e "CREATE TABLE IF NOT EXISTS k1.fruit(name text PRIMARY KEY, description text)"
 ----
 
-You can also use the CQLSH utility interactively interrogate with your database:
+You can also use the CQLSH utility to interactively interrogate your database:
 
 [source,shell]
 ----
@@ -389,7 +424,7 @@ link:https://quarkus.io/guides/getting-started-reactive[Getting Started with Rea
 
 Let's rewrite our application using reactive programming with Mutiny.
 
-Firstly, we need to declare another DAO interface that works in a reactive way:
+First, let's to declare another DAO interface that works in a reactive way:
 
 [source,java]
 ----
