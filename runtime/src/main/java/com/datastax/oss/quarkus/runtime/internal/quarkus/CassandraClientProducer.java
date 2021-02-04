@@ -26,7 +26,6 @@ import com.datastax.oss.driver.internal.core.auth.PlainTextAuthProvider;
 import com.datastax.oss.driver.internal.core.config.typesafe.DefaultDriverConfigLoader;
 import com.datastax.oss.driver.internal.core.config.typesafe.DefaultProgrammaticDriverConfigLoaderBuilder;
 import com.datastax.oss.driver.internal.core.util.concurrent.CompletableFutures;
-import com.datastax.oss.driver.internal.metrics.microprofile.MicroProfileMetricsFactory;
 import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.runtime.internal.session.QuarkusCqlSessionBuilder;
@@ -34,50 +33,71 @@ import com.typesafe.config.ConfigFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.netty.channel.EventLoopGroup;
 import io.quarkus.arc.Unremovable;
+import io.quarkus.netty.MainEventLoopGroup;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
-import org.eclipse.microprofile.metrics.MetricRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class CassandraClientProducer {
+
   private static final Logger LOG = LoggerFactory.getLogger(CassandraClientProducer.class);
 
-  private CassandraClientConfig config;
   private String protocolCompression;
-  private EventLoopGroup mainEventLoop;
-  private MetricRegistry metricRegistry;
-  private List<String> enabledSessionMetrics = Collections.emptyList();
-  private List<String> enabledNodeMetrics = Collections.emptyList();
+  private Object metricRegistry;
+  private String metricsFactoryClass;
 
   @Produces
   @ApplicationScoped
   @Unremovable
-  public QuarkusCqlSessionStageBeanState quarkusCqlSessionState() {
+  public QuarkusCqlSessionStageBeanState produceQuarkusCqlSessionStageBeanState() {
+    LOG.debug("Producing QuarkusCqlSessionStageBeanState bean");
     return new QuarkusCqlSessionStageBeanState();
   }
 
   @Produces
   @ApplicationScoped
   @Unremovable
-  public CompletionStage<QuarkusCqlSession> createCompletionStageOfCassandraClient(
+  public CompletionStage<QuarkusCqlSession> produceQuarkusCqlSessionStage(
+      CassandraClientConfig config,
+      @MainEventLoopGroup EventLoopGroup mainEventLoop,
       QuarkusCqlSessionStageBeanState sessionStageBeanState) {
-    LOG.trace("Producing CompletionStage<QuarkusCqlSession> bean");
+    LOG.debug(
+        "Producing CompletionStage<QuarkusCqlSession> bean, metricRegistry = {}, useQuarkusEventLoop = {}",
+        metricRegistry,
+        config.cassandraClientInitConfig.useQuarkusEventLoop);
     ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder = createDriverConfigLoaderBuilder();
-    configureRuntimeSettings(configLoaderBuilder);
-    configureMetricsSettings(configLoaderBuilder);
+    configureRuntimeSettings(configLoaderBuilder, config);
+    configureMetricsSettings(configLoaderBuilder, config);
     configureProtocolCompression(configLoaderBuilder);
     QuarkusCqlSessionBuilder builder =
-        new QuarkusCqlSessionBuilder()
-            .withMetricRegistry(metricRegistry)
-            .withQuarkusEventLoop(mainEventLoop)
-            .withConfigLoader(configLoaderBuilder.build());
+        new QuarkusCqlSessionBuilder().withConfigLoader(configLoaderBuilder.build());
+    if (metricRegistry != null) {
+      LOG.debug("Metric registry = {}", metricRegistry);
+      builder.withMetricRegistry(metricRegistry);
+    }
+    if (config.cassandraClientInitConfig.useQuarkusEventLoop) {
+      builder.withQuarkusEventLoop(mainEventLoop);
+    }
+    if (config.cassandraClientInitConfig.eagerSessionInit) {
+      LOG.info("Eagerly initializing Quarkus Cassandra client");
+    } else {
+      LOG.info("Initializing Quarkus Cassandra client");
+    }
     CompletionStage<QuarkusCqlSession> sessionFuture = builder.buildAsync();
+    sessionFuture.whenComplete(
+        (session, error) -> {
+          if (error == null) {
+            LOG.info("Quarkus Cassandra client successfully initialized");
+          } else {
+            LOG.error("Quarkus Cassandra client failed to initialize", error);
+          }
+        });
     sessionStageBeanState.setProduced();
     return sessionFuture;
   }
@@ -85,9 +105,10 @@ public class CassandraClientProducer {
   @Produces
   @ApplicationScoped
   @Unremovable
-  public QuarkusCqlSession createCassandraClient(CompletionStage<QuarkusCqlSession> sessionFuture)
+  public QuarkusCqlSession produceQuarkusCqlSession(
+      CompletionStage<QuarkusCqlSession> sessionFuture, CassandraClientConfig config)
       throws ExecutionException, InterruptedException {
-    LOG.trace(
+    LOG.debug(
         "Producing QuarkusCqlSession bean, eagerSessionInit = {}",
         config.cassandraClientInitConfig.eagerSessionInit);
     if (!config.cassandraClientInitConfig.eagerSessionInit
@@ -104,28 +125,16 @@ public class CassandraClientProducer {
     return sessionFuture.toCompletableFuture().get();
   }
 
-  public void setCassandraClientConfig(CassandraClientConfig config) {
-    this.config = config;
+  public void setMetricsFactoryClassName(String metricsFactoryClass) {
+    this.metricsFactoryClass = metricsFactoryClass;
   }
 
-  public void setMetricRegistry(MetricRegistry metricRegistry) {
+  public void setMetricRegistry(Object metricRegistry) {
     this.metricRegistry = metricRegistry;
-  }
-
-  public void setEnabledSessionMetrics(List<String> enabledSessionMetrics) {
-    this.enabledSessionMetrics = enabledSessionMetrics;
-  }
-
-  public void setEnabledNodeMetrics(List<String> enabledNodeMetrics) {
-    this.enabledNodeMetrics = enabledNodeMetrics;
   }
 
   public void setProtocolCompression(String protocolCompression) {
     this.protocolCompression = protocolCompression;
-  }
-
-  public void setMainEventLoop(EventLoopGroup mainEventLoop) {
-    this.mainEventLoop = mainEventLoop;
   }
 
   private ProgrammaticDriverConfigLoaderBuilder createDriverConfigLoaderBuilder() {
@@ -146,36 +155,43 @@ public class CassandraClientProducer {
     };
   }
 
-  public CassandraClientConfig getCassandraClientConfig() {
-    return config;
-  }
-
-  public String getProtocolCompression() {
-    return protocolCompression;
-  }
-
-  public EventLoopGroup getMainEventLoop() {
-    return mainEventLoop;
-  }
-
   private void configureProtocolCompression(
       ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder) {
     configLoaderBuilder.withString(DefaultDriverOption.PROTOCOL_COMPRESSION, protocolCompression);
   }
 
-  private void configureMetricsSettings(ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder) {
-    // Only configure metrics to use MicroProfileMetricsFactory if a metricRegistry was provided
-    if (metricRegistry != null) {
-      configLoaderBuilder.withClass(
-          DefaultDriverOption.METRICS_FACTORY_CLASS, MicroProfileMetricsFactory.class);
-      configLoaderBuilder.withStringList(
-          DefaultDriverOption.METRICS_NODE_ENABLED, enabledNodeMetrics);
-      configLoaderBuilder.withStringList(
-          DefaultDriverOption.METRICS_SESSION_ENABLED, enabledSessionMetrics);
+  private void configureMetricsSettings(
+      ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder, CassandraClientConfig config) {
+    if (metricRegistry != null && metricsFactoryClass != null) {
+      List<String> enabledNodeMetrics =
+          config.cassandraClientMetricsConfig.enabledNodeMetrics.orElse(Collections.emptyList());
+      List<String> enabledSessionMetrics =
+          config.cassandraClientMetricsConfig.enabledSessionMetrics.orElse(Collections.emptyList());
+      if (checkMetricsPresent(enabledNodeMetrics, enabledSessionMetrics)) {
+        configLoaderBuilder.withString(
+            DefaultDriverOption.METRICS_FACTORY_CLASS, metricsFactoryClass);
+        configLoaderBuilder.withStringList(
+            DefaultDriverOption.METRICS_NODE_ENABLED, enabledNodeMetrics);
+        configLoaderBuilder.withStringList(
+            DefaultDriverOption.METRICS_SESSION_ENABLED, enabledSessionMetrics);
+      }
     }
   }
 
-  private void configureRuntimeSettings(ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder) {
+  private boolean checkMetricsPresent(
+      List<String> enabledNodeMetrics, List<String> enabledSessionMetrics) {
+    if (enabledNodeMetrics.isEmpty() && enabledSessionMetrics.isEmpty()) {
+      LOG.warn(
+          "Metrics were enabled in the configuration, but no session-level or node-level metrics were enabled; "
+              + "forcibly disabling metrics. Make to sure enable at least one metric to track using the "
+              + "cassandra.metrics.session.enabled or cassandra.metrics.node.enabled properties.");
+      return false;
+    }
+    return true;
+  }
+
+  private void configureRuntimeSettings(
+      ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder, CassandraClientConfig config) {
     // connection settings
     config.cassandraClientConnectionConfig.contactPoints.ifPresent(
         v -> configLoaderBuilder.withStringList(DefaultDriverOption.CONTACT_POINTS, v));

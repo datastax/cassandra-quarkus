@@ -16,6 +16,7 @@
 package com.datastax.oss.quarkus.deployment.internal;
 
 import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
+import static io.quarkus.deployment.annotations.ExecutionTime.STATIC_INIT;
 
 import com.datastax.dse.driver.api.core.auth.ProgrammaticDseGssApiAuthProvider;
 import com.datastax.dse.driver.internal.core.auth.DseGssApiAuthProvider;
@@ -49,7 +50,6 @@ import com.datastax.oss.driver.internal.core.time.ThreadLocalTimestampGenerator;
 import com.datastax.oss.driver.internal.core.tracker.NoopRequestTracker;
 import com.datastax.oss.driver.internal.core.tracker.RequestLogger;
 import com.datastax.oss.quarkus.deployment.api.CassandraClientBuildTimeConfig;
-import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientProducer;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientRecorder;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientStarter;
@@ -59,6 +59,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.BeanContainerBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeansRuntimeInitBuildItem;
+import io.quarkus.arc.deployment.UnremovableBeanBuildItem;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.Consume;
@@ -70,6 +71,7 @@ import io.quarkus.deployment.builditem.nativeimage.NativeImageResourceBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.RuntimeInitializedClassBuildItem;
 import io.quarkus.deployment.metrics.MetricsCapabilityBuildItem;
+import io.quarkus.runtime.metrics.MetricsFactory;
 import io.quarkus.smallrye.health.deployment.spi.HealthBuildItem;
 import java.util.Arrays;
 import java.util.Collections;
@@ -77,6 +79,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistryV3d0;
+import org.jboss.jandex.DotName;
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -228,74 +231,110 @@ class CassandraClientProcessor {
   }
 
   @BuildStep
-  List<ReflectiveClassBuildItem> registerMetricsFactoryForReflection() {
-    return Collections.singletonList(
-        new ReflectiveClassBuildItem(
-            true,
-            true,
-            "com.datastax.oss.driver.internal.metrics.microprofile.MicroProfileMetricsFactory"));
-  }
-
-  @Record(RUNTIME_INIT)
-  @BuildStep
-  @Consume(SyntheticBeansRuntimeInitBuildItem.class)
-  void configureRuntimeProperties(
-      CassandraClientRecorder recorder,
-      CassandraClientConfig runtimeConfig,
-      CassandraClientBuildTimeConfig buildTimeConfig,
+  ReflectiveClassBuildItem registerMetricsFactoriesForReflection(
       Optional<MetricsCapabilityBuildItem> metricsCapability) {
-    recorder.configureRuntimeProperties(runtimeConfig);
-    if (buildTimeConfig.metricsEnabled) {
-      if (checkMetricsCapabilityPresent(metricsCapability) && checkMetricsFactoryPresent()) {
-        List<String> enabledNodeMetrics =
-            buildTimeConfig.enabledNodeMetrics.orElse(Collections.emptyList());
-        List<String> enabledSessionMetrics =
-            buildTimeConfig.enabledSessionMetrics.orElse(Collections.emptyList());
-        if (checkMetricsPresent(enabledNodeMetrics, enabledSessionMetrics)) {
-          recorder.configureMetrics(enabledNodeMetrics, enabledSessionMetrics);
-        }
+    if (metricsCapability.isPresent()) {
+      MetricsCapabilityBuildItem metricsCapabilityItem = metricsCapability.get();
+      if (metricsCapabilityItem.metricsSupported(MetricsFactory.MICROMETER)) {
+        return new ReflectiveClassBuildItem(
+            true,
+            true,
+            "com.datastax.oss.driver.internal.metrics.micrometer.MicrometerMetricsFactory");
+      } else if (metricsCapabilityItem.metricsSupported(MetricsFactory.MP_METRICS)) {
+        return new ReflectiveClassBuildItem(
+            true,
+            true,
+            "com.datastax.oss.driver.internal.metrics.microprofile.MicroProfileMetricsFactory");
       }
     }
-    recorder.configureCompression(buildTimeConfig.protocolCompression);
-    recorder.setInjectedNettyEventLoop(buildTimeConfig.useQuarkusNettyEventLoop);
+    return null;
   }
 
-  private boolean checkMetricsCapabilityPresent(
+  @BuildStep
+  UnremovableBeanBuildItem registerMetricsRegistry(
       Optional<MetricsCapabilityBuildItem> metricsCapability) {
-    if (!metricsCapability.isPresent()) {
-      LOG.error(
-          "Metrics were enabled in the configuration, but the Metrics capability is not installed; "
-              + "forcibly disabling metrics. Make to sure include the dependency to the "
-              + "quarkus-smallrye-metrics module in your application when enabling metrics.");
+    if (metricsCapability.isPresent()) {
+      MetricsCapabilityBuildItem metricsCapabilityItem = metricsCapability.get();
+      if (metricsCapabilityItem.metricsSupported(MetricsFactory.MICROMETER)) {
+        return UnremovableBeanBuildItem.beanTypes(
+            DotName.createSimple("io.micrometer.core.instrument.MeterRegistry"));
+      } else if (metricsCapabilityItem.metricsSupported(MetricsFactory.MP_METRICS)) {
+        return UnremovableBeanBuildItem.targetWithAnnotation(
+            DotName.createSimple("org.eclipse.microprofile.metrics.annotation.RegistryType"));
+      }
+    }
+    return null;
+  }
+
+  @Record(STATIC_INIT)
+  @BuildStep
+  void configureCompression(
+      CassandraClientRecorder recorder,
+      CassandraClientBuildTimeConfig buildTimeConfig,
+      BeanContainerBuildItem beanContainer) {
+    recorder.configureCompression(buildTimeConfig.protocolCompression);
+  }
+
+  @Record(STATIC_INIT)
+  @BuildStep
+  void configureMetrics(
+      CassandraClientRecorder recorder,
+      CassandraClientBuildTimeConfig buildTimeConfig,
+      Optional<MetricsCapabilityBuildItem> metricsCapability,
+      BeanContainerBuildItem beanContainer) {
+    if (buildTimeConfig.metricsEnabled) {
+      if (metricsCapability.isPresent()) {
+        MetricsCapabilityBuildItem metricsCapabilityItem = metricsCapability.get();
+        if (metricsCapabilityItem.metricsSupported(MetricsFactory.MICROMETER)) {
+          if (checkMicrometerMetricsFactoryPresent()) {
+            recorder.configureMicrometerMetrics();
+          }
+        } else if (metricsCapabilityItem.metricsSupported(MetricsFactory.MP_METRICS)) {
+          if (checkMicroProfileMetricsFactoryPresent()) {
+            recorder.configureMicroProfileMetrics();
+          }
+        } else {
+          LOG.warn(
+              "Metrics were enabled in the configuration, but the installed Metrics capability is not supported; "
+                  + "forcibly disabling metrics. Make sure to include a dependency to either "
+                  + "quarkus-smallrye-metrics or quarkus-micrometer in your application when enabling metrics.");
+        }
+      } else {
+        LOG.warn(
+            "Metrics were enabled in the configuration, but the Metrics capability is not installed; "
+                + "forcibly disabling metrics. Make to sure include a dependency to either "
+                + "quarkus-smallrye-metrics or quarkus-micrometer in your application when enabling metrics.");
+      }
+    } else {
+      LOG.info("Cassandra metrics were disabled by configuration.");
+    }
+  }
+
+  private boolean checkMicrometerMetricsFactoryPresent() {
+    try {
+      Class.forName("com.datastax.oss.driver.internal.metrics.micrometer.MicrometerMetricsFactory");
+      return true;
+    } catch (ClassNotFoundException ignored) {
+      LOG.warn(
+          "Micrometer metrics were enabled in the configuration, but no metrics factory was found in the classpath; "
+              + "forcibly disabling metrics. Make sure to include a dependency to the "
+              + "java-driver-metrics-micrometer module in your application when enabling metrics.");
       return false;
     }
-    return true;
   }
 
-  private boolean checkMetricsFactoryPresent() {
+  private boolean checkMicroProfileMetricsFactoryPresent() {
     try {
       Class.forName(
           "com.datastax.oss.driver.internal.metrics.microprofile.MicroProfileMetricsFactory");
       return true;
-    } catch (ClassNotFoundException e) {
-      LOG.error(
-          "Metrics were enabled in the configuration, but MicroProfileMetricsFactory class was not in the classpath; "
-              + "forcibly disabling metrics. Make to sure include the dependency to the "
+    } catch (ClassNotFoundException ignored) {
+      LOG.warn(
+          "MicroProfile metrics were enabled in the configuration, but no metrics factory was found in the classpath; "
+              + "forcibly disabling metrics. Make sure to include a dependency to the "
               + "java-driver-metrics-microprofile module in your application when enabling metrics.");
       return false;
     }
-  }
-
-  private boolean checkMetricsPresent(
-      List<String> enabledNodeMetrics, List<String> enabledSessionMetrics) {
-    if (enabledNodeMetrics.isEmpty() && enabledSessionMetrics.isEmpty()) {
-      LOG.warn(
-          "Metrics were enabled in the configuration, but no session-level or node-level metrics were defined; "
-              + "forcibly disabling metrics. Make to sure define at least one metric to track using the "
-              + "cassandra.metrics.session.enabled or cassandra.metrics.node.enabled properties.");
-      return false;
-    }
-    return true;
   }
 
   @BuildStep
@@ -310,6 +349,7 @@ class CassandraClientProcessor {
 
   @BuildStep
   @Record(RUNTIME_INIT)
+  @Consume(SyntheticBeansRuntimeInitBuildItem.class)
   CassandraClientBuildItem cassandraClient(
       CassandraClientRecorder recorder,
       ShutdownContextBuildItem shutdown,
