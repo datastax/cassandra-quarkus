@@ -17,8 +17,8 @@ package com.datastax.oss.quarkus.runtime.internal.quarkus;
 
 import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
-import com.datastax.oss.quarkus.runtime.internal.mapper.DaoBeanProducer;
-import com.datastax.oss.quarkus.runtime.internal.mapper.MapperBeanProducer;
+import com.datastax.oss.quarkus.runtime.internal.mapper.GeneratedDaoBean;
+import com.datastax.oss.quarkus.runtime.internal.mapper.GeneratedMapperBean;
 import io.quarkus.runtime.StartupEvent;
 import io.smallrye.mutiny.Uni;
 import java.time.Duration;
@@ -46,8 +46,8 @@ public class CassandraClientStarter {
 
   @Inject CassandraClientConfig config;
   @Inject Instance<CompletionStage<QuarkusCqlSession>> sessions;
-  @Inject @MapperBeanProducer Instance<Object> mappers;
-  @Inject @DaoBeanProducer Instance<Object> daos;
+  @Inject @GeneratedMapperBean Instance<Object> mappers;
+  @Inject @GeneratedDaoBean Instance<Object> daos;
 
   private Duration timeout;
 

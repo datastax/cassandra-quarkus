@@ -153,8 +153,9 @@ public class QuarkusDaoProducerMethodGenerator implements MethodGenerator {
         .addModifiers(Modifier.PUBLIC)
         .addAnnotation(QuarkusGeneratedNames.PRODUCES)
         .addAnnotation(QuarkusGeneratedNames.APPLICATION_SCOPED)
+        .addAnnotation(QuarkusGeneratedNames.DEFAULT_BEAN)
         .addAnnotation(QuarkusGeneratedNames.DEFAULT)
-        .addAnnotation(QuarkusGeneratedNames.DAO_BEAN_PRODUCER)
+        .addAnnotation(QuarkusGeneratedNames.GENERATED_DAO_BEAN)
         .returns(daoStageTypeName)
         .addStatement(
             "return mapperStage.thenCompose(mapper -> mapper.$L())", methodElement.getSimpleName())
@@ -166,8 +167,9 @@ public class QuarkusDaoProducerMethodGenerator implements MethodGenerator {
         .addModifiers(Modifier.PUBLIC)
         .addAnnotation(QuarkusGeneratedNames.PRODUCES)
         .addAnnotation(QuarkusGeneratedNames.APPLICATION_SCOPED)
+        .addAnnotation(QuarkusGeneratedNames.DEFAULT_BEAN)
         .addAnnotation(QuarkusGeneratedNames.DEFAULT)
-        .addAnnotation(QuarkusGeneratedNames.DAO_BEAN_PRODUCER)
+        .addAnnotation(QuarkusGeneratedNames.GENERATED_DAO_BEAN)
         .addException(ExecutionException.class)
         .addException(InterruptedException.class)
         .returns(daoInterfaceName)
@@ -181,8 +183,9 @@ public class QuarkusDaoProducerMethodGenerator implements MethodGenerator {
         .addModifiers(Modifier.PUBLIC)
         .addAnnotation(QuarkusGeneratedNames.PRODUCES)
         .addAnnotation(QuarkusGeneratedNames.APPLICATION_SCOPED)
+        .addAnnotation(QuarkusGeneratedNames.DEFAULT_BEAN)
         .addAnnotation(QuarkusGeneratedNames.DEFAULT)
-        .addAnnotation(QuarkusGeneratedNames.DAO_BEAN_PRODUCER)
+        .addAnnotation(QuarkusGeneratedNames.GENERATED_DAO_BEAN)
         .returns(daoUniTypeName)
         .addStatement(
             "return $T.createFrom().completionStage(mapperStage).flatMap(mapper -> mapper.$L())",
