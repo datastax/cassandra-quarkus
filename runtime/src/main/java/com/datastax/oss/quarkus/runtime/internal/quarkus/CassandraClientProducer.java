@@ -79,21 +79,8 @@ public class CassandraClientProducer {
     if (config.cassandraClientInitConfig.useQuarkusEventLoop) {
       builder.withQuarkusEventLoop(mainEventLoop);
     }
-    if (config.cassandraClientInitConfig.eagerInit) {
-      LOG.info("Eagerly initializing Quarkus Cassandra client");
-    } else {
-      LOG.info("Initializing Quarkus Cassandra client");
-    }
     CompletionStage<QuarkusCqlSession> sessionFuture = builder.buildAsync();
     produced.set(true);
-    sessionFuture.whenComplete(
-        (session, error) -> {
-          if (error == null) {
-            LOG.info("Quarkus Cassandra client successfully initialized");
-          } else {
-            LOG.error("Quarkus Cassandra client failed to initialize", error);
-          }
-        });
     return sessionFuture;
   }
 
@@ -118,7 +105,8 @@ public class CassandraClientProducer {
               + "or make sure that the lazy initialization process "
               + " is not happening on a Vert.x thread.");
       LOG.info(
-          "Set the config property quarkus.cassandra.init.print-eager-init-info = false to suppress this message.");
+          "Set the config property quarkus.cassandra.init.print-eager-init-info = false "
+              + "to suppress this message.");
     }
     return sessionFuture.toCompletableFuture().get();
   }

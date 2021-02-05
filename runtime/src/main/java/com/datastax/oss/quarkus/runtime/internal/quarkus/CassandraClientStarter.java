@@ -63,6 +63,7 @@ public class CassandraClientStarter {
           daos.stream().count());
     }
     if (config.cassandraClientInitConfig.eagerInit) {
+      LOG.info("Eagerly initializing Quarkus Cassandra client");
       timeout = config.cassandraClientInitConfig.eagerInitTimeout;
       initializeBeans(sessions, "session");
       initializeBeans(mappers, "mapper");
