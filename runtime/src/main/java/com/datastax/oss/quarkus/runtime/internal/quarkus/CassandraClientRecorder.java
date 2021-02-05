@@ -16,17 +16,14 @@
 package com.datastax.oss.quarkus.runtime.internal.quarkus;
 
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
-import io.micrometer.core.instrument.MeterRegistry;
 import io.quarkus.arc.Arc;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import javax.enterprise.util.AnnotationLiteral;
 import javax.enterprise.util.TypeLiteral;
-import org.eclipse.microprofile.metrics.MetricRegistry;
-import org.eclipse.microprofile.metrics.annotation.RegistryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,35 +76,39 @@ public class CassandraClientRecorder {
     return new RuntimeValue<>(sessionStage);
   }
 
-  private abstract static class RegistryTypeQualifier extends AnnotationLiteral<RegistryType>
-      implements RegistryType {}
-
   public void configureMicrometerMetrics() {
     LOG.info("Enabling Cassandra metrics using Micrometer.");
-    MeterRegistry meterRegistry = Arc.container().instance(MeterRegistry.class).get();
-    CassandraClientProducer producer = getProducerInstance();
-    producer.setMetricRegistry(meterRegistry);
-    producer.setMetricsFactoryClassName(
-        "com.datastax.oss.driver.internal.metrics.micrometer.MicrometerMetricsFactory");
+    try {
+      Class<?> meterRegistryClass = Class.forName("io.micrometer.core.instrument.MeterRegistry");
+      Object meterRegistry = Arc.container().instance(meterRegistryClass).get();
+      CassandraClientProducer producer = getProducerInstance();
+      producer.setMetricRegistry(meterRegistry);
+      producer.setMetricsFactoryClassName(
+          "com.datastax.oss.driver.internal.metrics.micrometer.MicrometerMetricsFactory");
+    } catch (Exception e) {
+      LOG.error("Failed to enable Cassandra metrics using Micrometer", e);
+    }
   }
 
   public void configureMicroProfileMetrics() {
     LOG.info("Enabling Cassandra metrics using MicroProfile.");
-    MetricRegistry metricRegistry =
-        Arc.container()
-            .instance(
-                MetricRegistry.class,
-                new RegistryTypeQualifier() {
-                  @Override
-                  public MetricRegistry.Type type() {
-                    return MetricRegistry.Type.VENDOR;
-                  }
-                })
-            .get();
-    CassandraClientProducer producer = getProducerInstance();
-    producer.setMetricRegistry(metricRegistry);
-    producer.setMetricsFactoryClassName(
-        "com.datastax.oss.driver.internal.metrics.microprofile.MicroProfileMetricsFactory");
+    try {
+      Object metricRegistry = locateMicroProfileVendorMetricRegistry();
+      CassandraClientProducer producer = getProducerInstance();
+      producer.setMetricRegistry(metricRegistry);
+      producer.setMetricsFactoryClassName(
+          "com.datastax.oss.driver.internal.metrics.microprofile.MicroProfileMetricsFactory");
+    } catch (Exception e) {
+      LOG.error("Failed to enable Cassandra metrics using MicroProfile", e);
+    }
+  }
+
+  private Object locateMicroProfileVendorMetricRegistry()
+      throws ClassNotFoundException, IllegalAccessException, InvocationTargetException,
+          NoSuchMethodException {
+    Class<?> metricRegistriesClass = Class.forName("io.smallrye.metrics.MetricRegistries");
+    Object metricRegistries = Arc.container().instance(metricRegistriesClass).get();
+    return metricRegistriesClass.getMethod("getVendorRegistry").invoke(metricRegistries);
   }
 
   public void configureCompression(String protocolCompression) {
