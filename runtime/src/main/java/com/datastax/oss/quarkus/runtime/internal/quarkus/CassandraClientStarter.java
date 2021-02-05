@@ -16,9 +16,9 @@
 package com.datastax.oss.quarkus.runtime.internal.quarkus;
 
 import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
+import com.datastax.oss.quarkus.runtime.api.mapper.QuarkusGeneratedDaoBean;
+import com.datastax.oss.quarkus.runtime.api.mapper.QuarkusGeneratedMapperBean;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
-import com.datastax.oss.quarkus.runtime.internal.mapper.GeneratedDaoBean;
-import com.datastax.oss.quarkus.runtime.internal.mapper.GeneratedMapperBean;
 import io.quarkus.runtime.StartupEvent;
 import io.smallrye.mutiny.Uni;
 import java.time.Duration;
@@ -46,8 +46,8 @@ public class CassandraClientStarter {
 
   @Inject CassandraClientConfig config;
   @Inject Instance<CompletionStage<QuarkusCqlSession>> sessions;
-  @Inject @GeneratedMapperBean Instance<Object> mappers;
-  @Inject @GeneratedDaoBean Instance<Object> daos;
+  @Inject @QuarkusGeneratedMapperBean Instance<Object> mappers;
+  @Inject @QuarkusGeneratedDaoBean Instance<Object> daos;
 
   private Duration timeout;
 
@@ -63,14 +63,14 @@ public class CassandraClientStarter {
           daos.stream().count());
     }
     if (config.cassandraClientInitConfig.eagerInit) {
-      LOG.info("Eagerly initializing Quarkus Cassandra client");
+      LOG.info("Eagerly initializing Quarkus Cassandra client.");
       timeout = config.cassandraClientInitConfig.eagerInitTimeout;
       initializeBeans(sessions, "session");
       initializeBeans(mappers, "mapper");
       initializeBeans(daos, "DAO");
     } else {
       LOG.debug(
-          "Eager initialization of Quarkus Cassandra client at startup is disabled by configuration");
+          "Eager initialization of Quarkus Cassandra client at startup is disabled by configuration.");
     }
   }
 
@@ -88,7 +88,7 @@ public class CassandraClientStarter {
       } catch (TimeoutException | io.smallrye.mutiny.TimeoutException e) {
         LOG.warn(
             "Eager initialization of a {} bean did not complete within {}; "
-                + "resuming application startup with uninitialized bean",
+                + "resuming application startup with uninitialized bean.",
             beanName,
             timeout);
       }

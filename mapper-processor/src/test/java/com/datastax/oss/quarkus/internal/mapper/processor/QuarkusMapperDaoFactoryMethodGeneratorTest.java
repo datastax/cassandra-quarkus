@@ -22,7 +22,7 @@ import com.datastax.oss.driver.api.mapper.annotations.DaoTable;
 import com.datastax.oss.driver.api.mapper.annotations.Mapper;
 import com.datastax.oss.driver.internal.mapper.processor.MapperProcessor;
 import com.datastax.oss.driver.internal.mapper.processor.mapper.MapperMethodGeneratorTest;
-import com.datastax.oss.quarkus.runtime.api.mapper.QuarkusMapperExtension;
+import com.datastax.oss.quarkus.runtime.api.mapper.QuarkusMapper;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
@@ -137,7 +137,7 @@ class QuarkusMapperDaoFactoryMethodGeneratorTest extends MapperMethodGeneratorTe
             .addModifiers(Modifier.PUBLIC)
             .addAnnotation(Mapper.class)
             .addAnnotation(
-                AnnotationSpec.builder(QuarkusMapperExtension.class)
+                AnnotationSpec.builder(QuarkusMapper.class)
                     .addMember("generateProducers", "false")
                     .build())
             .addMethod(method)

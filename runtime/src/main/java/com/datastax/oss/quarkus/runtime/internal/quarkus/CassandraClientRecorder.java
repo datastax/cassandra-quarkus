@@ -83,7 +83,7 @@ public class CassandraClientRecorder {
       implements RegistryType {}
 
   public void configureMicrometerMetrics() {
-    LOG.info("Enabling Cassandra metrics using Micrometer");
+    LOG.info("Enabling Cassandra metrics using Micrometer.");
     MeterRegistry meterRegistry = Arc.container().instance(MeterRegistry.class).get();
     CassandraClientProducer producer = getProducerInstance();
     producer.setMetricRegistry(meterRegistry);
@@ -92,7 +92,7 @@ public class CassandraClientRecorder {
   }
 
   public void configureMicroProfileMetrics() {
-    LOG.info("Enabling Cassandra metrics using MicroProfile");
+    LOG.info("Enabling Cassandra metrics using MicroProfile.");
     MetricRegistry metricRegistry =
         Arc.container()
             .instance(

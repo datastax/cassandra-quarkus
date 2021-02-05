@@ -17,7 +17,7 @@ package com.datastax.oss.quarkus.internal.mapper.processor;
 
 import com.datastax.oss.driver.internal.mapper.processor.ProcessorContext;
 import com.datastax.oss.driver.internal.mapper.processor.mapper.MapperGenerator;
-import com.datastax.oss.quarkus.runtime.api.mapper.QuarkusMapperExtension;
+import com.datastax.oss.quarkus.runtime.api.mapper.QuarkusMapper;
 import javax.lang.model.element.TypeElement;
 
 public class QuarkusMapperGenerator extends MapperGenerator {
@@ -42,10 +42,9 @@ public class QuarkusMapperGenerator extends MapperGenerator {
   }
 
   private boolean shouldGenerateProducers() {
-    QuarkusMapperExtension quarkusMapperExtension =
-        interfaceElement.getAnnotation(QuarkusMapperExtension.class);
-    if (quarkusMapperExtension != null) {
-      return quarkusMapperExtension.generateProducers();
+    QuarkusMapper quarkusMapper = interfaceElement.getAnnotation(QuarkusMapper.class);
+    if (quarkusMapper != null) {
+      return quarkusMapper.generateProducers();
     }
     return true;
   }

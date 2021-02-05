@@ -36,7 +36,7 @@ import java.lang.annotation.Target;
  *
  * <pre>
  * &#64;Mapper
- * &#64;QuarkusMapperExtension(generateProducers=false)
+ * &#64;QuarkusMapper(generateProducers=false)
  * public interface InventoryMapper {
  *   &#64;DaoFactory
  *   ProductDao productDao();
@@ -44,15 +44,15 @@ import java.lang.annotation.Target;
  * </pre>
  *
  * The mapper annotation processor would still generate an implementation and a builder for the
- * above interface, but no bean producer would be generated.
+ * above Mapper interface, but no bean producer would be generated.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface QuarkusMapperExtension {
+public @interface QuarkusMapper {
 
   /**
    * Whether to generate producers. When the annotation is absent, or when it is present and the
-   * attribute is true (the default), bean producers will be generated for the annotated Mapper
+   * attribute is true (the default), CDI bean producers will be generated for the annotated Mapper
    * interface itself, and for all of the DAO factory methods declared in it, except those taking
    * arguments. This makes it possible to inject such beans automatically. If you want to turn off
    * this feature, set this attribute to false.
