@@ -34,6 +34,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.netty.channel.EventLoopGroup;
 import io.quarkus.arc.Unremovable;
 import io.quarkus.netty.MainEventLoopGroup;
+import io.smallrye.mutiny.Uni;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -120,6 +121,15 @@ public class CassandraClientProducer {
           "Set the config property quarkus.cassandra.init.print-eager-init-info = false to suppress this message.");
     }
     return sessionFuture.toCompletableFuture().get();
+  }
+
+  @Produces
+  @ApplicationScoped
+  @Unremovable
+  public Uni<QuarkusCqlSession> produceQuarkusCqlSessionUni(
+      CompletionStage<QuarkusCqlSession> sessionFuture) {
+    LOG.debug("Producing Uni<QuarkusCqlSession>");
+    return Uni.createFrom().completionStage(sessionFuture);
   }
 
   public void setMetricsFactoryClassName(String metricsFactoryClass) {

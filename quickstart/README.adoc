@@ -768,8 +768,11 @@ You can then point your browser to `http://localhost:8080/fruits.html` and use y
 
 == Eager vs Lazy Initialization
 
-This extension allows you to inject either a `QuarkusCqlSession` bean, or the asynchronous version
-of this bean, that is, `CompletionStage<QuarkusCqlSession>`.
+This extension allows you to inject either:
+
+- a `QuarkusCqlSession` bean;
+- or the asynchronous version of this bean, that is, `CompletionStage<QuarkusCqlSession>`;
+- or the reactive version of this bean, that is, `Uni<QuarkusCqlSession>`.
 
 The most straightforward approach is obviously to inject `QuarkusCqlSession` directly. This should
 work just fine for most applications; however, the `QuarkusCqlSession` bean needs to be initialized
