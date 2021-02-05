@@ -1,10 +1,10 @@
-### 1.0.0 (in progress)
+### 1.0.0
 
 - [new feature] Add support for Micrometer (fixes #150)
 - [new feature] Eager mapper and DAO initialization at startup (fixes #112)
 - [new feature] Automatic mapper and DAO detection and registration (fixes #113)
 - [improvement] Simplify quickstart application data model (fixes #121)
-- [improvement] Move the quickstart guide to the quickstart module (fixes #114)
+- [documentation] Move the quickstart guide to the quickstart module (fixes #114)
 - [bug] Prevent eager init from making the application unresponsive (fixes #144)
 - [improvement] Use driver's own MicroProfileMetricsFactory
 - [improvement] Replace references to Capabilities.METRICS by MetricsCapabilityBuildItem
