@@ -58,8 +58,8 @@ public class CassandraClientBuildTimeConfig {
    * }</pre>
    *
    * <p>For more information on available metrics, see <a
-   * href="https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/#configuration>Metrics
-   * configuration</a> in the Java driver manual.
+   * href="https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/#configuration">
+   * Metrics configuration</a> in the Java driver manual.
    */
   @ConfigItem(name = "metrics.enabled", defaultValue = "false")
   public boolean metricsEnabled;

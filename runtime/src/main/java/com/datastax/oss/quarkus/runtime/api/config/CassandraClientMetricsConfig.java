@@ -40,8 +40,8 @@ public class CassandraClientMetricsConfig {
    * }</pre>
    *
    * <p>For more information on available metrics, see <a
-   * href="https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/#configuration>Metrics
-   * configuration</a> in the Java driver manual.
+   * href="https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/#configuration">
+   * Metrics configuration</a> in the Java driver manual.
    */
   @ConfigItem(name = "session.enabled")
   public Optional<List<String>> enabledSessionMetrics;
@@ -64,8 +64,8 @@ public class CassandraClientMetricsConfig {
    * }</pre>
    *
    * <p>For more information on available metrics, see <a
-   * href="https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/#configuration>Metrics
-   * configuration</a> in the Java driver manual.
+   * href="https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/#configuration">
+   * Metrics configuration</a> in the Java driver manual.
    */
   @ConfigItem(name = "node.enabled")
   public Optional<List<String>> enabledNodeMetrics;
