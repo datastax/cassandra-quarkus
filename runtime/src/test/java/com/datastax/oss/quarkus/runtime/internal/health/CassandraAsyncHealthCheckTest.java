@@ -151,14 +151,14 @@ public class CassandraAsyncHealthCheckTest {
 
   private static class CassandraAsyncHealthCheckMock extends CassandraAsyncHealthCheck {
 
-    private CompletionStage<QuarkusCqlSession> quarkusCqlSession;
+    private final CompletionStage<QuarkusCqlSession> quarkusCqlSession;
 
     public CassandraAsyncHealthCheckMock(CompletionStage<QuarkusCqlSession> quarkusCqlSession) {
       this.quarkusCqlSession = quarkusCqlSession;
     }
 
     @Override
-    public CompletionStage<QuarkusCqlSession> beanProvider() {
+    public CompletionStage<QuarkusCqlSession> sessionBean() {
       return quarkusCqlSession;
     }
   }

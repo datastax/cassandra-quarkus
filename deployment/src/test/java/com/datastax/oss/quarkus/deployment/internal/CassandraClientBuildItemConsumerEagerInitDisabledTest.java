@@ -18,17 +18,16 @@ package com.datastax.oss.quarkus.deployment.internal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
-import com.datastax.oss.quarkus.runtime.internal.quarkus.QuarkusCqlSessionStageBeanState;
+import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientProducer;
+import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientRecorder;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.quarkus.arc.Arc;
 import io.quarkus.builder.BuildChainBuilder;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.test.QuarkusUnitTest;
-import java.lang.reflect.Type;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
-import javax.enterprise.util.TypeLiteral;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.MethodOrderer;
@@ -48,9 +47,6 @@ public class CassandraClientBuildItemConsumerEagerInitDisabledTest {
           .withConfigurationResource("application-eager-session-init-disabled.properties")
           .addBuildChainCustomizer(buildCustomizer());
 
-  private static final Type COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE =
-      new TypeLiteral<CompletionStage<QuarkusCqlSession>>() {}.getType();
-
   @Test
   @Order(1)
   public void should_have_quarkus_cql_session_in_the_di_container_with_state_not_produced() {
@@ -63,7 +59,9 @@ public class CassandraClientBuildItemConsumerEagerInitDisabledTest {
   @Order(2)
   public void
       should_have_completion_stage_of_quarkus_cql_session_in_the_di_container_with_state_not_produced() {
-    assertThat(Arc.container().instance(COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE).get())
+    // We need to avoid calling assertThat(CompletionStage<RESULT> actual) otherwise AssertJ
+    // will call toCompletableFuture() underneath and ruin our test
+    assertThat((Object) Arc.container().instance(CassandraClientRecorder.SESSION_STAGE).get())
         .isNotNull();
     assertThat(Arc.container().instance(CassandraClientProducer.class).get().isProduced())
         .isFalse();
@@ -81,10 +79,8 @@ public class CassandraClientBuildItemConsumerEagerInitDisabledTest {
   public void
       should_mark_completion_stage_of_quarkus_cql_session_produced_when_accessed_for_the_first_time()
           throws ExecutionException, InterruptedException {
-    @SuppressWarnings("unchecked")
     CompletionStage<QuarkusCqlSession> completionStage =
-        (CompletionStage<QuarkusCqlSession>)
-            Arc.container().instance(COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE).get();
+        Arc.container().instance(CassandraClientRecorder.SESSION_STAGE).get();
     completionStage.toCompletableFuture().get();
     assertThat(Arc.container().instance(CassandraClientProducer.class).get().isProduced()).isTrue();
   }

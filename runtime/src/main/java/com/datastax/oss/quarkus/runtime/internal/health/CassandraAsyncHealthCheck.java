@@ -18,16 +18,15 @@ package com.datastax.oss.quarkus.runtime.internal.health;
 import com.datastax.oss.driver.api.core.AsyncPagingIterable;
 import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
+import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientRecorder;
 import io.quarkus.arc.Arc;
 import io.smallrye.health.api.AsyncHealthCheck;
 import io.smallrye.mutiny.Uni;
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.util.TypeLiteral;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 import org.eclipse.microprofile.health.Readiness;
@@ -35,25 +34,22 @@ import org.eclipse.microprofile.health.Readiness;
 @Readiness
 @ApplicationScoped
 public class CassandraAsyncHealthCheck implements AsyncHealthCheck {
+
   /** Name of the health-check. */
   private static final String HEALTH_CHECK_NAME = "DataStax Apache Cassandra Driver health check";
 
-  private static final Type COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE =
-      new TypeLiteral<CompletionStage<QuarkusCqlSession>>() {}.getType();
   static final String HEALTH_CHECK_QUERY =
       "SELECT data_center, release_version, cluster_name, cql_version FROM system.local";
 
   private CompletionStage<QuarkusCqlSession> cqlSessionCompletionStage;
 
-  @SuppressWarnings("unchecked")
-  public CompletionStage<QuarkusCqlSession> beanProvider() {
-    return (CompletionStage<QuarkusCqlSession>)
-        Arc.container().instance(COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE).get();
+  public CompletionStage<QuarkusCqlSession> sessionBean() {
+    return Arc.container().instance(CassandraClientRecorder.SESSION_STAGE).get();
   }
 
   @PostConstruct
   protected void init() {
-    this.cqlSessionCompletionStage = beanProvider();
+    this.cqlSessionCompletionStage = sessionBean();
   }
 
   @Override

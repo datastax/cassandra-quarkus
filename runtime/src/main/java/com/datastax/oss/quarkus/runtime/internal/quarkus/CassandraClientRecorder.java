@@ -21,7 +21,6 @@ import io.quarkus.arc.Arc;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
-import java.lang.reflect.Type;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.enterprise.util.AnnotationLiteral;
@@ -36,15 +35,12 @@ public class CassandraClientRecorder {
 
   private static final Logger LOG = LoggerFactory.getLogger(CassandraClientRecorder.class);
 
-  private static final Type COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE =
-      new TypeLiteral<CompletionStage<QuarkusCqlSession>>() {}.getType();
+  public static final TypeLiteral<CompletionStage<QuarkusCqlSession>> SESSION_STAGE =
+      new TypeLiteral<CompletionStage<QuarkusCqlSession>>() {};
 
   public RuntimeValue<CompletionStage<QuarkusCqlSession>> buildClient(ShutdownContext shutdown) {
     LOG.debug("CassandraClientRecorder.buildClient");
-    @SuppressWarnings("unchecked")
-    CompletionStage<QuarkusCqlSession> sessionStage =
-        (CompletionStage<QuarkusCqlSession>)
-            Arc.container().instance(COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE).get();
+    CompletionStage<QuarkusCqlSession> sessionStage = Arc.container().instance(SESSION_STAGE).get();
     shutdown.addShutdownTask(
         () -> {
           // invoke methods on the session stage bean only if it was produced;
