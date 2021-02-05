@@ -16,6 +16,7 @@
 package com.datastax.oss.quarkus.deployment.internal.metrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
@@ -71,7 +72,7 @@ public class CassandraMetricsMicrometerTest {
               } else if (metric instanceof Timer) {
                 assertThat(((Timer) metric).count()).isGreaterThanOrEqualTo(0);
               } else {
-                throw new IllegalArgumentException("unsupported metric type");
+                fail("unsupported metric type");
               }
             });
   }
