@@ -48,28 +48,31 @@ public class CassandraClientRecorder {
           // trigger its production, and thus the initialization of the underlying session.
           CassandraClientProducer cassandraClientProducer =
               Arc.container().instance(CassandraClientProducer.class).get();
-          LOG.debug(
-              "Executing shutdown hook, session stage bean produced = {}",
-              cassandraClientProducer.isProduced());
-          if (cassandraClientProducer.isProduced()) {
-            CompletableFuture<QuarkusCqlSession> sessionFuture = sessionStage.toCompletableFuture();
+          if (cassandraClientProducer != null) {
             LOG.debug(
-                "Session future done = {}, cancelled = {}",
-                sessionFuture.isDone(),
-                sessionFuture.isCancelled());
-            try {
-              QuarkusCqlSession session = sessionFuture.getNow(null);
-              LOG.debug("Session object = {}", session);
-              if (session != null) {
-                LOG.info("Closing Quarkus session.");
-                session.close();
-              } else {
-                LOG.info("Cancelling Quarkus session initialization.");
-                sessionFuture.cancel(true);
+                "Executing shutdown hook, session stage bean produced = {}",
+                cassandraClientProducer.isProduced());
+            if (cassandraClientProducer.isProduced()) {
+              CompletableFuture<QuarkusCqlSession> sessionFuture =
+                  sessionStage.toCompletableFuture();
+              LOG.debug(
+                  "Session future done = {}, cancelled = {}",
+                  sessionFuture.isDone(),
+                  sessionFuture.isCancelled());
+              try {
+                QuarkusCqlSession session = sessionFuture.getNow(null);
+                LOG.debug("Session object = {}", session);
+                if (session != null) {
+                  LOG.info("Closing Quarkus session.");
+                  session.close();
+                } else {
+                  LOG.info("Cancelling Quarkus session initialization.");
+                  sessionFuture.cancel(true);
+                }
+              } catch (RuntimeException e) {
+                // no need to log this again, it was logged already
+                LOG.trace("Quarkus session could not be closed normally.", e);
               }
-            } catch (RuntimeException e) {
-              // no need to log this again, it was logged already
-              LOG.trace("Quarkus session could not be closed normally.", e);
             }
           }
         });
