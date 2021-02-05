@@ -295,15 +295,15 @@ class CassandraClientProcessor {
           }
         } else {
           LOG.warn(
-              "Metrics were enabled in the configuration, but the installed Metrics capability is not supported; "
-                  + "forcibly disabling metrics. Make sure to include a dependency to either "
-                  + "quarkus-smallrye-metrics or quarkus-micrometer in your application when enabling metrics.");
+              "Cassandra metrics were enabled by configuration, but the installed metrics capability is not supported.");
+          LOG.warn(
+              "Make sure to include a dependency to either quarkus-micrometer-registry-prometheus or quarkus-smallrye-metrics.");
         }
       } else {
         LOG.warn(
-            "Metrics were enabled in the configuration, but the Metrics capability is not installed; "
-                + "forcibly disabling metrics. Make to sure include a dependency to either "
-                + "quarkus-smallrye-metrics or quarkus-micrometer in your application when enabling metrics.");
+            "Cassandra metrics were enabled by configuration, but no metrics capability is installed.");
+        LOG.warn(
+            "Make sure to include a dependency to either quarkus-micrometer-registry-prometheus or quarkus-smallrye-metrics.");
       }
     } else {
       LOG.info("Cassandra metrics were disabled by configuration.");
@@ -316,9 +316,8 @@ class CassandraClientProcessor {
       return true;
     } catch (ClassNotFoundException ignored) {
       LOG.warn(
-          "Micrometer metrics were enabled in the configuration, but no metrics factory was found in the classpath; "
-              + "forcibly disabling metrics. Make sure to include a dependency to the "
-              + "java-driver-metrics-micrometer module in your application when enabling metrics.");
+          "Micrometer metrics were enabled by configuration, but MicrometerMetricsFactory was not found.");
+      LOG.warn("Make sure to include a dependency to the java-driver-metrics-micrometer module.");
       return false;
     }
   }
@@ -330,9 +329,8 @@ class CassandraClientProcessor {
       return true;
     } catch (ClassNotFoundException ignored) {
       LOG.warn(
-          "MicroProfile metrics were enabled in the configuration, but no metrics factory was found in the classpath; "
-              + "forcibly disabling metrics. Make sure to include a dependency to the "
-              + "java-driver-metrics-microprofile module in your application when enabling metrics.");
+          "MicroProfile metrics were enabled by configuration, but MicroProfileMetricsFactory was not found.");
+      LOG.warn("Make sure to include a dependency to the java-driver-metrics-microprofile module.");
       return false;
     }
   }
