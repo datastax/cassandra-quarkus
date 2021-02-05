@@ -24,7 +24,8 @@ import java.time.Duration;
 public class CassandraClientInitConfig {
 
   /**
-   * Whether to eagerly initialize the session and all DAOs at application startup.
+   * Whether to eagerly initialize the Cassandra client at application startup. This includes the
+   * session and all mappers and DAOs.
    *
    * <p>When false, the {@link com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession
    * QuarkusCqlSession} instance will be initialized on its first access. This is usually fine for
@@ -39,14 +40,14 @@ public class CassandraClientInitConfig {
    *
    * <p>The default is false.
    */
-  @ConfigItem(name = "eager-session-init", defaultValue = "false")
-  public boolean eagerSessionInit;
+  @ConfigItem(name = "eager-init", defaultValue = "false")
+  public boolean eagerInit;
 
   /**
-   * How long to wait for the session to initialize at application startup. Ignored when {@link
-   * #eagerSessionInit} is false.
+   * How long to wait for the Cassandra client to initialize at application startup. Ignored when
+   * {@link #eagerInit} is false.
    *
-   * <p>If the session fails to initialize during this period, for example because {@link
+   * <p>If the client fails to initialize during this period, for example because {@link
    * #reconnectOnInit} is true but the cluster is unreachable, the application will resume its
    * startup process in order to avoid blocking the application completely, but a warning will be
    * logged. This usually means that the Cassandra connection properties are wrong, or the cluster
@@ -54,22 +55,22 @@ public class CassandraClientInitConfig {
    *
    * <p>The default is 10 seconds.
    */
-  @ConfigItem(name = "eager-session-init-timeout", defaultValue = "PT10S")
-  public Duration eagerSessionInitTimeout;
+  @ConfigItem(name = "eager-init-timeout", defaultValue = "PT10S")
+  public Duration eagerInitTimeout;
 
   /**
-   * Whether to log an informational message explaining how to best use eager session
-   * initialization.
+   * Whether to log an informational message explaining how to best use eager initialization.
    *
-   * <p>If {@linkplain #eagerSessionInit eager session initialization at startup} is disabled, then
-   * users should not inject {@link com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession
+   * <p>If {@linkplain #eagerInit eager initialization at startup} is disabled, then users should
+   * not inject {@link com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession
    * QuarkusCqlSession} instances directly in their application, but rather {@code
-   * CompletionStage<QuarkusCqlSession>} instances, to avoid performing blocking operations on
-   * threads that are not allowed to block, such as Vert.x application threads. An informational
-   * message will be logged if this rule in infringed, unless this option is set to false.
+   * CompletionStage<QuarkusCqlSession>} or {@code Uni<QuarkusCqlSession>} instances, to avoid
+   * performing blocking operations on threads that are not allowed to block, such as Vert.x
+   * application threads. An informational message will be logged if this rule in infringed, unless
+   * this option is set to false.
    */
-  @ConfigItem(name = "eager-session-init-info", defaultValue = "true")
-  public boolean eagerSessionInitInfo;
+  @ConfigItem(name = "print-eager-init-info", defaultValue = "true")
+  public boolean printEagerInitInfo;
 
   /**
    * Whether to try to reconnect if the first connection attempt fails.

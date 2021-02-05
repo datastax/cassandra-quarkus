@@ -78,7 +78,7 @@ public class CassandraClientProducer {
     if (config.cassandraClientInitConfig.useQuarkusEventLoop) {
       builder.withQuarkusEventLoop(mainEventLoop);
     }
-    if (config.cassandraClientInitConfig.eagerSessionInit) {
+    if (config.cassandraClientInitConfig.eagerInit) {
       LOG.info("Eagerly initializing Quarkus Cassandra client");
     } else {
       LOG.info("Initializing Quarkus Cassandra client");
@@ -104,17 +104,20 @@ public class CassandraClientProducer {
       throws ExecutionException, InterruptedException {
     LOG.debug(
         "Producing QuarkusCqlSession bean, eagerSessionInit = {}",
-        config.cassandraClientInitConfig.eagerSessionInit);
-    if (!config.cassandraClientInitConfig.eagerSessionInit
-        && config.cassandraClientInitConfig.eagerSessionInitInfo) {
+        config.cassandraClientInitConfig.eagerInit);
+    if (!config.cassandraClientInitConfig.eagerInit
+        && config.cassandraClientInitConfig.printEagerInitInfo) {
       LOG.info(
-          "Injecting QuarkusCqlSession and setting eager-session-init = false may cause problems if the lazy initialization process "
+          "Injecting QuarkusCqlSession and setting quarkus.cassandra.init.eager-init = false "
+              + "may cause problems if the lazy initialization process "
               + "happens on a thread that is not allowed to block, such as Vert.x thread.");
       LOG.info(
-          "Please either set eager-session-init to true, or inject CompletionStage<QuarkusCqlSession> instead, "
-              + "or make sure that the lazy initialization process in your application is not happening on a Vert.x thread.");
+          "Please either set quarkus.cassandra.init.eager-init = true, "
+              + "or inject CompletionStage<QuarkusCqlSession> instead, "
+              + "or make sure that the lazy initialization process "
+              + " is not happening on a Vert.x thread.");
       LOG.info(
-          "Set the config property eager-session-init-info to false to suppress this message.");
+          "Set the config property quarkus.cassandra.init.print-eager-init-info = false to suppress this message.");
     }
     return sessionFuture.toCompletableFuture().get();
   }

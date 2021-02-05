@@ -57,13 +57,13 @@ public class CassandraClientStarter {
     if (LOG.isDebugEnabled()) {
       LOG.debug(
           "CassandraClientStarter.startup, eager = {}, sessions = {}, mappers = {}, daos = {}",
-          config.cassandraClientInitConfig.eagerSessionInit,
+          config.cassandraClientInitConfig.eagerInit,
           sessions.stream().count(),
           mappers.stream().count(),
           daos.stream().count());
     }
-    if (config.cassandraClientInitConfig.eagerSessionInit) {
-      timeout = config.cassandraClientInitConfig.eagerSessionInitTimeout;
+    if (config.cassandraClientInitConfig.eagerInit) {
+      timeout = config.cassandraClientInitConfig.eagerInitTimeout;
       initializeBeans(sessions, "session");
       initializeBeans(mappers, "mapper");
       initializeBeans(daos, "DAO");

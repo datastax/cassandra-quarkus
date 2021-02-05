@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.deployment.internal;
+package com.datastax.oss.quarkus.deployment.internal.session;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.datastax.oss.quarkus.deployment.internal.CassandraClientBuildItem;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientProducer;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientRecorder;
@@ -31,14 +32,14 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class CassandraClientBuildItemConsumerEagerInitEnabledTest {
+public class EagerInitEnabledTest {
 
   @RegisterExtension
   static QuarkusUnitTest runner =
       new QuarkusUnitTest()
           .setArchiveProducer(
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
-          .withConfigurationResource("application-eager-session-init-enabled.properties")
+          .withConfigurationResource("application-eager-init-enabled.properties")
           .addBuildChainCustomizer(buildCustomizer());
 
   @Test

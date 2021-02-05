@@ -776,30 +776,29 @@ work just fine for most applications; however, the `QuarkusCqlSession` bean need
 before it can be used, and this process is blocking.
 
 Fortunately, it is possible to control when the initialization should happen: the
-`quarkus.cassandra.init.eager-session-init` parameter determines if the `QuarkusCqlSession` bean
-should be initialized on its first access (lazy) or when the application is starting (eager). The
-default value of this parameter is `false`, meaning the init process is lazy: the
-`QuarkusCqlSession` bean will be initialized lazily on its first access – for example, when there is
-a first REST request that needs to interact with the Cassandra database.
+`quarkus.cassandra.init.eager-init` parameter determines if the `QuarkusCqlSession` bean should be
+initialized on its first access (lazy) or when the application is starting (eager). The default
+value of this parameter is `false`, meaning the init process is lazy: the `QuarkusCqlSession` bean
+will be initialized lazily on its first access – for example, when there is a first REST request
+that needs to interact with the Cassandra database.
 
 Using lazy initialization speeds up your application startup time, and avoids startup failures if
 the Cassandra database is not available. However, it could also prove dangerous if your code is
 fully asynchronous, e.g. if you are using https://quarkus.io/guides/reactive-routes[reactive
 routes]: indeed, the lazy initialization could accidentally happen on a thread that is not allowed
-to block, such as a Vert.x event loop thread. Therefore, setting
-`quarkus.cassandra.init.eager-session-init` to `false` and injecting `QuarkusCqlSession` should be
-avoided in these contexts.
+to block, such as a Vert.x event loop thread. Therefore, setting `quarkus.cassandra.init.eager-init`
+to `false` and injecting `QuarkusCqlSession` should be avoided in these contexts.
 
 If you want to use Vert.x (or any other reactive framework) and keep the lazy initialization
-behavior, you should instead inject only `CompletionStage<QuarkusCqlSession>`. When injecting a
-`CompletionStage<QuarkusCqlSession>`, the initialization process will be triggered lazily, but it
-will happen in the background, in a non-blocking way, leveraging the Vert.x event loop. This way you
-don't risk blocking the Vert.x thread.
+behavior, you should instead inject only `CompletionStage<QuarkusCqlSession>` or
+`Uni<QuarkusCqlSession>`. When injecting these beans, the initialization process will be triggered
+lazily, but it will happen in the background, in a non-blocking way, leveraging the Vert.x event
+loop. This way you don't risk blocking the Vert.x thread.
 
-Alternatively, you can set `quarkus.cassandra.init.eager-session-init` to true: in this case the
-session bean will be initialized eagerly during application startup, on the Quarkus main thread.
-This would eliminate any risk of blocking a Vert.x thread, at the cost of making your startup time
-(much) longer.
+Alternatively, you can set `quarkus.cassandra.init.eager-init` to true: in this case the session
+bean will be initialized eagerly during application startup, on the Quarkus main thread. This would
+eliminate any risk of blocking a Vert.x thread, at the cost of making your startup time (much)
+longer.
 
 == Conclusion
 
