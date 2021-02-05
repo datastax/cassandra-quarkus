@@ -60,15 +60,15 @@ public class CassandraClientRecorder {
                 QuarkusCqlSession session = sessionFuture.getNow(null);
                 LOG.debug("Session object = {}", session);
                 if (session != null) {
-                  LOG.info("Closing Quarkus session.");
+                  LOG.info("Closing Quarkus Cassandra session.");
                   session.close();
                 } else {
-                  LOG.info("Cancelling Quarkus session initialization.");
+                  LOG.info("Cancelling Quarkus Cassandra session initialization.");
                   sessionFuture.cancel(true);
                 }
               } catch (RuntimeException e) {
                 // no need to log this again, it was logged already
-                LOG.trace("Quarkus session could not be closed normally.", e);
+                LOG.trace("Quarkus Cassandra session could not be closed normally.", e);
               }
             }
           }
