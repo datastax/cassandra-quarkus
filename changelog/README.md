@@ -1,3 +1,21 @@
+### 1.0.0 (in progress)
+
+- [new feature] Add support for Micrometer (fixes #150)
+- [new feature] Eager mapper and DAO initialization at startup (fixes #112)
+- [new feature] Automatic mapper and DAO detection and registration (fixes #113)
+- [improvement] Simplify quickstart application data model (fixes #121)
+- [improvement] Move the quickstart guide to the quickstart module (fixes #114)
+- [bug] Prevent eager init from making the application unresponsive (fixes #144)
+- [improvement] Use driver's own MicroProfileMetricsFactory
+- [improvement] Replace references to Capabilities.METRICS by MetricsCapabilityBuildItem
+- [improvement] Upgrade driver to 4.10.0
+- [bug] Add failure recovery to Mutiny result set before subscribing
+- [new feature] Provide a lazy wrapper for QuarkusCqlSession (fixes #106)
+- [improvement] Upgrade metrics integration to incorporate changes from JAVA-2808 (fixes #117)
+- [new feature] Enable SSL support (fixes #111)
+- [bug] Don't call close() if session wasn't initialized (fixes #125)
+- [bug] Avoid implementing Multi and extend AbstractMulti instead (#115)
+
 ### 1.0.0-alpha3
 
 - [improvement] Make SmallRye Metrics and Health dependencies non-optional
