@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import org.slf4j.Logger;
@@ -48,6 +49,9 @@ public class CassandraClientProducer {
 
   private static final Logger LOG = LoggerFactory.getLogger(CassandraClientProducer.class);
 
+  private final AtomicBoolean produced = new AtomicBoolean(false);
+
+  // injected by CassandraClientRecorder
   private String protocolCompression;
   private Object metricRegistry;
   private String metricsFactoryClass;
@@ -55,18 +59,8 @@ public class CassandraClientProducer {
   @Produces
   @ApplicationScoped
   @Unremovable
-  public QuarkusCqlSessionStageBeanState produceQuarkusCqlSessionStageBeanState() {
-    LOG.debug("Producing QuarkusCqlSessionStageBeanState bean");
-    return new QuarkusCqlSessionStageBeanState();
-  }
-
-  @Produces
-  @ApplicationScoped
-  @Unremovable
   public CompletionStage<QuarkusCqlSession> produceQuarkusCqlSessionStage(
-      CassandraClientConfig config,
-      @MainEventLoopGroup EventLoopGroup mainEventLoop,
-      QuarkusCqlSessionStageBeanState sessionStageBeanState) {
+      CassandraClientConfig config, @MainEventLoopGroup EventLoopGroup mainEventLoop) {
     LOG.debug(
         "Producing CompletionStage<QuarkusCqlSession> bean, metricRegistry = {}, useQuarkusEventLoop = {}",
         metricRegistry,
@@ -90,6 +84,7 @@ public class CassandraClientProducer {
       LOG.info("Initializing Quarkus Cassandra client");
     }
     CompletionStage<QuarkusCqlSession> sessionFuture = builder.buildAsync();
+    produced.set(true);
     sessionFuture.whenComplete(
         (session, error) -> {
           if (error == null) {
@@ -98,7 +93,6 @@ public class CassandraClientProducer {
             LOG.error("Quarkus Cassandra client failed to initialize", error);
           }
         });
-    sessionStageBeanState.setProduced();
     return sessionFuture;
   }
 
@@ -243,6 +237,10 @@ public class CassandraClientProducer {
         v -> configLoaderBuilder.withString(DseDriverOption.GRAPH_WRITE_CONSISTENCY_LEVEL, v));
     config.cassandraClientGraphConfig.graphRequestTimeout.ifPresent(
         v -> configLoaderBuilder.withDuration(DseDriverOption.GRAPH_TIMEOUT, v));
+  }
+
+  public boolean isProduced() {
+    return produced.get();
   }
 
   private static class NonReloadableDriverConfigLoader implements DriverConfigLoader {

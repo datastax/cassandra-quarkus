@@ -55,7 +55,7 @@ public class CassandraClientBuildItemConsumerEagerInitDisabledTest {
   @Order(1)
   public void should_have_quarkus_cql_session_in_the_di_container_with_state_not_produced() {
     assertThat(Arc.container().instance(QuarkusCqlSession.class).get()).isNotNull();
-    assertThat(Arc.container().instance(QuarkusCqlSessionStageBeanState.class).get().isProduced())
+    assertThat(Arc.container().instance(CassandraClientProducer.class).get().isProduced())
         .isFalse();
   }
 
@@ -65,7 +65,7 @@ public class CassandraClientBuildItemConsumerEagerInitDisabledTest {
       should_have_completion_stage_of_quarkus_cql_session_in_the_di_container_with_state_not_produced() {
     assertThat(Arc.container().instance(COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE).get())
         .isNotNull();
-    assertThat(Arc.container().instance(QuarkusCqlSessionStageBeanState.class).get().isProduced())
+    assertThat(Arc.container().instance(CassandraClientProducer.class).get().isProduced())
         .isFalse();
   }
 
@@ -73,8 +73,7 @@ public class CassandraClientBuildItemConsumerEagerInitDisabledTest {
   @Order(3)
   public void should_mark_quarkus_cql_session_produced_when_accessed_for_the_first_time() {
     Arc.container().instance(QuarkusCqlSession.class).get().getName();
-    assertThat(Arc.container().instance(QuarkusCqlSessionStageBeanState.class).get().isProduced())
-        .isTrue();
+    assertThat(Arc.container().instance(CassandraClientProducer.class).get().isProduced()).isTrue();
   }
 
   @Test
@@ -87,8 +86,7 @@ public class CassandraClientBuildItemConsumerEagerInitDisabledTest {
         (CompletionStage<QuarkusCqlSession>)
             Arc.container().instance(COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE).get();
     completionStage.toCompletableFuture().get();
-    assertThat(Arc.container().instance(QuarkusCqlSessionStageBeanState.class).get().isProduced())
-        .isTrue();
+    assertThat(Arc.container().instance(CassandraClientProducer.class).get().isProduced()).isTrue();
   }
 
   protected static Consumer<BuildChainBuilder> buildCustomizer() {

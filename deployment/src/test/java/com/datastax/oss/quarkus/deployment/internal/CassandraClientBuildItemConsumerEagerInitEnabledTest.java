@@ -49,8 +49,7 @@ public class CassandraClientBuildItemConsumerEagerInitEnabledTest {
   @Test
   public void should_have_quarkus_cql_session_in_the_di_container_with_state_produced() {
     assertThat(Arc.container().instance(QuarkusCqlSession.class).get()).isNotNull();
-    assertThat(Arc.container().instance(QuarkusCqlSessionStageBeanState.class).get().isProduced())
-        .isTrue();
+    assertThat(Arc.container().instance(CassandraClientProducer.class).get().isProduced()).isTrue();
   }
 
   @Test
@@ -58,8 +57,7 @@ public class CassandraClientBuildItemConsumerEagerInitEnabledTest {
       should_have_completion_stage_of_quarkus_cql_session_in_the_di_container_with_state_produced() {
     assertThat(Arc.container().instance(COMPLETION_STAGE_OF_QUARKUS_CQL_SESSION_TYPE).get())
         .isNotNull();
-    assertThat(Arc.container().instance(QuarkusCqlSessionStageBeanState.class).get().isProduced())
-        .isTrue();
+    assertThat(Arc.container().instance(CassandraClientProducer.class).get().isProduced()).isTrue();
   }
 
   protected static Consumer<BuildChainBuilder> buildCustomizer() {

@@ -50,12 +50,12 @@ public class CassandraClientRecorder {
           // invoke methods on the session stage bean only if it was produced;
           // trying to access a non-produced bean here would
           // trigger its production, and thus the initialization of the underlying session.
-          QuarkusCqlSessionStageBeanState sessionState =
-              Arc.container().instance(QuarkusCqlSessionStageBeanState.class).get();
+          CassandraClientProducer cassandraClientProducer =
+              Arc.container().instance(CassandraClientProducer.class).get();
           LOG.debug(
               "Executing shutdown hook, session stage bean produced = {}",
-              sessionState.isProduced());
-          if (sessionState.isProduced()) {
+              cassandraClientProducer.isProduced());
+          if (cassandraClientProducer.isProduced()) {
             CompletableFuture<QuarkusCqlSession> sessionFuture = sessionStage.toCompletableFuture();
             LOG.debug(
                 "Session future done = {}, cancelled = {}",
