@@ -247,6 +247,11 @@ limitations under the License.]]></inlineHeader>
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/*$$accessor.class</exclude>
+          </excludes>
+        </configuration>
         <executions>
           <execution>
             <goals>
