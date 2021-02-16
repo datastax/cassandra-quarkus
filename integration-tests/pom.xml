@@ -126,6 +126,26 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default</id>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+            <configuration>
+              <groups>${failsafe.testGroups}</groups>
+              <systemProperties>
+                <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
+              </systemProperties>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <executions>
           <execution>
@@ -194,29 +214,9 @@
           <name>!native</name>
         </property>
       </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>default</id>
-                <goals>
-                  <goal>integration-test</goal>
-                  <goal>verify</goal>
-                </goals>
-                <configuration>
-                  <excludedGroups>native</excludedGroups>
-                  <systemProperties>
-                    <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-                  </systemProperties>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
+      <properties>
+        <failsafe.testGroups>!native</failsafe.testGroups>
+      </properties>
     </profile>
     <profile>
       <id>native</id>
@@ -228,50 +228,8 @@
       <properties>
         <quarkus.package.type>native</quarkus.package.type>
         <quarkus.native.enable-http-url-handler>true</quarkus.native.enable-http-url-handler>
+        <failsafe.testGroups>native</failsafe.testGroups>
       </properties>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <executions>
-              <!-- VM tests -->
-              <execution>
-                <id>default</id>
-                <goals>
-                  <goal>integration-test</goal>
-                  <goal>verify</goal>
-                </goals>
-                <configuration>
-                  <excludedGroups>native</excludedGroups>
-                  <summaryFile>${project.build.directory}/failsafe-reports/failsafe-summary-vm.xml</summaryFile>
-                  <systemProperties>
-                    <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-                  </systemProperties>
-                </configuration>
-              </execution>
-              <!-- Native tests -->
-              <execution>
-                <id>native-tests</id>
-                <goals>
-                  <goal>integration-test</goal>
-                  <goal>verify</goal>
-                </goals>
-                <configuration>
-                  <groups>native</groups>
-                  <summaryFile>${project.build.directory}/failsafe-reports/failsafe-summary-native.xml</summaryFile>
-                  <systemProperties>
-                    <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-                    <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
-                  </systemProperties>
-                  <!-- required because failed native tests are not reported at all -->
-                  <failIfNoTests>true</failIfNoTests>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
     </profile>
   </profiles>
 </project>
