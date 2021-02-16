@@ -113,6 +113,11 @@
         <artifactId>cassandra-quarkus-test-framework</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.datastax.oss.quarkus</groupId>
+        <artifactId>cassandra-quarkus-mapper-processor</artifactId>
+        <version>${project.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 </project>
