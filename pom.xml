@@ -250,6 +250,7 @@ limitations under the License.]]></inlineHeader>
         <configuration>
           <excludes>
             <exclude>**/*$$accessor.class</exclude>
+            <exclude>**/*__MapperGenerated*.class</exclude>
           </excludes>
         </configuration>
         <executions>
