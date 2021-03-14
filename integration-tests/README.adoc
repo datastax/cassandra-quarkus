@@ -2,18 +2,26 @@
 
 This module hosts integration tests for the Cassandra Quarkus extension.
 
+It contains the following modules:
+
+1. application: the application classes (no tests);
+2. default: the main suite of integration tests;
+3. metrics-microprofile: specific tests for metrics with MicroProfile;
+4. metrics-disabled: specific tests for disabled metrics.
+
 == Running integration tests
 
-To run the non-native integration tests simply execute:
+To run the integration tests with regular packaging, simply execute:
 
     mvn clean verify
     
-To also run integration tests that require a native image to be built, you need to activate the 
-`native` profile:
+To run the integration tests in native mode:
 
     mvn clean verify -Dnative
     
-Native tests require that you point the environment variable `GRAALVM_HOME` to a valid Graal 
-installation root. When native integration tests are activated, the build takes considerably longer 
-to finish.
+Native mode requires that you point the environment variable `GRAALVM_HOME` to a valid GraalVM
+installation root; also, Graal's `native-image` executable must have been previously installed with
+`gu install native-image`.
+
+When native mode is on, the build takes considerably longer to finish.
     

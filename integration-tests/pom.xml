@@ -25,6 +25,13 @@
   </parent>
   <artifactId>cassandra-quarkus-integration-tests</artifactId>
   <name>Cassandra Quarkus :: Integration Tests</name>
+  <packaging>pom</packaging>
+  <modules>
+    <module>application</module>
+    <module>default</module>
+    <module>metrics-microprofile</module>
+    <module>metrics-disabled</module>
+  </modules>
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -36,85 +43,6 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-  <dependencies>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-smallrye-health</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-resteasy</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-resteasy-mutiny</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-resteasy-jsonb</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-vertx-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.datastax.oss.quarkus</groupId>
-      <artifactId>cassandra-quarkus-client</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.datastax.oss</groupId>
-      <artifactId>java-driver-core</artifactId>
-      <exclusions>
-        <!-- test that these dependencies can be excluded -->
-        <exclusion>
-          <groupId>com.esri.geometry</groupId>
-          <artifactId>esri-geometry-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-databind</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.datastax.oss</groupId>
-      <artifactId>java-driver-mapper-runtime</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.lz4</groupId>
-      <artifactId>lz4-java</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-test-common</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-junit5</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.rest-assured</groupId>
-      <artifactId>rest-assured</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.datastax.oss.quarkus</groupId>
-      <artifactId>cassandra-quarkus-test-framework</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
   <build>
     <plugins>
       <plugin>
@@ -161,66 +89,21 @@
         </executions>
       </plugin>
       <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>test-jar</id>
-            <goals>
-              <goal>test-jar</goal>
-            </goals>
-          </execution>
-        </executions>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+        <configuration>
+          <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+        </configuration>
       </plugin>
     </plugins>
   </build>
   <profiles>
-    <!--
-    The "micrometer" and "microprofile" profiles can be used to switch the metrics implementation
-    during tests. Micrometer is the metrics framework by default; to switch to MicroProfile, use:
-    mvn clean verify -Dmicroprofile
-    Don't forget to clean the project before switching between metrics frameworks!
-    -->
-    <profile>
-      <id>micrometer</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-        <property>
-          <name>!microprofile</name>
-        </property>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>io.quarkus</groupId>
-          <artifactId>quarkus-micrometer</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>io.micrometer</groupId>
-          <artifactId>micrometer-registry-prometheus</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>com.datastax.oss</groupId>
-          <artifactId>java-driver-metrics-micrometer</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-    <profile>
-      <id>microprofile</id>
-      <activation>
-        <property>
-          <name>microprofile</name>
-        </property>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>io.quarkus</groupId>
-          <artifactId>quarkus-smallrye-metrics</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>com.datastax.oss</groupId>
-          <artifactId>java-driver-metrics-microprofile</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
     <profile>
       <id>vm</id>
       <activation>
