@@ -54,12 +54,16 @@
         <version>${datastax-java-driver.version}</version>
         <exclusions>
           <!--
-          This extension uses Microprofile Metrics so we don't
-          need Dropwizard Metrics.
+          This extension uses either Micrometer or Microprofile Metrics, so we don't
+          need Dropwizard Metrics nor HdrHistogram.
           -->
           <exclusion>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.hdrhistogram</groupId>
+            <artifactId>HdrHistogram</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -100,7 +104,7 @@
         <version>3.4.9</version>
         <optional>true</optional>
       </dependency>
-      <!-- Cassandra Quarkus Extension (Runtime & Test Framework) -->
+      <!-- Cassandra Quarkus Extension -->
       <dependency>
         <groupId>com.datastax.oss.quarkus</groupId>
         <artifactId>cassandra-quarkus-client</artifactId>
