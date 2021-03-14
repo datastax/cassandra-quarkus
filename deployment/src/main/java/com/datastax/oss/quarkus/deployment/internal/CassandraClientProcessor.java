@@ -34,6 +34,7 @@ import com.datastax.oss.driver.internal.core.loadbalancing.DefaultLoadBalancingP
 import com.datastax.oss.driver.internal.core.metadata.MetadataManager;
 import com.datastax.oss.driver.internal.core.metadata.NoopNodeStateListener;
 import com.datastax.oss.driver.internal.core.metadata.schema.NoopSchemaChangeListener;
+import com.datastax.oss.driver.internal.core.metrics.DefaultMetricsFactory;
 import com.datastax.oss.driver.internal.core.os.Native;
 import com.datastax.oss.driver.internal.core.retry.ConsistencyDowngradingRetryPolicy;
 import com.datastax.oss.driver.internal.core.retry.DefaultRetryPolicy;
@@ -237,8 +238,9 @@ class CassandraClientProcessor {
 
   @BuildStep
   ReflectiveClassBuildItem registerMetricsFactoriesForReflection(
+      CassandraClientBuildTimeConfig buildTimeConfig,
       Optional<MetricsCapabilityBuildItem> metricsCapability) {
-    if (metricsCapability.isPresent()) {
+    if (buildTimeConfig.metricsEnabled && metricsCapability.isPresent()) {
       MetricsCapabilityBuildItem metricsCapabilityItem = metricsCapability.get();
       if (metricsCapabilityItem.metricsSupported(MetricsFactory.MICROMETER)) {
         return new ReflectiveClassBuildItem(
@@ -252,7 +254,7 @@ class CassandraClientProcessor {
             "com.datastax.oss.driver.internal.metrics.microprofile.MicroProfileMetricsFactory");
       }
     }
-    return null;
+    return new ReflectiveClassBuildItem(true, true, DefaultMetricsFactory.class);
   }
 
   @BuildStep
@@ -273,15 +275,6 @@ class CassandraClientProcessor {
 
   @Record(STATIC_INIT)
   @BuildStep
-  void configureCompression(
-      CassandraClientRecorder recorder,
-      CassandraClientBuildTimeConfig buildTimeConfig,
-      BeanContainerBuildItem beanContainer) {
-    recorder.configureCompression(buildTimeConfig.protocolCompression);
-  }
-
-  @Record(STATIC_INIT)
-  @BuildStep
   void configureMetrics(
       CassandraClientRecorder recorder,
       CassandraClientBuildTimeConfig buildTimeConfig,
@@ -293,10 +286,20 @@ class CassandraClientProcessor {
         if (metricsCapabilityItem.metricsSupported(MetricsFactory.MICROMETER)) {
           if (checkMicrometerMetricsFactoryPresent()) {
             recorder.configureMicrometerMetrics();
+          } else {
+            LOG.warn(
+                "Micrometer metrics were enabled by configuration, but MicrometerMetricsFactory was not found.");
+            LOG.warn(
+                "Make sure to include a dependency to the java-driver-metrics-micrometer module.");
           }
         } else if (metricsCapabilityItem.metricsSupported(MetricsFactory.MP_METRICS)) {
           if (checkMicroProfileMetricsFactoryPresent()) {
             recorder.configureMicroProfileMetrics();
+          } else {
+            LOG.warn(
+                "MicroProfile metrics were enabled by configuration, but MicroProfileMetricsFactory was not found.");
+            LOG.warn(
+                "Make sure to include a dependency to the java-driver-metrics-microprofile module.");
           }
         } else {
           LOG.warn(
@@ -320,9 +323,6 @@ class CassandraClientProcessor {
       Class.forName("com.datastax.oss.driver.internal.metrics.micrometer.MicrometerMetricsFactory");
       return true;
     } catch (ClassNotFoundException ignored) {
-      LOG.warn(
-          "Micrometer metrics were enabled by configuration, but MicrometerMetricsFactory was not found.");
-      LOG.warn("Make sure to include a dependency to the java-driver-metrics-micrometer module.");
       return false;
     }
   }
@@ -333,11 +333,17 @@ class CassandraClientProcessor {
           "com.datastax.oss.driver.internal.metrics.microprofile.MicroProfileMetricsFactory");
       return true;
     } catch (ClassNotFoundException ignored) {
-      LOG.warn(
-          "MicroProfile metrics were enabled by configuration, but MicroProfileMetricsFactory was not found.");
-      LOG.warn("Make sure to include a dependency to the java-driver-metrics-microprofile module.");
       return false;
     }
+  }
+
+  @Record(STATIC_INIT)
+  @BuildStep
+  void configureCompression(
+      CassandraClientRecorder recorder,
+      CassandraClientBuildTimeConfig buildTimeConfig,
+      BeanContainerBuildItem beanContainer) {
+    recorder.configureCompression(buildTimeConfig.protocolCompression);
   }
 
   @BuildStep
