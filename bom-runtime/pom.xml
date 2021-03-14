@@ -63,21 +63,18 @@
           </exclusion>
         </exclusions>
       </dependency>
-      <!-- Driver Optional dependencies -->
+      <!-- Driver optional dependencies -->
       <dependency>
         <groupId>org.lz4</groupId>
         <artifactId>lz4-java</artifactId>
         <version>1.6.0</version>
         <optional>true</optional>
       </dependency>
-      <!--
-      Tinkerpop became optional in driver 4.10, but the Quarkus extension cannot work without it for
-      now, see https://datastax-oss.atlassian.net/browse/JAVA-2917
-      -->
       <dependency>
         <groupId>org.apache.tinkerpop</groupId>
         <artifactId>gremlin-core</artifactId>
         <version>3.4.9</version>
+        <optional>true</optional>
         <exclusions>
           <exclusion>
             <groupId>org.yaml</groupId>
@@ -101,6 +98,7 @@
         <groupId>org.apache.tinkerpop</groupId>
         <artifactId>tinkergraph-gremlin</artifactId>
         <version>3.4.9</version>
+        <optional>true</optional>
       </dependency>
       <!-- Cassandra Quarkus Extension (Runtime & Test Framework) -->
       <dependency>
