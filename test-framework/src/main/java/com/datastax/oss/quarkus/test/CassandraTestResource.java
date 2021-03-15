@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.CassandraContainer;
 import org.testcontainers.containers.wait.CassandraQueryWaitStrategy;
+import org.testcontainers.utility.DockerImageName;
 
 /**
  * A {@link QuarkusTestResourceLifecycleManager} that starts and stops a {@link CassandraContainer}.
@@ -49,7 +50,8 @@ public class CassandraTestResource implements QuarkusTestResourceLifecycleManage
 
   @Override
   public Map<String, String> start() {
-    cassandraContainer = new CassandraContainer<>();
+    cassandraContainer =
+        new CassandraContainer<>(DockerImageName.parse("cassandra").withTag("3.11.2"));
     // set init script only if it's provided by the caller
     URL resource = Thread.currentThread().getContextClassLoader().getResource("init_script.cql");
     if (resource != null) {
