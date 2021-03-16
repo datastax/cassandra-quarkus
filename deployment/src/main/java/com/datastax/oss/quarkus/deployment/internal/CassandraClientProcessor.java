@@ -53,9 +53,6 @@ import com.datastax.oss.quarkus.deployment.api.CassandraClientBuildTimeConfig;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientProducer;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientRecorder;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientStarter;
-import com.esri.core.geometry.ogc.OGCGeometry;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.BeanContainerBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeansRuntimeInitBuildItem;
@@ -77,10 +74,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
-import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistryV3d0;
 import org.jboss.jandex.DotName;
-import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,19 +90,30 @@ class CassandraClientProcessor {
   }
 
   @BuildStep
-  List<ReflectiveClassBuildItem> registerDriverUsedClassesForReflection() {
+  List<ReflectiveClassBuildItem> registerGraphForReflection() {
     return Arrays.asList(
-        new ReflectiveClassBuildItem(true, true, OGCGeometry.class.getName()),
-        new ReflectiveClassBuildItem(true, true, GraphTraversal.class.getName()),
-        new ReflectiveClassBuildItem(true, true, TinkerIoRegistryV3d0.class.getName()),
-        new ReflectiveClassBuildItem(true, true, JsonParser.class.getName()),
-        new ReflectiveClassBuildItem(true, true, ObjectMapper.class.getName()));
+        new ReflectiveClassBuildItem(
+            true, true, "org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal"),
+        new ReflectiveClassBuildItem(
+            true, true, "org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistryV3d0"));
+  }
+
+  @BuildStep
+  ReflectiveClassBuildItem registerGeometryForReflection() {
+    return new ReflectiveClassBuildItem(true, true, "com.esri.core.geometry.ogc.OGCGeometry");
+  }
+
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerJsonForReflection() {
+    return Arrays.asList(
+        new ReflectiveClassBuildItem(true, true, "com.fasterxml.jackson.core.JsonParser"),
+        new ReflectiveClassBuildItem(true, true, "com.fasterxml.jackson.databind.ObjectMapper"));
   }
 
   @BuildStep
   List<ReflectiveClassBuildItem> registerReactiveForReflection() {
     return Collections.singletonList(
-        new ReflectiveClassBuildItem(true, true, Publisher.class.getName()));
+        new ReflectiveClassBuildItem(true, true, "org.reactivestreams.Publisher"));
   }
 
   @BuildStep

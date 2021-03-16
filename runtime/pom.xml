@@ -43,18 +43,6 @@
       <groupId>com.datastax.oss</groupId>
       <artifactId>java-driver-core</artifactId>
     </dependency>
-    <!--
-    Tinkerpop became optional in driver 4.10, but the Quarkus extension cannot work without it for
-    now, see https://datastax-oss.atlassian.net/browse/JAVA-2917
-    -->
-    <dependency>
-      <groupId>org.apache.tinkerpop</groupId>
-      <artifactId>gremlin-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.tinkerpop</groupId>
-      <artifactId>tinkergraph-gremlin</artifactId>
-    </dependency>
     <!-- Driver Object Mapper -->
     <dependency>
       <groupId>com.datastax.oss</groupId>
@@ -104,6 +92,16 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tinkerpop</groupId>
+      <artifactId>gremlin-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tinkerpop</groupId>
+      <artifactId>tinkergraph-gremlin</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
