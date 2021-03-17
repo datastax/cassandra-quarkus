@@ -26,8 +26,6 @@ import io.netty.channel.EventLoopGroup;
 
 public class QuarkusDriverContext extends DefaultDriverContext {
 
-  public static final String CASSANDRA_METRICS_PREFIX = "cassandra";
-
   private final EventLoopGroup quarkusEventLoop;
 
   public QuarkusDriverContext(
@@ -45,14 +43,5 @@ public class QuarkusDriverContext extends DefaultDriverContext {
     } else {
       return super.buildNettyOptions();
     }
-  }
-
-  @NonNull
-  @Override
-  public String getSessionName() {
-    // This structure is required for metrics to have the expected prefix,
-    // until we have a way to create customizable metric prefixes in the driver, see
-    // https://datastax-oss.atlassian.net/browse/JAVA-2872
-    return CASSANDRA_METRICS_PREFIX + "." + super.getSessionName();
   }
 }

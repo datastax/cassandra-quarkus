@@ -1,3 +1,9 @@
+### 1.0.1 (in progress)
+
+- [new feature] Adapt Quarkus Cassandra metrics to JAVA-2872 (fixes #160)
+- [bug] Register DefaultMetricsFactory for reflection when metrics disabled (fixes #157)
+- [bug] Make Tinkerpop truly optional (fixes #146)
+
 ### 1.0.0
 
 - [new feature] Add support for Micrometer (fixes #150)

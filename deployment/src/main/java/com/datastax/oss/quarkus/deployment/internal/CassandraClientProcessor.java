@@ -35,6 +35,7 @@ import com.datastax.oss.driver.internal.core.metadata.MetadataManager;
 import com.datastax.oss.driver.internal.core.metadata.NoopNodeStateListener;
 import com.datastax.oss.driver.internal.core.metadata.schema.NoopSchemaChangeListener;
 import com.datastax.oss.driver.internal.core.metrics.DefaultMetricsFactory;
+import com.datastax.oss.driver.internal.core.metrics.TaggingMetricIdGenerator;
 import com.datastax.oss.driver.internal.core.os.Native;
 import com.datastax.oss.driver.internal.core.retry.ConsistencyDowngradingRetryPolicy;
 import com.datastax.oss.driver.internal.core.retry.DefaultRetryPolicy;
@@ -237,24 +238,29 @@ class CassandraClientProcessor {
   }
 
   @BuildStep
-  ReflectiveClassBuildItem registerMetricsFactoriesForReflection(
+  List<ReflectiveClassBuildItem> registerMetricsFactoriesForReflection(
       CassandraClientBuildTimeConfig buildTimeConfig,
       Optional<MetricsCapabilityBuildItem> metricsCapability) {
     if (buildTimeConfig.metricsEnabled && metricsCapability.isPresent()) {
       MetricsCapabilityBuildItem metricsCapabilityItem = metricsCapability.get();
       if (metricsCapabilityItem.metricsSupported(MetricsFactory.MICROMETER)) {
-        return new ReflectiveClassBuildItem(
-            true,
-            true,
-            "com.datastax.oss.driver.internal.metrics.micrometer.MicrometerMetricsFactory");
+        return Arrays.asList(
+            new ReflectiveClassBuildItem(
+                true,
+                true,
+                "com.datastax.oss.driver.internal.metrics.micrometer.MicrometerMetricsFactory"),
+            new ReflectiveClassBuildItem(true, true, TaggingMetricIdGenerator.class));
       } else if (metricsCapabilityItem.metricsSupported(MetricsFactory.MP_METRICS)) {
-        return new ReflectiveClassBuildItem(
-            true,
-            true,
-            "com.datastax.oss.driver.internal.metrics.microprofile.MicroProfileMetricsFactory");
+        return Arrays.asList(
+            new ReflectiveClassBuildItem(
+                true,
+                true,
+                "com.datastax.oss.driver.internal.metrics.microprofile.MicroProfileMetricsFactory"),
+            new ReflectiveClassBuildItem(true, true, TaggingMetricIdGenerator.class));
       }
     }
-    return new ReflectiveClassBuildItem(true, true, DefaultMetricsFactory.class);
+    return Collections.singletonList(
+        new ReflectiveClassBuildItem(true, true, DefaultMetricsFactory.class));
   }
 
   @BuildStep
