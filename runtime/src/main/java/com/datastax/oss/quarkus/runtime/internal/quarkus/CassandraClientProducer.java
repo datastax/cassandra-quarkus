@@ -25,6 +25,7 @@ import com.datastax.oss.driver.api.core.context.DriverContext;
 import com.datastax.oss.driver.internal.core.auth.PlainTextAuthProvider;
 import com.datastax.oss.driver.internal.core.config.typesafe.DefaultDriverConfigLoader;
 import com.datastax.oss.driver.internal.core.config.typesafe.DefaultProgrammaticDriverConfigLoaderBuilder;
+import com.datastax.oss.driver.internal.core.metrics.TaggingMetricDescriptor;
 import com.datastax.oss.driver.internal.core.util.concurrent.CompletableFutures;
 import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
@@ -165,6 +166,11 @@ public class CassandraClientProducer {
       if (checkMetricsPresent(enabledNodeMetrics, enabledSessionMetrics)) {
         configLoaderBuilder.withString(
             DefaultDriverOption.METRICS_FACTORY_CLASS, metricsFactoryClass);
+        configLoaderBuilder.withString(
+            DefaultDriverOption.METRICS_DESCRIPTOR_CLASS, TaggingMetricDescriptor.class.getName());
+        configLoaderBuilder.withString(
+            DefaultDriverOption.METRICS_DESCRIPTOR_PREFIX,
+            config.cassandraClientMetricsConfig.prefix);
         configLoaderBuilder.withStringList(
             DefaultDriverOption.METRICS_NODE_ENABLED, enabledNodeMetrics);
         configLoaderBuilder.withStringList(

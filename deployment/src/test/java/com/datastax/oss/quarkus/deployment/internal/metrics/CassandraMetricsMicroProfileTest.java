@@ -45,12 +45,14 @@ public class CassandraMetricsMicroProfileTest {
 
   @Inject QuarkusCqlSession cqlSession;
 
+  @Inject CassandraClientConfig config;
+
   @Inject
   @RegistryType(type = Type.VENDOR)
   MetricRegistry registry;
 
   @RegisterExtension
-  static final QuarkusUnitTest config =
+  static final QuarkusUnitTest quarkus =
       new QuarkusUnitTest()
           .setArchiveProducer(
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
@@ -60,7 +62,6 @@ public class CassandraMetricsMicroProfileTest {
           .withConfigurationResource("application-metrics.properties");
 
   @Test
-  @SuppressWarnings("unchecked")
   public void should_expose_driver_metrics_via_meter_registry() {
     // when
     cqlSession.execute("select *  from system.local");
@@ -72,8 +73,9 @@ public class CassandraMetricsMicroProfileTest {
             entry -> {
               Metric metric = entry.getValue();
               if (metric instanceof Gauge) {
-                assertThat(((Gauge<Number>) metric).getValue().longValue())
-                    .isGreaterThanOrEqualTo(0L);
+                @SuppressWarnings("unchecked")
+                long value = ((Gauge<Number>) metric).getValue().longValue();
+                assertThat(value).isGreaterThanOrEqualTo(0L);
               } else if (metric instanceof Metered) {
                 assertThat(((Metered) metric).getCount()).isGreaterThanOrEqualTo(0);
               } else if (metric instanceof Counter) {
@@ -101,6 +103,6 @@ public class CassandraMetricsMicroProfileTest {
   }
 
   private boolean filterAllCassandraMetrics(MetricID id) {
-    return id.getName().startsWith(CassandraClientConfig.CONFIG_NAME);
+    return id.getName().startsWith(config.cassandraClientMetricsConfig.prefix);
   }
 }

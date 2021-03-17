@@ -69,4 +69,22 @@ public class CassandraClientMetricsConfig {
    */
   @ConfigItem(name = "node.enabled")
   public Optional<List<String>> enabledNodeMetrics;
+
+  /**
+   * The prefix for metric names.
+   *
+   * <p>The prefix specified here will be prepended to generated metric names. The prefix should not
+   * start nor end with a dot or any other path separator; the following are two valid examples:
+   * "cassandra" or "myapp.prod.cassandra".
+   *
+   * <p>For example, if this prefix is set to "cassandra", the session metric "bytes-sent" would be
+   * named "cassandra.session.bytes-sent", and the node metric "bytes-sent" would be named
+   * "cassandra.nodes.bytes-sent".
+   *
+   * <p>For more information on available metrics, see <a
+   * href="https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/#configuration">
+   * Metrics configuration</a> in the Java driver manual.
+   */
+  @ConfigItem(name = "prefix", defaultValue = "cassandra")
+  public String prefix;
 }

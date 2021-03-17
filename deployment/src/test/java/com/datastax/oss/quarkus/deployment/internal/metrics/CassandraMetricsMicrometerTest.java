@@ -42,10 +42,12 @@ public class CassandraMetricsMicrometerTest {
 
   @Inject QuarkusCqlSession cqlSession;
 
+  @Inject CassandraClientConfig config;
+
   @Inject MeterRegistry registry;
 
   @RegisterExtension
-  static final QuarkusUnitTest config =
+  static final QuarkusUnitTest quarkus =
       new QuarkusUnitTest()
           .setArchiveProducer(
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
@@ -53,7 +55,9 @@ public class CassandraMetricsMicrometerTest {
               Arrays.asList(
                   new AppArtifact("io.quarkus", "quarkus-micrometer", Version.getVersion()),
                   new AppArtifact("io.quarkus", "quarkus-resteasy", Version.getVersion())))
-          .withConfigurationResource("application-metrics.properties");
+          .withConfigurationResource("application-metrics.properties")
+          // test a different prefix
+          .overrideConfigKey("quarkus.cassandra.metrics.prefix", "custom.prefix");;
 
   @Test
   public void should_expose_driver_metrics_via_meter_registry() {
@@ -94,6 +98,7 @@ public class CassandraMetricsMicrometerTest {
   }
 
   private boolean filterAllCassandraMetrics(Id id) {
-    return id.getName().startsWith(CassandraClientConfig.CONFIG_NAME);
+    assertThat(config.cassandraClientMetricsConfig.prefix).isEqualTo("custom.prefix");
+    return id.getName().startsWith(config.cassandraClientMetricsConfig.prefix);
   }
 }
