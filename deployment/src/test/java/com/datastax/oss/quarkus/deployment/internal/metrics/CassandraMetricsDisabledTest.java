@@ -19,8 +19,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.datastax.oss.driver.internal.core.context.InternalDriverContext;
 import com.datastax.oss.driver.internal.core.metrics.DefaultMetricsFactory;
+import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
+import io.micrometer.core.instrument.Meter.Id;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.quarkus.bootstrap.model.AppArtifact;
 import io.quarkus.builder.Version;
 import io.quarkus.test.QuarkusUnitTest;
@@ -37,8 +40,12 @@ public class CassandraMetricsDisabledTest {
 
   @Inject QuarkusCqlSession cqlSession;
 
+  @Inject CassandraClientConfig config;
+
+  @Inject MeterRegistry registry;
+
   @RegisterExtension
-  static final QuarkusUnitTest config =
+  static final QuarkusUnitTest quarkus =
       new QuarkusUnitTest()
           .setArchiveProducer(
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
@@ -61,5 +68,16 @@ public class CassandraMetricsDisabledTest {
         .isInstanceOf(DefaultMetricsFactory.class);
     assertThat(((InternalDriverContext) cqlSession.getContext()).getMetricRegistry()).isNull();
     assertThat(cqlSession.getMetrics()).isEmpty();
+
+    // then
+    assertThat(
+            registry.getMeters().stream()
+                .filter(metric -> filterAllCassandraMetrics(metric.getId()))
+                .count())
+        .isZero();
+  }
+
+  private boolean filterAllCassandraMetrics(Id id) {
+    return id.getName().startsWith(config.cassandraClientMetricsConfig.prefix);
   }
 }
