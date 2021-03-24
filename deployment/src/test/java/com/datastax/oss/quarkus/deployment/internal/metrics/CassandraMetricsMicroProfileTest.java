@@ -92,8 +92,7 @@ public class CassandraMetricsMicroProfileTest {
     cqlSession.execute("select *  from system.local");
 
     // then
-    int numberOfRootMetrics =
-        37; // number of metrics from java-driver in application-metrics.properties
+    int numberOfRootMetrics = 5 + 26; // 5 session metrics + 26 node metrics are enabled by default
     assertThat(
             (int)
                 registry.getMetrics().keySet().stream()

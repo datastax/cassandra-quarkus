@@ -701,11 +701,11 @@ unless you opt-in for this feature. So your next step is to enable Cassandra met
 quarkus.cassandra.metrics.enabled=true
 ----
 
-The final step that you need to do is to define which specific Cassandra metrics you would like the
-Cassandra client to report. There are several metrics that can be enabled, but they are all disabled
-by default. Also, the Cassandra client distinguishes two kinds of metrics: session-level metrics
-(the metric is global to the session object) or node-level metrics (each node contacted by the
-Cassandra client gets its own metric value).
+That's it!
+
+The final (and optional) step is to customize which specific Cassandra metrics you would like the
+Cassandra client to track. Several metrics can be tracked; if you skip this step, a default set of
+useful metrics will be automatically tracked.
 
 TIP: For the full list of available metric names, please refer to the
 link:https://docs.datastax.com/en/developer/java-driver/latest/manual/core/configuration/reference/[driver
@@ -713,10 +713,14 @@ settings reference] page; search for the `advanced.metrics` section.
 Also, Cassandra driver metrics are covered in detail in the
 https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/[driver manual].
 
-The `quarkus.cassandra.metrics.session.enabled` and `quarkus.cassandra.metrics.node.enabled`
-properties should be used for enabling metrics; the former should contain a list of session-level
-metrics to enable, while the latter should contain a list of node-level metrics to enable. Both
-properties accept a comma-separated list of valid metric names.
+If you do wish to customize which metrics to track, you should use the following properties:
+
+* `quarkus.cassandra.metrics.session.enabled` should contain the session-level metrics to enable
+  (metrics that are global to the session).
+* `quarkus.cassandra.metrics.node.enabled` should contain the node-level metrics to enable (metrics
+  for which each node contacted by the Cassandra client gets its own metric value).
+
+Both properties accept a comma-separated list of valid metric names.
 
 For example, let's assume that you wish to enable the following three Cassandra metrics:
 
