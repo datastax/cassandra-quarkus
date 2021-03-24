@@ -1,5 +1,6 @@
 ### 1.0.1 (in progress)
 
+- [improvement] Merge runtime and deployment boms (fixes #162)
 - [new feature] Adapt Quarkus Cassandra metrics to JAVA-2872 (fixes #160)
 - [bug] Register DefaultMetricsFactory for reflection when metrics disabled (fixes #157)
 - [bug] Make Tinkerpop truly optional (fixes #146)
