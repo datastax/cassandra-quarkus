@@ -35,7 +35,7 @@
     -->
     <quarkus.version>1.13.0.Final</quarkus.version>
     <datastax-java-driver.version>4.11.0</datastax-java-driver.version>
-    <datastax-java-driver.javadoc.version>4.10</datastax-java-driver.javadoc.version>
+    <datastax-java-driver.javadoc.version>4.11</datastax-java-driver.javadoc.version>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.source>1.8</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
