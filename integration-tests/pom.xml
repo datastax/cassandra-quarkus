@@ -24,11 +24,11 @@
     <version>1.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>cassandra-quarkus-integration-tests</artifactId>
-  <name>Cassandra Quarkus :: Integration Tests</name>
+  <name>Cassandra Quarkus :: IT</name>
   <packaging>pom</packaging>
   <modules>
     <module>application</module>
-    <module>default</module>
+    <module>main</module>
     <module>metrics-microprofile</module>
     <module>metrics-disabled</module>
   </modules>
