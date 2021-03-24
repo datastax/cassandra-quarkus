@@ -24,7 +24,7 @@
     <version>1.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>cassandra-quarkus-integration-tests-application</artifactId>
-  <name>Cassandra Quarkus :: Integration Tests :: Application</name>
+  <name>Cassandra Quarkus :: IT :: Application</name>
   <dependencies>
     <dependency>
       <groupId>io.quarkus</groupId>

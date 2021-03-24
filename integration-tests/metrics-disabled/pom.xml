@@ -24,7 +24,7 @@
     <version>1.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>cassandra-quarkus-integration-tests-metrics-disabled</artifactId>
-  <name>Cassandra Quarkus :: Integration Tests :: Metrics Disabled Tests</name>
+  <name>Cassandra Quarkus :: IT :: Metrics Disabled Tests</name>
   <dependencies>
     <dependency>
       <groupId>com.datastax.oss.quarkus</groupId>
