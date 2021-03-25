@@ -57,7 +57,7 @@ public class CassandraMetricsMicrometerTest {
                   new AppArtifact("io.quarkus", "quarkus-resteasy", Version.getVersion())))
           .withConfigurationResource("application-metrics.properties")
           // test a different prefix
-          .overrideConfigKey("quarkus.cassandra.metrics.prefix", "custom.prefix");;
+          .overrideConfigKey("quarkus.cassandra.metrics.prefix", "custom.prefix");
 
   @Test
   public void should_expose_driver_metrics_via_meter_registry() {
@@ -87,8 +87,7 @@ public class CassandraMetricsMicrometerTest {
     cqlSession.execute("select *  from system.local");
 
     // then
-    int numberOfRootMetrics =
-        37; // number of metrics from java-driver in application-metrics.properties
+    int numberOfRootMetrics = 5 + 26; // 5 session metrics + 26 node metrics are enabled by default
     assertThat(
             (int)
                 registry.getMeters().stream()

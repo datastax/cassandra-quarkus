@@ -48,14 +48,18 @@ public class CassandraClientBuildTimeConfig {
    * enable metrics globally, and java-driver-metrics-microprofile, which will enable
    * driver-specific metrics to be reported.
    *
-   * <p>Lastly, you also need to enable at least one individual metric to track, otherwise the
-   * driver won't feed any metric into the registry. For example:
+   * <p>Lastly, you can also customize which session-level and node-level metrics you wish the
+   * driver to track for you. This is done with two other properties: session.enabled and
+   * node.enabled respectively. For example:
    *
    * <pre>{@code
    * quarkus.cassandra.metrics.enabled=true
    * quarkus.cassandra.metrics.session.enabled=cql-requests,cql-client-timeouts
    * quarkus.cassandra.metrics.node.enabled=pool.open-connections,pool.in-flight,cql-messages
    * }</pre>
+   *
+   * If you don't specify the session-level or the node-level metrics to track, a default list of
+   * useful metrics will be used.
    *
    * <p>For more information on available metrics, see <a
    * href="https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/#configuration">

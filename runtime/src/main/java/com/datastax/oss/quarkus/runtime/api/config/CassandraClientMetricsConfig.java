@@ -28,8 +28,8 @@ public class CassandraClientMetricsConfig {
    * The metric names specified here will be taken into account only if metrics are globally
    * enabled, that is, if {@code quarkus.cassandra.metrics.enabled = true}.
    *
-   * <p>If this setting is not present, it will default to empty list and no node-level metrics will
-   * be available.
+   * <p>If this setting is not present, it will default to a list of the most useful session-level
+   * metrics to enable.
    *
    * <p>Example configuration:
    *
@@ -43,7 +43,14 @@ public class CassandraClientMetricsConfig {
    * href="https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/#configuration">
    * Metrics configuration</a> in the Java driver manual.
    */
-  @ConfigItem(name = "session.enabled")
+  @ConfigItem(
+      name = "session.enabled",
+      defaultValue =
+          "bytes-sent,"
+              + "bytes-received,"
+              + "connected-nodes,"
+              + "cql-requests,"
+              + "cql-client-timeouts")
   public Optional<List<String>> enabledSessionMetrics;
 
   /**
@@ -52,8 +59,8 @@ public class CassandraClientMetricsConfig {
    * <p>The metric names specified here will be taken into account only if metrics are globally
    * enabled, that is, if {@code quarkus.cassandra.metrics.enabled = true}.
    *
-   * <p>If this setting is not present, it will default to empty list and no node-level metrics will
-   * be available.
+   * <p>If this setting is not present, it will default to a list of the most useful node-level
+   * metrics to enable.
    *
    * <p>Example configuration:
    *
@@ -67,7 +74,35 @@ public class CassandraClientMetricsConfig {
    * href="https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/#configuration">
    * Metrics configuration</a> in the Java driver manual.
    */
-  @ConfigItem(name = "node.enabled")
+  @ConfigItem(
+      name = "node.enabled",
+      defaultValue =
+          "pool.open-connections,"
+              + "pool.in-flight,"
+              + "bytes-sent,"
+              + "bytes-received,"
+              + "cql-messages,"
+              + "errors.request.unsent,"
+              + "errors.request.aborted,"
+              + "errors.request.write-timeouts,"
+              + "errors.request.read-timeouts,"
+              + "errors.request.unavailables,"
+              + "errors.request.others,"
+              + "errors.connection.init,"
+              + "errors.connection.auth,"
+              + "retries.total,"
+              + "retries.aborted,"
+              + "retries.read-timeout,"
+              + "retries.write-timeout,"
+              + "retries.unavailable,"
+              + "retries.other,"
+              + "ignores.total,"
+              + "ignores.aborted,"
+              + "ignores.read-timeout,"
+              + "ignores.write-timeout,"
+              + "ignores.unavailable,"
+              + "ignores.other,"
+              + "speculative-executions")
   public Optional<List<String>> enabledNodeMetrics;
 
   /**
