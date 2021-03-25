@@ -366,7 +366,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   <excludePackageNames>com.datastax.oss.quarkus.*.internal,com.datastax.oss.quarkus.*.internal.*</excludePackageNames>
                   <links>
                     <link>https://docs.datastax.com/en/drivers/java/${datastax-java-driver.javadoc.version}/</link>
-                    <link>https://smallrye.io/smallrye-mutiny/apidocs/</link>
+                    <link>http://smallrye.io/smallrye-reactive-utils/apidocs/</link>
                     <link>https://www.reactive-streams.org/reactive-streams-1.0.3-javadoc/</link>
                   </links>
                   <sourceFileExcludes>

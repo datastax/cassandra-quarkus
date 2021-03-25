@@ -263,7 +263,7 @@
                 <configuration>
                   <links>
                     <link>https://docs.datastax.com/en/drivers/java/latest/</link>
-                    <link>https://smallrye.io/smallrye-mutiny/apidocs/</link>
+                    <link>http://smallrye.io/smallrye-reactive-utils/apidocs/</link>
                     <link>https://www.reactive-streams.org/reactive-streams-1.0.3-javadoc/</link>
                   </links>
                   <sourceFileExcludes>
