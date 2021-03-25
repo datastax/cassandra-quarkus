@@ -10,53 +10,39 @@ def initializeEnvironment() {
 
   env.MAVEN_HOME = "${env.HOME}/.mvn/apache-maven-3.6.0"
   env.PATH = "${env.MAVEN_HOME}/bin:${env.PATH}"
-  env.JAVA_HOME = sh(label: 'Get JAVA_HOME',script: '''#!/bin/bash -le
-    . ${JABBA_SHELL}
-    jabba which ${JABBA_VERSION}''', returnStdout: true).trim()
-  env.JAVA8_HOME = sh(label: 'Get JAVA8_HOME',script: '''#!/bin/bash -le
-    . ${JABBA_SHELL}
-    jabba which 1.8''', returnStdout: true).trim()
-
 
   sh label: 'Display Java and environment information',script: '''#!/bin/bash -le
-    # Load CCM environment variables
-
     . ${JABBA_SHELL}
+    
+    echo "Java version used for compilation:"
     jabba use ${JABBA_VERSION}
-
     java -version
+    
+    echo "Java version used for native image generation:"
+    jabba use ${GRAALVM_VERSION}
+    java -version
+    
+    echo "Maven version:"
     mvn -v
+    
+    echo "Environment:"
     printenv | sort
   '''
 }
 
-def buildQuarkusExtension(jabbaVersion) {
-  withEnv(["BUILD_JABBA_VERSION=${jabbaVersion}"]) {
-    sh label: 'Build driver', script: '''#!/bin/bash -le
-      . ${JABBA_SHELL}
-      jabba use ${BUILD_JABBA_VERSION}
-
-      mvn -B -V install -DskipTests -Dmaven.javadoc.skip=true
-    '''
-  }
+def buildAndExecuteTests() {
+  sh label: 'Build and execute tests in non-native mode with release profile', script: '''#!/bin/bash -le
+    . ${JABBA_SHELL}
+    jabba use ${JABBA_VERSION}
+    mvn -B -V install -Prelease -Dgpg.skip
+  '''
 }
 
-def executeTestsNative() {
-  sh label: 'Execute tests Native', script: '''#!/bin/bash -le
-    # Load CCM environment variables
-    
+def executeNativeTests() {
+  sh label: 'Execute integration tests in native mode', script: '''#!/bin/bash -le
     . ${JABBA_SHELL}
     jabba use ${GRAALVM_VERSION}
-
-    if [ "${JABBA_VERSION}" != "1.8" ]; then
-      SKIP_JAVADOCS=true
-    else
-      SKIP_JAVADOCS=false
-    fi
-
-    printenv | sort
-    
-    mvn -B -V verify -Dnative -Dmaven.javadoc.skip=${SKIP_JAVADOCS}
+    mvn -B -V verify -Dnative  -rf :cassandra-quarkus-integration-tests -Djacoco.skip=true
   '''
 }
 
@@ -73,7 +59,7 @@ pipeline {
 
   // Global pipeline timeout
   options {
-    timeout(time: 30, unit: 'MINUTES')
+    timeout(time: 1, unit: 'HOURS')
     buildDiscarder(logRotator(artifactNumToKeepStr: '10', // Keep only the last 10 artifacts
                               numToKeepStr: '50'))        // Keep only the last 50 build records
   }
@@ -87,7 +73,7 @@ pipeline {
   stages {
     stage ('default') {
       options {
-        timeout(time: 30, unit: 'MINUTES')
+        timeout(time: 1, unit: 'HOURS')
       }
       when {
         beforeAgent true
@@ -100,7 +86,6 @@ pipeline {
           label "${OS_VERSION}"
         }
         environment {
-          // Per-commit builds are only going to run against JDK8
           JABBA_VERSION = '1.8'
           GRAALVM_VERSION = 'graalvm-ce-java8@21.0'
         }
@@ -112,15 +97,10 @@ pipeline {
             }
           }
 
-          stage('Build-Quarkus-Extension') {
-            steps {
-              buildQuarkusExtension(env.JABBA_VERSION)
-            }
-          }
-          stage('Execute-Tests-Native') {
+          stage('Build-And-Execute-Tests') {
             steps {
               catchError {
-                executeTestsNative()
+                buildAndExecuteTests()
               }
             }
             post {
@@ -135,6 +115,15 @@ pipeline {
               }
             }
           }
+
+          stage('Native-Tests') {
+            steps {
+              catchError {
+                executeNativeTests()
+              }
+            }
+          }
+
           stage('Execute-Code-Coverage') {
             steps {
               executeCodeCoverage()
