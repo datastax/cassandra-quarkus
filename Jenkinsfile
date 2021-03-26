@@ -116,6 +116,12 @@ pipeline {
             }
           }
 
+          stage('Execute-Code-Coverage') {
+            steps {
+              executeCodeCoverage()
+            }
+          }
+
           stage('Native-Tests') {
             steps {
               catchError {
@@ -124,11 +130,6 @@ pipeline {
             }
           }
 
-          stage('Execute-Code-Coverage') {
-            steps {
-              executeCodeCoverage()
-            }
-          }
         }
     }
   }
