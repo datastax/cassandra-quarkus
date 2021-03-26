@@ -2,7 +2,7 @@
 
 - [improvement] Enable most useful metrics by default (fixes #164)
 - [improvement] Upgrade driver to 4.11.0
-- [improvement] Upgrade Quarkus to 1.13.0.Final
+- [improvement] Upgrade Quarkus to 1.12.2.Final
 - [improvement] Merge runtime and deployment boms (fixes #162)
 - [new feature] Adapt Quarkus Cassandra metrics to JAVA-2872 (fixes #160)
 - [bug] Register DefaultMetricsFactory for reflection when metrics disabled (fixes #157)
