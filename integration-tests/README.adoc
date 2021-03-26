@@ -9,6 +9,12 @@ It contains the following modules:
 3. metrics-microprofile: specific tests for metrics with MicroProfile;
 4. metrics-disabled: specific tests for disabled metrics.
 
+IMPORTANT: Integration tests in submodules of this module are executed as part of the Quarkus
+Platform builds. For this reason they need to be deployed to Maven Central. Any changes in the
+integration tests modules should be reflected in
+https://github.com/quarkusio/quarkus-platform/blob/main/integration-tests/cassandra/invoked/root/pom.xml[this
+Quarkus Platform POM].
+
 == Running integration tests
 
 To run the integration tests with regular packaging, simply execute:
