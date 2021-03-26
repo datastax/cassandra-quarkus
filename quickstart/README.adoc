@@ -156,7 +156,7 @@ the fruits from the Cassandra database.
 @ApplicationScoped
 public class FruitService {
 
-  @Inject private FruitDao dao;
+  @Inject FruitDao dao;
 
   public void save(Fruit fruit) {
     dao.update(fruit);
@@ -477,12 +477,7 @@ Now, we can create a `ReactiveFruitService` that leverages our reactive DAO:
 @ApplicationScoped
 public class ReactiveFruitService {
 
-  private final ReactiveFruitDao fruitDao;
-
-  @Inject
-  public ReactiveFruitService(ReactiveFruitDao fruitDao) {
-    this.fruitDao = fruitDao;
-  }
+  @Inject ReactiveFruitDao fruitDao;
 
   public Uni<Void> add(Fruit fruit) {
     return fruitDao.update(fruit);
