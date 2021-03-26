@@ -1,4 +1,4 @@
-### 1.0.1 (in progress)
+### 1.0.1
 
 - [improvement] Enable most useful metrics by default (fixes #164)
 - [improvement] Upgrade driver to 4.11.0
