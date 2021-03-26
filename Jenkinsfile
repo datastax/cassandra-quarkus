@@ -48,7 +48,7 @@ def executeNativeTests() {
 
 def executeCodeCoverage() {
   jacoco(
-    execPattern: '**/target/jacoco.exec',
+    execPattern: '**/target/*.exec',
     classPattern: '**/classes',
     sourcePattern: '**/src/main/java'
   )
