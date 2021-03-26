@@ -28,14 +28,6 @@
   <name>Cassandra Quarkus :: BOM</name>
   <dependencyManagement>
     <dependencies>
-      <!-- Quarkus BOM -->
-      <dependency>
-        <groupId>io.quarkus</groupId>
-        <artifactId>quarkus-bom</artifactId>
-        <version>${quarkus.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
       <!-- DataStax Java Driver BOM -->
       <dependency>
         <groupId>com.datastax.oss</groupId>
