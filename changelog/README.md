@@ -1,3 +1,7 @@
+### 1.0.2 (in progress)
+
+- [bug] Use Thread context class loader in QuarkusDriverContext (fixes #171)
+
 ### 1.0.1
 
 - [improvement] Enable most useful metrics by default (fixes #164)
