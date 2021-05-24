@@ -36,7 +36,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Stream;
 import org.eclipse.microprofile.health.HealthCheckResponse;
-import org.eclipse.microprofile.health.HealthCheckResponse.State;
+import org.eclipse.microprofile.health.HealthCheckResponse.Status;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -66,7 +66,7 @@ public class CassandraAsyncHealthCheckTest {
     expected.put("numberOfNodes", numberOfNodes);
     HealthCheckResponse health =
         cassandraHealthIndicator.call().await().atMost(Duration.ofSeconds(1));
-    assertThat(health.getState()).isEqualTo(State.UP);
+    assertThat(health.getStatus()).isEqualTo(Status.UP);
     assertThat(health.getData().get()).isEqualTo(expected);
   }
 
@@ -86,7 +86,7 @@ public class CassandraAsyncHealthCheckTest {
     HealthCheckResponse health =
         cassandraHealthIndicator.call().await().atMost(Duration.ofSeconds(1));
     ;
-    assertThat(health.getState()).isEqualTo(State.DOWN);
+    assertThat(health.getStatus()).isEqualTo(Status.DOWN);
     assertThat(health.getData().get()).containsKeys("reason");
   }
 
@@ -104,7 +104,7 @@ public class CassandraAsyncHealthCheckTest {
     HealthCheckResponse health =
         cassandraHealthIndicator.call().await().atMost(Duration.ofSeconds(1));
     ;
-    assertThat(health.getState()).isEqualTo(State.DOWN);
+    assertThat(health.getStatus()).isEqualTo(Status.DOWN);
     assertThat(health.getData().get())
         .isEqualTo(ImmutableMap.of("reason", "system.local returned null"));
   }

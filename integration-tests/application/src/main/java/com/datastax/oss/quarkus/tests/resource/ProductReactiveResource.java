@@ -19,7 +19,6 @@ import com.datastax.oss.quarkus.tests.entity.Product;
 import com.datastax.oss.quarkus.tests.service.ProductReactiveService;
 import io.quarkus.vertx.web.Route;
 import io.quarkus.vertx.web.RoutingExchange;
-import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.Json;
 import java.util.UUID;
 import javax.enterprise.context.ApplicationScoped;
@@ -34,7 +33,7 @@ public class ProductReactiveResource {
 
   @Route(
       path = "/rx/product",
-      methods = HttpMethod.POST,
+      methods = Route.HttpMethod.POST,
       consumes = MediaType.APPLICATION_JSON,
       order = 1)
   public void createProduct(RoutingExchange ex) {
@@ -47,7 +46,7 @@ public class ProductReactiveResource {
 
   @Route(
       path = "/rx/product/:id",
-      methods = HttpMethod.PUT,
+      methods = Route.HttpMethod.PUT,
       consumes = MediaType.APPLICATION_JSON,
       order = 1)
   public void updateProduct(RoutingExchange ex) {
@@ -60,7 +59,7 @@ public class ProductReactiveResource {
         .with(v -> ex.response().setStatusCode(Status.OK.getStatusCode()).end());
   }
 
-  @Route(path = "/rx/product/:id", methods = HttpMethod.DELETE, order = 1)
+  @Route(path = "/rx/product/:id", methods = Route.HttpMethod.DELETE, order = 1)
   public void deleteProduct(RoutingExchange ex) {
     UUID id = ex.getParam("id").map(UUID::fromString).orElseThrow(IllegalStateException::new);
     service
@@ -71,7 +70,7 @@ public class ProductReactiveResource {
 
   @Route(
       path = "/rx/product/:id",
-      methods = HttpMethod.GET,
+      methods = Route.HttpMethod.GET,
       produces = MediaType.APPLICATION_JSON,
       order = 1)
   public void findProduct(RoutingExchange ex) {
@@ -94,13 +93,13 @@ public class ProductReactiveResource {
 
   @Route(
       path = "/rx/product",
-      methods = HttpMethod.GET,
+      methods = Route.HttpMethod.GET,
       produces = MediaType.APPLICATION_JSON,
       order = 1)
   public void findAllProducts(RoutingExchange ex) {
     service
         .findAll()
-        .collectItems()
+        .collect()
         .asList()
         .subscribe()
         .with(
