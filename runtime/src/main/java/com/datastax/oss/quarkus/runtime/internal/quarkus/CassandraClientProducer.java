@@ -72,7 +72,9 @@ public class CassandraClientProducer {
     configureMetricsSettings(configLoaderBuilder, config);
     configureProtocolCompression(configLoaderBuilder);
     QuarkusCqlSessionBuilder builder =
-        new QuarkusCqlSessionBuilder().withConfigLoader(configLoaderBuilder.build());
+        new QuarkusCqlSessionBuilder()
+            .withConfigLoader(configLoaderBuilder.build())
+            .withClassLoader(Thread.currentThread().getContextClassLoader());
     if (metricRegistry != null) {
       LOG.debug("Metric registry = {}", metricRegistry);
       builder.withMetricRegistry(metricRegistry);
