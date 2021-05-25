@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.tests.main;
+package com.datastax.oss.quarkus.tests.driver;
 
 import com.datastax.oss.driver.api.core.context.DriverContext;
 import com.datastax.oss.driver.api.core.metadata.Node;
@@ -37,6 +37,6 @@ public class CustomLoadBalancingPolicy extends DefaultLoadBalancingPolicy {
   @NonNull
   @Override
   protected Optional<String> discoverLocalDc(@NonNull Map<UUID, Node> nodes) {
-    return Optional.of("datacenter1");
+    return Optional.empty();
   }
 }
