@@ -22,7 +22,7 @@ link:http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.datastax.oss%22.quark
 
 The extension is compatible with Quarkus version 1.8.0.Final and higher.
 
-It requires Java 8 or higher.
+It requires Java 11 or higher.
 
 == Useful links
 

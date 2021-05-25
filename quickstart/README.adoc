@@ -26,7 +26,7 @@ In this guide, we will see how you can get your REST services to use a Cassandra
 To complete this quickstart guide, you need:
 
 * an IDE;
-* JDK 1.8+ installed with `JAVA_HOME` configured appropriately;
+* JDK 11+ installed with `JAVA_HOME` configured appropriately;
 * link:https://www.graalvm.org/[GraalVM] installed with the `GRAALVM_HOME` environment variable
   configured appropriately, if you want to
   link:https://quarkus.io/guides/building-native-image[use the native mode];
