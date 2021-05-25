@@ -1,5 +1,6 @@
 ### 1.0.2 (in progress)
 
+- [bug] Register MutinyResultProducerService as ServiceProviderBuildItem (fixes #174)
 - [bug] Use Thread context class loader in QuarkusDriverContext (fixes #171)
 
 ### 1.0.1
