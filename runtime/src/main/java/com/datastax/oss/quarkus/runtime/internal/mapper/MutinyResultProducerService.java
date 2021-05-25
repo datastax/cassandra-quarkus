@@ -19,7 +19,7 @@ import com.datastax.oss.driver.api.mapper.result.MapperResultProducer;
 import com.datastax.oss.driver.api.mapper.result.MapperResultProducerService;
 import java.util.Arrays;
 
-public class MutinyProducerService implements MapperResultProducerService {
+public class MutinyResultProducerService implements MapperResultProducerService {
 
   @Override
   public Iterable<MapperResultProducer> getProducers() {
