@@ -42,7 +42,7 @@ def executeNativeTests() {
   sh label: 'Execute integration tests in native mode', script: '''#!/bin/bash -le
     . ${JABBA_SHELL}
     jabba use ${GRAALVM_VERSION}
-    mvn -B -V verify -Dnative  -rf :cassandra-quarkus-integration-tests -Djacoco.skip=true
+    mvn -B -V verify -Dnative -rf :cassandra-quarkus-integration-tests -Djacoco.skip=true
   '''
 }
 
@@ -86,8 +86,8 @@ pipeline {
           label "${OS_VERSION}"
         }
         environment {
-          JABBA_VERSION = '11'
-          GRAALVM_VERSION = 'graalvm-ce-java11@21.0'
+          JABBA_VERSION = 'openjdk@1.11'
+          GRAALVM_VERSION = 'graalvm-ce-java11@21.1.0'
         }
 
         stages {
