@@ -38,7 +38,7 @@ public class CassandraMetricsIT {
 
     // then
     when()
-        .get("/metrics")
+        .get("/q/metrics")
         .then()
         .statusCode(Status.OK.getStatusCode())
         .body(containsString("open_connections"))

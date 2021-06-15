@@ -33,7 +33,7 @@ public class CassandraHealthCheckIT {
   public void should_report_status_up_by_the_health_check() {
 
     when()
-        .get("/health/ready")
+        .get("/q/health/ready")
         .then()
         .statusCode(Status.OK.getStatusCode())
         .body("status", equalTo("UP"))

@@ -1,3 +1,9 @@
+### 1.1.0-rc1
+
+This release is built against Quarkus 2.0.0.Final and the Cassandra driver 4.12.0.
+
+- [improvement] Upgrade to Quarkus 2.0 (fixes #172)
+
 ### 1.0.2
 
 This release is built against Quarkus 1.13.7.Final and the Cassandra driver 4.11.2.
