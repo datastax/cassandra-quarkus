@@ -33,9 +33,8 @@
     Note: when upgrading the Quarkus version or the DataStax Java driver version, make sure that you
     upgrade them in the quickstart module too.
     -->
-    <quarkus.version>1.13.2.Final</quarkus.version>
-    <datastax-java-driver.version>4.11.2-SNAPSHOT</datastax-java-driver.version>
-    <datastax-java-driver.javadoc.version>4.11</datastax-java-driver.javadoc.version>
+    <quarkus.version>1.13.7.Final</quarkus.version>
+    <datastax-java-driver.version>4.11.2</datastax-java-driver.version>
     <maven.compiler.target>11</maven.compiler.target>
     <maven.compiler.source>11</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -349,23 +348,9 @@ limitations under the License.]]></inlineHeader>
                   <goal>jar</goal>
                 </goals>
                 <configuration>
-                  <header><![CDATA[<!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-TWSQ28');</script>
-<!-- End Google Tag Manager -->
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TWSQ28"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->]]></header>
-                  <additionalOptions>
-                    <additionalOption>--allow-script-in-comments</additionalOption>
-                  </additionalOptions>
                   <excludePackageNames>com.datastax.oss.quarkus.*.internal,com.datastax.oss.quarkus.*.internal.*</excludePackageNames>
                   <links>
-                    <link>https://docs.datastax.com/en/drivers/java/${datastax-java-driver.javadoc.version}/</link>
+                    <link>https://javadoc.io/doc/com.datastax.oss/java-driver-core/${datastax-java-driver.version}/</link>
                     <link>http://smallrye.io/smallrye-reactive-utils/apidocs/</link>
                     <link>https://www.reactive-streams.org/reactive-streams-1.0.3-javadoc/</link>
                   </links>
