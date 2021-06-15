@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.datastax.oss.quarkus</groupId>
   <artifactId>cassandra-quarkus-parent</artifactId>
-  <version>1.0.2-SNAPSHOT</version>
+  <version>1.0.2</version>
   <packaging>pom</packaging>
   <name>Cassandra Quarkus :: Parent</name>
   <description>Quarkus extension for Apache Cassandra(R)</description>
@@ -395,7 +395,7 @@ limitations under the License.]]></inlineHeader>
     <connection>scm:git:git@github.com:datastax/cassandra-quarkus.git</connection>
     <developerConnection>scm:git:git@github.com:datastax/cassandra-quarkus.git</developerConnection>
     <url>https://github.com/datastax/cassandra-quarkus</url>
-    <tag>HEAD</tag>
+    <tag>1.0.2</tag>
   </scm>
   <developers>
     <developer>
