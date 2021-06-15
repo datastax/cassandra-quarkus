@@ -35,7 +35,6 @@
     -->
     <quarkus.version>1.13.7.Final</quarkus.version>
     <datastax-java-driver.version>4.11.2</datastax-java-driver.version>
-    <datastax-java-driver.javadoc.version>4.11</datastax-java-driver.javadoc.version>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.source>1.8</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -365,7 +364,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                   </additionalOptions>
                   <excludePackageNames>com.datastax.oss.quarkus.*.internal,com.datastax.oss.quarkus.*.internal.*</excludePackageNames>
                   <links>
-                    <link>https://docs.datastax.com/en/drivers/java/${datastax-java-driver.javadoc.version}/</link>
+                    <link>https://javadoc.io/doc/com.datastax.oss/java-driver-core/${datastax-java-driver.version}/</link>
                     <link>http://smallrye.io/smallrye-reactive-utils/apidocs/</link>
                     <link>https://www.reactive-streams.org/reactive-streams-1.0.3-javadoc/</link>
                   </links>
