@@ -52,7 +52,6 @@ import com.datastax.oss.driver.internal.core.time.ThreadLocalTimestampGenerator;
 import com.datastax.oss.driver.internal.core.tracker.NoopRequestTracker;
 import com.datastax.oss.driver.internal.core.tracker.RequestLogger;
 import com.datastax.oss.quarkus.deployment.api.CassandraClientBuildTimeConfig;
-import com.datastax.oss.quarkus.runtime.internal.mapper.MutinyResultProducerService;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientProducer;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientRecorder;
 import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientStarter;
@@ -408,6 +407,6 @@ class CassandraClientProcessor {
   ServiceProviderBuildItem registerMutinyResultProducerService() {
     return new ServiceProviderBuildItem(
         "com.datastax.oss.driver.api.mapper.result.MapperResultProducerService",
-        MutinyResultProducerService.class.getName());
+        "com.datastax.oss.quarkus.runtime.internal.mapper.MutinyResultProducerService");
   }
 }
