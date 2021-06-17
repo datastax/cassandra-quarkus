@@ -21,7 +21,7 @@
   <parent>
     <groupId>com.datastax.oss.quarkus</groupId>
     <artifactId>cassandra-quarkus-parent</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.3</version>
   </parent>
   <artifactId>cassandra-quarkus-integration-tests</artifactId>
   <name>Cassandra Quarkus :: IT</name>
