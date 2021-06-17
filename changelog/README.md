@@ -1,8 +1,21 @@
+### 1.1.0-rc2
+
+This release is built against Quarkus 2.0.0.Final and the Cassandra driver 4.12.0.
+
+Merged from 1.0.x:
+
+- [bug] Do not reference MutinyResultProducerService directly (fixes #178)
+
 ### 1.1.0-rc1
 
 This release is built against Quarkus 2.0.0.Final and the Cassandra driver 4.12.0.
 
 - [improvement] Upgrade to Quarkus 2.0 (fixes #172)
+  
+Merged from 1.0.x:
+
+- [bug] Register MutinyResultProducerService as ServiceProviderBuildItem (fixes #174)
+- [bug] Use Thread context class loader in QuarkusDriverContext (fixes #171)
 
 ### 1.0.3
 
