@@ -4,6 +4,12 @@ This release is built against Quarkus 2.0.0.Final and the Cassandra driver 4.12.
 
 - [improvement] Upgrade to Quarkus 2.0 (fixes #172)
 
+### 1.0.3
+
+This release is built against Quarkus 1.13.7.Final and the Cassandra driver 4.11.2.
+
+- [bug] Do not reference MutinyResultProducerService directly (fixes #178)
+
 ### 1.0.2
 
 This release is built against Quarkus 1.13.7.Final and the Cassandra driver 4.11.2.
