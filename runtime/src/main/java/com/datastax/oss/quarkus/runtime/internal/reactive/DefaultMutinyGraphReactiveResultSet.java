@@ -32,10 +32,10 @@ public class DefaultMutinyGraphReactiveResultSet extends AbstractMulti<ReactiveG
   private final Multi<ExecutionInfo> executionInfos;
 
   public DefaultMutinyGraphReactiveResultSet(ReactiveGraphResultSet reactiveGraphResultSet) {
-    multi = Wrappers.toMulti(reactiveGraphResultSet);
+    multi = MutinyWrappers.toMulti(reactiveGraphResultSet);
     @SuppressWarnings("unchecked")
     Multi<ExecutionInfo> executionInfos =
-        (Multi<ExecutionInfo>) Wrappers.toMulti(reactiveGraphResultSet.getExecutionInfos());
+        (Multi<ExecutionInfo>) MutinyWrappers.toMulti(reactiveGraphResultSet.getExecutionInfos());
     this.executionInfos = executionInfos;
   }
 

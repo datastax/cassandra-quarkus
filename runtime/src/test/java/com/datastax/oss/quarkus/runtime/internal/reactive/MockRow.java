@@ -32,7 +32,7 @@ import java.nio.ByteBuffer;
 
 class MockRow implements Row {
 
-  private int index;
+  private final int index;
 
   MockRow(int index) {
     this.index = index;

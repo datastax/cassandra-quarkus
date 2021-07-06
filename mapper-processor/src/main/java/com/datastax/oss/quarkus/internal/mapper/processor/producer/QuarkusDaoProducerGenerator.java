@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.internal.mapper.processor;
+package com.datastax.oss.quarkus.internal.mapper.processor.producer;
 
 import com.datastax.oss.driver.internal.mapper.processor.GeneratedNames;
 import com.datastax.oss.driver.internal.mapper.processor.MethodGenerator;
@@ -21,6 +21,9 @@ import com.datastax.oss.driver.internal.mapper.processor.ProcessorContext;
 import com.datastax.oss.driver.internal.mapper.processor.SingleFileCodeGenerator;
 import com.datastax.oss.driver.internal.mapper.processor.util.Capitalizer;
 import com.datastax.oss.driver.internal.mapper.processor.util.NameIndex;
+import com.datastax.oss.quarkus.internal.mapper.processor.QuarkusCodeGeneratorFactory;
+import com.datastax.oss.quarkus.internal.mapper.processor.QuarkusGeneratedNames;
+import com.datastax.oss.quarkus.internal.mapper.processor.mapper.QuarkusMapperGenerator;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;

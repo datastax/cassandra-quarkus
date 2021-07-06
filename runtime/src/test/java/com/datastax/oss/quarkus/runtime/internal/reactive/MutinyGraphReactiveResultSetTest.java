@@ -17,25 +17,26 @@ package com.datastax.oss.quarkus.runtime.internal.reactive;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.datastax.dse.driver.internal.core.cql.reactive.DefaultReactiveResultSet;
+import com.datastax.dse.driver.api.core.graph.GraphNode;
+import com.datastax.dse.driver.internal.core.graph.reactive.DefaultReactiveGraphResultSet;
 import io.smallrye.mutiny.Multi;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-class MutinyReactiveResultSetTest {
+class MutinyGraphReactiveResultSetTest {
 
   @Test
-  public void should_validate_reactive_result_set() {
+  public void should_validate_graph_reactive_result_set() {
     // given
     List<Integer> items = new ArrayList<>();
 
     // when
-
     Multi<Integer> resultSet =
-        new DefaultMutinyReactiveResultSet(
-                new DefaultReactiveResultSet(() -> MockAsyncResultSet.createResults(4, 5)))
-            .map(row -> row.getInt(0));
+        new DefaultMutinyGraphReactiveResultSet(
+                new DefaultReactiveGraphResultSet(
+                    () -> MockAsyncGraphResultSet.createGraphResults(4, 5)))
+            .map(GraphNode::asInt);
 
     // then
     resultSet.subscribe().with(items::add);

@@ -16,23 +16,44 @@
 package com.datastax.oss.quarkus.runtime.internal.reactive;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.datastax.dse.driver.api.core.graph.AsyncGraphResultSet;
 import com.datastax.dse.driver.api.core.graph.GraphNode;
 import com.datastax.dse.driver.internal.core.graph.GraphExecutionInfoConverter;
 import com.datastax.oss.driver.api.core.cql.ExecutionInfo;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import org.assertj.core.util.Lists;
 
 public class MockAsyncGraphResultSet implements AsyncGraphResultSet {
 
+  public static CompletableFuture<AsyncGraphResultSet> createGraphResults(
+      int numPages, int elementsPerPage) {
+    CompletableFuture<AsyncGraphResultSet> previous = null;
+    for (int i = 0; i < numPages; i++) {
+      List<GraphNode> nodes = new ArrayList<>();
+      for (int j = 0; j < elementsPerPage; j++) {
+        GraphNode node = mock(GraphNode.class);
+        when(node.asInt()).thenReturn(i);
+        nodes.add(node);
+      }
+      CompletableFuture<AsyncGraphResultSet> future = new CompletableFuture<>();
+      future.complete(new MockAsyncGraphResultSet(nodes, previous));
+      previous = future;
+    }
+    return previous;
+  }
+
   private final List<GraphNode> rows;
   private final Iterator<GraphNode> iterator;
   private final CompletionStage<AsyncGraphResultSet> nextPage;
   private final ExecutionInfo executionInfo = mock(ExecutionInfo.class);
+
   private int remaining;
 
   public MockAsyncGraphResultSet(
