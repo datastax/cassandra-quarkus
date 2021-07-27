@@ -19,6 +19,7 @@ import com.datastax.oss.driver.api.core.context.DriverContext;
 import com.datastax.oss.driver.api.core.metadata.Node;
 import com.datastax.oss.driver.internal.core.loadbalancing.DefaultLoadBalancingPolicy;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.quarkus.runtime.annotations.RegisterForReflection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +29,7 @@ import java.util.UUID;
  * LoadBalancingPolicy} to test that custom user-supplied classes loaded using reflection by the
  * driver can be used normally.
  */
+@RegisterForReflection
 public class CustomLoadBalancingPolicy extends DefaultLoadBalancingPolicy {
 
   public CustomLoadBalancingPolicy(@NonNull DriverContext context, @NonNull String profileName) {
