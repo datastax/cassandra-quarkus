@@ -16,21 +16,36 @@
 package com.datastax.oss.quarkus.runtime.api.reactive.mapper;
 
 import com.datastax.dse.driver.api.mapper.reactive.MappedReactiveResultSet;
-import com.datastax.oss.driver.api.mapper.annotations.Dao;
 import io.smallrye.mutiny.Multi;
 
 /**
- * A wrapper interface for {@code MappedReactiveResultSet<EntityT>} returned by the java driver
- * object mapper. It provides the translation from {@code Publisher<EntityT>} to {@code
- * Multi<EntityT}.
+ * An adapter that adapts the driver's {@link MappedReactiveResultSet} to Mutiny's {@link Multi}.
  *
- * <p>You can leverage this class as a return type for {@link Dao} methods, e.g.:
+ * <p>This interface can be used in Dao methods wherever a {@link MappedReactiveResultSet} is
+ * supported, e.g.:
  *
  * <pre>
  * &#64;Dao
  * public interface MyReactiveDao {
  *   &#64;Select
- *   MutinyMappedReactiveResultSet&lt;Fruit&gt; findByIdReactive(String id);
+ *   MutinyMappedReactiveResultSet&lt;Fruit&gt; findAll();
+ *   &#64;Select
+ *   MutinyMappedReactiveResultSet&lt;Fruit&gt; findById(String id);
+ * }
+ * </pre>
+ *
+ * However, if you don't need any of the methods declared in this interface or its parents, like
+ * {@link #getExecutionInfos()} for instance, it's often easier to use a {@link Multi} or a {@link
+ * io.smallrye.mutiny.Uni Uni} directly – these return types are also supported in the Quarkus
+ * extension:
+ *
+ * <pre>
+ * &#64;Dao
+ * public interface MyReactiveDao {
+ *   &#64;Select
+ *   Multi&lt;Fruit&gt; findAll();
+ *   &#64;Select
+ *   Uni&lt;Fruit&gt; findById();
  * }
  * </pre>
  *

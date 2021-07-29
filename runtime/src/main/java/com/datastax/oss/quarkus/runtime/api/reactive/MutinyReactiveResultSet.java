@@ -22,11 +22,24 @@ import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import io.smallrye.mutiny.Multi;
 
 /**
- * A marker interface for {@code Multi<ReactiveRow>} results returned by {@link QuarkusCqlSession}.
+ * An adapter that adapts the driver's {@link ReactiveResultSet} to Mutiny's {@link Multi}. All
+ * reactive execution methods in {@link QuarkusCqlSession}, like {@link
+ * QuarkusCqlSession#executeReactive(String)}, return instances of this type.
  *
+ * <p>If you are using the object mapper, you might prefer {@link
+ * com.datastax.oss.quarkus.runtime.api.reactive.mapper.MutinyMappedReactiveResultSet
+ * MutinyMappedReactiveResultSet} instead, since it provides support for high-level entity types
+ * instead of the low-level database rows exposed in this interface. A {@code
+ * MutinyMappedReactiveResultSet} can be used in Dao methods wherever a {@link
+ * com.datastax.dse.driver.api.mapper.reactive.MappedReactiveResultSet MappedReactiveResultSet} is
+ * supported.
+ *
+ * @see ReactiveResultSet
  * @see QuarkusCqlSession#executeReactive(String)
  * @see QuarkusCqlSession#executeReactive(Statement)
- * @see ReactiveResultSet
+ * @see com.datastax.oss.quarkus.runtime.api.reactive.mapper.MutinyMappedReactiveResultSet
+ *     MutinyMappedReactiveResultSet
+ * @see com.datastax.dse.driver.api.mapper.reactive.MappedReactiveResultSet MappedReactiveResultSet
  */
 public interface MutinyReactiveResultSet
     extends Multi<ReactiveRow>, ReactiveResultSet, MutinyReactiveQueryMetadata {}

@@ -100,7 +100,7 @@ public class ProductReactiveResource {
   public void findAllProducts(RoutingExchange ex) {
     service
         .findAll()
-        .collectItems()
+        .collect()
         .asList()
         .subscribe()
         .with(

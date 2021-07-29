@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.internal.mapper.processor;
+package com.datastax.oss.quarkus.internal.mapper.processor.mapper;
 
 import com.datastax.oss.driver.api.core.CqlIdentifier;
 import com.datastax.oss.driver.api.mapper.annotations.DaoFactory;
@@ -22,6 +22,7 @@ import com.datastax.oss.driver.api.mapper.annotations.DaoTable;
 import com.datastax.oss.driver.api.mapper.annotations.Mapper;
 import com.datastax.oss.driver.internal.mapper.processor.MapperProcessor;
 import com.datastax.oss.driver.internal.mapper.processor.mapper.MapperMethodGeneratorTest;
+import com.datastax.oss.quarkus.internal.mapper.processor.QuarkusMapperProcessor;
 import com.datastax.oss.quarkus.runtime.api.mapper.QuarkusMapper;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
@@ -69,7 +70,7 @@ class QuarkusMapperDaoFactoryMethodGeneratorTest extends MapperMethodGeneratorTe
             .addAnnotation(DaoFactory.class)
             .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
             .returns(DAO_CLASS_NAME)
-            .addParameter(String.class, "table", new Modifier[0])
+            .addParameter(String.class, "table")
             .build()
       },
       {

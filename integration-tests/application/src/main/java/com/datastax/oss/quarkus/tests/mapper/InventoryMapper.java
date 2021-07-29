@@ -30,7 +30,10 @@ public interface InventoryMapper {
   ProductDao productDaoSync();
 
   @DaoFactory
-  Uni<ProductReactiveDao> productDaoReactive();
+  Uni<ProductReactiveDao> productDaoReactiveUni();
+
+  @DaoFactory
+  ProductReactiveDao productDaoReactiveSync();
 
   @DaoFactory
   CompletionStage<CustomerDao> customerDaoAsync();
