@@ -69,7 +69,6 @@ import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.NativeImageResourceBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.RuntimeInitializedClassBuildItem;
-import io.quarkus.deployment.builditem.nativeimage.ServiceProviderBuildItem;
 import io.quarkus.deployment.metrics.MetricsCapabilityBuildItem;
 import io.quarkus.runtime.metrics.MetricsFactory;
 import io.quarkus.smallrye.health.deployment.spi.HealthBuildItem;
@@ -399,14 +398,17 @@ class CassandraClientProcessor {
   }
 
   @BuildStep
-  RuntimeInitializedClassBuildItem runtimeNative() {
-    return new RuntimeInitializedClassBuildItem(Native.class.getCanonicalName());
+  NativeImageResourceBuildItem applicationConf() {
+    return new NativeImageResourceBuildItem("application.conf");
   }
 
   @BuildStep
-  ServiceProviderBuildItem registerMutinyResultProducerService() {
-    return new ServiceProviderBuildItem(
-        "com.datastax.oss.driver.api.mapper.result.MapperResultProducerService",
-        "com.datastax.oss.quarkus.runtime.internal.mapper.MutinyResultProducerService");
+  NativeImageResourceBuildItem applicationJson() {
+    return new NativeImageResourceBuildItem("application.json");
+  }
+
+  @BuildStep
+  RuntimeInitializedClassBuildItem runtimeNative() {
+    return new RuntimeInitializedClassBuildItem(Native.class.getCanonicalName());
   }
 }

@@ -23,7 +23,7 @@ import io.vertx.core.Vertx;
 import java.util.concurrent.Executor;
 import org.reactivestreams.Publisher;
 
-public class Wrappers {
+public class MutinyWrappers {
 
   public static <T> Multi<T> toMulti(Publisher<T> source) {
     Multi<T> multi = Multi.createFrom().publisher(source);
@@ -35,16 +35,12 @@ public class Wrappers {
   }
 
   public static <T> Uni<T> toUni(Publisher<T> source) {
-    Context context = Vertx.currentContext();
     Uni<T> uni = Uni.createFrom().publisher(source);
+    Context context = Vertx.currentContext();
     if (context != null) {
       uni = uni.emitOn(new VertxContextExecutor(context));
     }
     return uni;
-  }
-
-  public static <T> Uni<T> failedUni(Throwable error) {
-    return Uni.createFrom().failure(error);
   }
 
   private static class VertxContextExecutor implements Executor {

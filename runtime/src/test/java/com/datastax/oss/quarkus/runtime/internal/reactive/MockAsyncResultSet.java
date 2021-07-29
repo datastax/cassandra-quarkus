@@ -16,24 +16,44 @@
 package com.datastax.oss.quarkus.runtime.internal.reactive;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.datastax.oss.driver.api.core.cql.AsyncResultSet;
 import com.datastax.oss.driver.api.core.cql.ColumnDefinitions;
 import com.datastax.oss.driver.api.core.cql.ExecutionInfo;
 import com.datastax.oss.driver.api.core.cql.Row;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import org.assertj.core.util.Lists;
 
 public class MockAsyncResultSet implements AsyncResultSet {
+
+  public static CompletableFuture<AsyncResultSet> createResults(int numPages, int elementsPerPage) {
+    CompletableFuture<AsyncResultSet> previous = null;
+    for (int i = 0; i < numPages; i++) {
+      List<Row> rows = new ArrayList<>();
+      for (int j = 0; j < elementsPerPage; j++) {
+        Row row = mock(Row.class);
+        when(row.getInt(0)).thenReturn(i);
+        rows.add(row);
+      }
+      CompletableFuture<AsyncResultSet> future = new CompletableFuture<>();
+      future.complete(new MockAsyncResultSet(rows, previous));
+      previous = future;
+    }
+    return previous;
+  }
 
   private final List<Row> rows;
   private final Iterator<Row> iterator;
   private final CompletionStage<AsyncResultSet> nextPage;
   private final ExecutionInfo executionInfo = mock(ExecutionInfo.class);
   private final ColumnDefinitions columnDefinitions = mock(ColumnDefinitions.class);
+
   private int remaining;
 
   public MockAsyncResultSet(List<Row> rows, CompletionStage<AsyncResultSet> nextPage) {

@@ -4,6 +4,11 @@ This release is built against Quarkus 2.1.0.Final and the Cassandra driver 4.13.
 
 - [improvement] Upgrade to Quarkus 2.1.0.Final
 
+Merged from 1.0.x:
+
+- [bug] Reactive "if not exists" insertion does not work (fixes #183)
+- [improvement] Include application.conf in the native image (fixes #188)
+
 ### 1.1.0
 
 This release is built against Quarkus 2.0.0.Final and the Cassandra driver 4.12.0.
@@ -28,6 +33,13 @@ Merged from 1.0.x:
 
 - [bug] Register MutinyResultProducerService as ServiceProviderBuildItem (fixes #174)
 - [bug] Use Thread context class loader in QuarkusDriverContext (fixes #171)
+
+### 1.0.4 (in progress)
+
+This release is built against Quarkus 1.13.7.Final and the Cassandra driver 4.11.3.
+
+- [bug] Reactive "if not exists" insertion does not work (fixes #183)
+- [improvement] Include application.conf in the native image (fixes #188)
 
 ### 1.0.3
 

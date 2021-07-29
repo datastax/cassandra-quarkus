@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.runtime.internal.mapper;
+package com.datastax.oss.quarkus.tests.nativ;
 
-import com.datastax.oss.driver.api.mapper.result.MapperResultProducer;
-import com.datastax.oss.driver.api.mapper.result.MapperResultProducerService;
-import java.util.Arrays;
+import com.datastax.oss.quarkus.tests.DriverConfigIT;
+import io.quarkus.test.junit.NativeImageTest;
+import org.junit.jupiter.api.Tag;
 
-public class MutinyResultProducerService implements MapperResultProducerService {
-
-  @Override
-  public Iterable<MapperResultProducer> getProducers() {
-    return Arrays.asList(new MutinyMultiResultProducer(), new MutinyUniResultProducer());
-  }
-}
+@NativeImageTest
+@Tag("native")
+class DriverConfigNativeIT extends DriverConfigIT {}
