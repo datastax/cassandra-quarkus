@@ -399,6 +399,16 @@ class CassandraClientProcessor {
   }
 
   @BuildStep
+  NativeImageResourceBuildItem applicationConf() {
+    return new NativeImageResourceBuildItem("application.conf");
+  }
+
+  @BuildStep
+  NativeImageResourceBuildItem applicationJson() {
+    return new NativeImageResourceBuildItem("application.json");
+  }
+
+  @BuildStep
   RuntimeInitializedClassBuildItem runtimeNative() {
     return new RuntimeInitializedClassBuildItem(Native.class.getCanonicalName());
   }

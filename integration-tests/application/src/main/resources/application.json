@@ -1,0 +1,9 @@
+{
+  "datastax-java-driver": {
+    "basic": {
+      "load-balancing-policy": {
+        "class": "com.datastax.oss.quarkus.tests.driver.CustomLoadBalancingPolicy"
+      }
+    }
+  }
+}

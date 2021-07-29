@@ -1,3 +1,9 @@
+### 1.0.4 (in progress)
+
+This release is built against Quarkus 1.13.7.Final and the Cassandra driver 4.11.2.
+
+- [improvement] Include application.conf in the native image (fixes #188)
+
 ### 1.0.3
 
 This release is built against Quarkus 1.13.7.Final and the Cassandra driver 4.11.2.
