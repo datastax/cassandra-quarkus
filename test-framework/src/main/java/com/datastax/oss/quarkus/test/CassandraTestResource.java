@@ -51,7 +51,16 @@ public class CassandraTestResource implements QuarkusTestResourceLifecycleManage
   @Override
   public Map<String, String> start() {
     cassandraContainer =
-        new CassandraContainer<>(DockerImageName.parse("cassandra").withTag("3.11.2"));
+        new CassandraContainer<>(DockerImageName.parse("cassandra").withTag("4.0.0"))
+            .withEnv("CASSANDRA_SNITCH", "PropertyFileSnitch")
+            .withEnv(
+                "JVM_OPTS",
+                "-Dcassandra.skip_wait_for_gossip_to_settle=0 "
+                    + "-Dcassandra.num_tokens=1 "
+                    + "-Dcassandra.initial_token=0")
+            .withEnv("HEAP_NEWSIZE", "128M")
+            .withEnv("MAX_HEAP_SIZE", "1024M");
+
     // set init script only if it's provided by the caller
     URL resource = Thread.currentThread().getContextClassLoader().getResource("init_script.cql");
     if (resource != null) {
