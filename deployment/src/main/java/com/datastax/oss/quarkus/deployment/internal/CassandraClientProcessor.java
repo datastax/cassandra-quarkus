@@ -46,6 +46,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.jboss.jandex.DotName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,6 +134,66 @@ class CassandraClientProcessor {
     } else {
       return Collections.emptyList();
     }
+  }
+
+  @Record(STATIC_INIT)
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerRequestTrackersForReflection(
+      CassandraClientBuildTimeConfig buildTimeConfig,
+      CassandraClientRecorder recorder,
+      BeanContainerBuildItem beanContainer) {
+    return buildTimeConfig
+        .requestTrackers
+        .map(
+            classes ->
+                classes.stream()
+                    .map(
+                        clz -> {
+                          recorder.addRequestTrackerClass(clz);
+                          return new ReflectiveClassBuildItem(true, false, false, clz);
+                        })
+                    .collect(Collectors.toList()))
+        .orElse(Collections.emptyList());
+  }
+
+  @Record(STATIC_INIT)
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerNodeStateListenersForReflection(
+      CassandraClientBuildTimeConfig buildTimeConfig,
+      CassandraClientRecorder recorder,
+      BeanContainerBuildItem beanContainer) {
+    return buildTimeConfig
+        .nodeStateListeners
+        .map(
+            classes ->
+                classes.stream()
+                    .map(
+                        clz -> {
+                          recorder.addNodeStateListenerClass(clz);
+                          return new ReflectiveClassBuildItem(true, false, false, clz);
+                        })
+                    .collect(Collectors.toList()))
+        .orElse(Collections.emptyList());
+  }
+
+  @Record(STATIC_INIT)
+  @BuildStep
+  List<ReflectiveClassBuildItem> registerSchemaChangeListenersForReflection(
+      CassandraClientBuildTimeConfig buildTimeConfig,
+      CassandraClientRecorder recorder,
+      BeanContainerBuildItem beanContainer) {
+    return buildTimeConfig
+        .schemaChangeListeners
+        .map(
+            classes ->
+                classes.stream()
+                    .map(
+                        clz -> {
+                          recorder.addSchemaChangeListenerClass(clz);
+                          return new ReflectiveClassBuildItem(true, false, false, clz);
+                        })
+                    .collect(Collectors.toList()))
+        .orElse(Collections.emptyList());
   }
 
   @BuildStep

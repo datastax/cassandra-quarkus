@@ -16,6 +16,7 @@
 package com.datastax.oss.quarkus.tests;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
 import com.datastax.oss.quarkus.test.CassandraTestResource;
@@ -50,5 +51,35 @@ public class DriverConfigIT {
         .then()
         .statusCode(Status.OK.getStatusCode())
         .body(equalTo("10 seconds"));
+  }
+
+  @Test
+  void should_load_custom_request_trackers() {
+    given()
+        .when()
+        .get("/config/advanced.request-tracker.classes")
+        .then()
+        .statusCode(Status.OK.getStatusCode())
+        .body(containsString("RequestLogger"), containsString("MyRequestTracker"));
+  }
+
+  @Test
+  void should_load_custom_schema_change_listener() {
+    given()
+        .when()
+        .get("/config/advanced.schema-change-listener.classes")
+        .then()
+        .statusCode(Status.OK.getStatusCode())
+        .body(containsString("MySchemaChangeListener"));
+  }
+
+  @Test
+  void should_load_custom_node_state_listener() {
+    given()
+        .when()
+        .get("/config/advanced.node-state-listener.classes")
+        .then()
+        .statusCode(Status.OK.getStatusCode())
+        .body(containsString("MyNodeStateListener"));
   }
 }
