@@ -2,6 +2,7 @@
 
 This release is built against Quarkus 2.1.0.Final and the Cassandra driver 4.13.0.
 
+- [new feature] Ability to configure listeners from Quarkus configuration (fixes #182)
 - [improvement] Upgrade to Quarkus 2.1.0.Final
 
 Merged from 1.0.x:

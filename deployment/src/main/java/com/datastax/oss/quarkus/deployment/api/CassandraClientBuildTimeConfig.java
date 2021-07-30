@@ -15,9 +15,14 @@
  */
 package com.datastax.oss.quarkus.deployment.api;
 
+import com.datastax.oss.driver.api.core.metadata.NodeStateListener;
+import com.datastax.oss.driver.api.core.metadata.schema.SchemaChangeListener;
+import com.datastax.oss.driver.api.core.tracker.RequestTracker;
 import io.quarkus.runtime.annotations.ConfigItem;
 import io.quarkus.runtime.annotations.ConfigPhase;
 import io.quarkus.runtime.annotations.ConfigRoot;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * This class holds build-time configuration items for the Cassandra Quarkus extension.
@@ -84,4 +89,16 @@ public class CassandraClientBuildTimeConfig {
    */
   @ConfigItem(name = "protocol.compression", defaultValue = "none")
   public String protocolCompression;
+
+  /** The classes of {@link RequestTracker} implementations to register. */
+  @ConfigItem(name = "request-trackers")
+  public Optional<List<String>> requestTrackers;
+
+  /** The classes of {@link NodeStateListener} implementations to register. */
+  @ConfigItem(name = "node-state-listeners")
+  public Optional<List<String>> nodeStateListeners;
+
+  /** The classes of {@link SchemaChangeListener} implementations to register. */
+  @ConfigItem(name = "schema-change-listeners")
+  public Optional<List<String>> schemaChangeListeners;
 }

@@ -120,4 +120,19 @@ public class CassandraClientRecorder {
   private CassandraClientProducer getProducerInstance() {
     return Arc.container().instance(CassandraClientProducer.class).get();
   }
+
+  public void addRequestTrackerClass(String clz) {
+    CassandraClientProducer producer = getProducerInstance();
+    producer.addRequestTrackerClass(clz);
+  }
+
+  public void addSchemaChangeListenerClass(String clz) {
+    CassandraClientProducer producer = getProducerInstance();
+    producer.addSchemaChangeListenerClass(clz);
+  }
+
+  public void addNodeStateListenerClass(String clz) {
+    CassandraClientProducer producer = getProducerInstance();
+    producer.addNodeStateListenerClass(clz);
+  }
 }

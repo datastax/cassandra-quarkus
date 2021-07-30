@@ -36,6 +36,7 @@ import io.netty.channel.EventLoopGroup;
 import io.quarkus.arc.Unremovable;
 import io.quarkus.netty.MainEventLoopGroup;
 import io.smallrye.mutiny.Uni;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -57,6 +58,9 @@ public class CassandraClientProducer {
   private String protocolCompression;
   private Object metricRegistry;
   private String metricsFactoryClass;
+  private List<String> requestTrackers = new ArrayList<>();
+  private List<String> nodeStateListeners = new ArrayList<>();
+  private List<String> schemaChangeListeners = new ArrayList<>();
 
   @Produces
   @ApplicationScoped
@@ -71,6 +75,7 @@ public class CassandraClientProducer {
     configureRuntimeSettings(configLoaderBuilder, config);
     configureMetricsSettings(configLoaderBuilder, config);
     configureProtocolCompression(configLoaderBuilder);
+    configureListeners(configLoaderBuilder);
     QuarkusCqlSessionBuilder builder =
         new QuarkusCqlSessionBuilder()
             .withConfigLoader(configLoaderBuilder.build())
@@ -135,6 +140,18 @@ public class CassandraClientProducer {
     this.protocolCompression = protocolCompression;
   }
 
+  public void addRequestTrackerClass(String clz) {
+    this.requestTrackers.add(clz);
+  }
+
+  public void addSchemaChangeListenerClass(String clz) {
+    this.schemaChangeListeners.add(clz);
+  }
+
+  public void addNodeStateListenerClass(String clz) {
+    this.nodeStateListeners.add(clz);
+  }
+
   private ProgrammaticDriverConfigLoaderBuilder createDriverConfigLoaderBuilder() {
     return new DefaultProgrammaticDriverConfigLoaderBuilder(
         () ->
@@ -156,6 +173,21 @@ public class CassandraClientProducer {
   private void configureProtocolCompression(
       ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder) {
     configLoaderBuilder.withString(DefaultDriverOption.PROTOCOL_COMPRESSION, protocolCompression);
+  }
+
+  private void configureListeners(ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder) {
+    if (!requestTrackers.isEmpty()) {
+      configLoaderBuilder.withStringList(
+          DefaultDriverOption.REQUEST_TRACKER_CLASSES, requestTrackers);
+    }
+    if (!schemaChangeListeners.isEmpty()) {
+      configLoaderBuilder.withStringList(
+          DefaultDriverOption.METADATA_SCHEMA_CHANGE_LISTENER_CLASSES, schemaChangeListeners);
+    }
+    if (!nodeStateListeners.isEmpty()) {
+      configLoaderBuilder.withStringList(
+          DefaultDriverOption.METADATA_NODE_STATE_LISTENER_CLASSES, nodeStateListeners);
+    }
   }
 
   private void configureMetricsSettings(
