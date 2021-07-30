@@ -64,7 +64,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Void> subscriber =
         uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(null);
+    subscriber.awaitItem().assertCompleted().assertItem(null);
   }
 
   @Test
@@ -74,7 +74,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Boolean> subscriber =
         uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(true);
+    subscriber.awaitItem().assertCompleted().assertItem(true);
   }
 
   @Test
@@ -88,7 +88,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Boolean> subscriber =
         uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(false);
+    subscriber.awaitItem().assertCompleted().assertItem(false);
   }
 
   @Test
@@ -98,7 +98,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Product> subscriber =
         uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(null);
+    subscriber.awaitItem().assertCompleted().assertItem(null);
   }
 
   @Test
@@ -112,7 +112,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Product> subscriber =
         uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(previous);
+    subscriber.awaitItem().assertCompleted().assertItem(previous);
   }
 
   @Test
@@ -122,7 +122,7 @@ class ProductReactiveDaoIT {
     // then
     AssertSubscriber<? extends Row> subscriber =
         rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<? extends Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -145,7 +145,7 @@ class ProductReactiveDaoIT {
     // then
     AssertSubscriber<? extends Row> subscriber =
         rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<? extends Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -167,7 +167,7 @@ class ProductReactiveDaoIT {
     Multi<? extends Row> rs = dao.createMultiReactiveRow(product);
     // then
     AssertSubscriber<Row> subscriber = rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -189,7 +189,7 @@ class ProductReactiveDaoIT {
     Multi<? extends Row> rs = dao.createMultiReactiveRow(product);
     // then
     AssertSubscriber<Row> subscriber = rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -211,7 +211,7 @@ class ProductReactiveDaoIT {
     Multi<Row> rs = dao.createMultiRow(product);
     // then
     AssertSubscriber<Row> subscriber = rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -233,7 +233,7 @@ class ProductReactiveDaoIT {
     Multi<Row> rs = dao.createMultiRow(product);
     // then
     AssertSubscriber<Row> subscriber = rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -260,7 +260,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Void> subscriber =
         uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(null);
+    subscriber.awaitItem().assertCompleted().assertItem(null);
   }
 
   @Test
@@ -274,7 +274,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Boolean> subscriber =
         uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(true);
+    subscriber.awaitItem().assertCompleted().assertItem(true);
   }
 
   @Test
@@ -285,7 +285,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Boolean> subscriber =
         uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(false);
+    subscriber.awaitItem().assertCompleted().assertItem(false);
   }
 
   @Test
@@ -299,7 +299,7 @@ class ProductReactiveDaoIT {
     // then
     AssertSubscriber<? extends Row> subscriber =
         rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<? extends Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -319,7 +319,7 @@ class ProductReactiveDaoIT {
     // then
     AssertSubscriber<? extends Row> subscriber =
         rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<? extends Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -342,7 +342,7 @@ class ProductReactiveDaoIT {
     // then
     AssertSubscriber<? extends Row> subscriber =
         rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<? extends Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -361,7 +361,7 @@ class ProductReactiveDaoIT {
     Multi<? extends Row> rs = dao.updateMultiReactiveRow(updated);
     // then
     AssertSubscriber<Row> subscriber = rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -383,7 +383,7 @@ class ProductReactiveDaoIT {
     Multi<Row> rs = dao.updateMultiRow(updated);
     // then
     AssertSubscriber<Row> subscriber = rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -402,7 +402,7 @@ class ProductReactiveDaoIT {
     Multi<Row> rs = dao.updateMultiRow(updated);
     // then
     AssertSubscriber<Row> subscriber = rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -424,7 +424,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Void> subscriber =
         uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(null);
+    subscriber.awaitItem().assertCompleted().assertItem(null);
   }
 
   @Test
@@ -437,7 +437,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Boolean> subscriber =
         uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(true);
+    subscriber.awaitItem().assertCompleted().assertItem(true);
   }
 
   @Test
@@ -447,7 +447,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Boolean> subscriber =
         uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(false);
+    subscriber.awaitItem().assertCompleted().assertItem(false);
   }
 
   @Test
@@ -460,7 +460,7 @@ class ProductReactiveDaoIT {
     // then
     AssertSubscriber<? extends Row> subscriber =
         rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<? extends Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -479,7 +479,7 @@ class ProductReactiveDaoIT {
     // then
     AssertSubscriber<? extends Row> subscriber =
         rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<? extends Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -500,7 +500,7 @@ class ProductReactiveDaoIT {
     Multi<? extends Row> rs = dao.deleteMultiReactiveRow(product.getId());
     // then
     AssertSubscriber<Row> subscriber = rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -518,7 +518,7 @@ class ProductReactiveDaoIT {
     Multi<? extends Row> rs = dao.deleteMultiReactiveRow(product.getId());
     // then
     AssertSubscriber<Row> subscriber = rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -539,7 +539,7 @@ class ProductReactiveDaoIT {
     Multi<Row> rs = dao.deleteMultiRow(product.getId());
     // then
     AssertSubscriber<Row> subscriber = rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -557,7 +557,7 @@ class ProductReactiveDaoIT {
     Multi<Row> rs = dao.deleteMultiRow(product.getId());
     // then
     AssertSubscriber<Row> subscriber = rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -579,7 +579,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Product> subscriber =
         rs.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(product);
+    subscriber.awaitItem().assertCompleted().assertItem(product);
   }
 
   @Test
@@ -589,7 +589,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Product> subscriber =
         rs.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(null);
+    subscriber.awaitItem().assertCompleted().assertItem(null);
   }
 
   @Test
@@ -602,7 +602,7 @@ class ProductReactiveDaoIT {
     // then
     AssertSubscriber<Product> subscriber =
         rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted().assertItems(product);
+    subscriber.awaitCompletion().assertItems(product);
   }
 
   @Test
@@ -615,7 +615,7 @@ class ProductReactiveDaoIT {
     // then
     AssertSubscriber<Product> subscriber =
         rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted().assertItems(product);
+    subscriber.awaitCompletion().assertItems(product);
   }
 
   @Test
@@ -628,7 +628,7 @@ class ProductReactiveDaoIT {
     // then
     AssertSubscriber<Product> subscriber =
         rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted().assertItems(product);
+    subscriber.awaitCompletion().assertItems(product);
   }
 
   @Test
@@ -641,7 +641,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Product> subscriber =
         rs.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(product);
+    subscriber.awaitItem().assertCompleted().assertItem(product);
   }
 
   @Test
@@ -654,7 +654,7 @@ class ProductReactiveDaoIT {
     // then
     AssertSubscriber<? extends Row> subscriber =
         rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<? extends Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -676,7 +676,7 @@ class ProductReactiveDaoIT {
     // then
     AssertSubscriber<Product> subscriber =
         rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted().assertItems(product);
+    subscriber.awaitCompletion().assertItems(product);
   }
 
   @Test
@@ -689,7 +689,7 @@ class ProductReactiveDaoIT {
     // then
     AssertSubscriber<? extends Row> subscriber =
         rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<? extends Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -710,7 +710,7 @@ class ProductReactiveDaoIT {
     Multi<? extends Row> rs = dao.querySelectMultiReactiveRow();
     // then
     AssertSubscriber<Row> subscriber = rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -732,7 +732,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Row> subscriber =
         rs.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted();
+    subscriber.awaitItem().assertCompleted();
     assertThat(subscriber.getItem())
         .isNotNull()
         .satisfies(
@@ -750,7 +750,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Row> subscriber =
         rs.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted();
+    subscriber.awaitItem().assertCompleted();
     assertThat(subscriber.getItem()).isNull();
   }
 
@@ -764,7 +764,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Row> subscriber =
         rs.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted();
+    subscriber.awaitItem().assertCompleted();
     assertThat(subscriber.getItem())
         .isNotNull()
         .satisfies(
@@ -782,7 +782,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Row> subscriber =
         rs.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted();
+    subscriber.awaitItem().assertCompleted();
     assertThat(subscriber.getItem()).isNull();
   }
 
@@ -797,7 +797,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Void> subscriber =
         uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(null);
+    subscriber.awaitItem().assertCompleted().assertItem(null);
   }
 
   @Test
@@ -811,7 +811,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Boolean> subscriber =
         uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(true);
+    subscriber.awaitItem().assertCompleted().assertItem(true);
   }
 
   @Test
@@ -822,7 +822,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Boolean> subscriber =
         uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(false);
+    subscriber.awaitItem().assertCompleted().assertItem(false);
   }
 
   @Test
@@ -835,7 +835,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Long> subscriber =
         uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(2L);
+    subscriber.awaitItem().assertCompleted().assertItem(2L);
   }
 
   @Test
@@ -848,7 +848,7 @@ class ProductReactiveDaoIT {
     // then
     AssertSubscriber<Product> subscriber =
         rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted().assertItems(product);
+    subscriber.awaitCompletion().assertItems(product);
   }
 
   @Test
@@ -861,7 +861,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Product> subscriber =
         rs.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(product);
+    subscriber.awaitItem().assertCompleted().assertItem(product);
   }
 
   @Test
@@ -874,7 +874,7 @@ class ProductReactiveDaoIT {
     // then
     AssertSubscriber<? extends Row> subscriber =
         rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<? extends Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -896,7 +896,7 @@ class ProductReactiveDaoIT {
     // then
     AssertSubscriber<Product> subscriber =
         rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted().assertItems(product);
+    subscriber.awaitCompletion().assertItems(product);
   }
 
   @Test
@@ -909,7 +909,7 @@ class ProductReactiveDaoIT {
     // then
     AssertSubscriber<? extends Row> subscriber =
         rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<? extends Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -930,7 +930,7 @@ class ProductReactiveDaoIT {
     Multi<? extends Row> rs = dao.queryProviderSelectMultiReactiveRow();
     // then
     AssertSubscriber<Row> subscriber = rs.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<Row> rows = subscriber.getItems();
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0))
@@ -952,7 +952,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Row> subscriber =
         rs.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted();
+    subscriber.awaitItem().assertCompleted();
     assertThat(subscriber.getItem())
         .isNotNull()
         .satisfies(
@@ -970,7 +970,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Row> subscriber =
         rs.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted();
+    subscriber.awaitItem().assertCompleted();
     assertThat(subscriber.getItem()).isNull();
   }
 
@@ -984,7 +984,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Row> subscriber =
         rs.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted();
+    subscriber.awaitItem().assertCompleted();
     assertThat(subscriber.getItem())
         .isNotNull()
         .satisfies(
@@ -1002,7 +1002,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Row> subscriber =
         rs.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted();
+    subscriber.awaitItem().assertCompleted();
     assertThat(subscriber.getItem()).isNull();
   }
 
@@ -1017,7 +1017,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Void> subscriber =
         uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(null);
+    subscriber.awaitItem().assertCompleted().assertItem(null);
   }
 
   @Test
@@ -1031,7 +1031,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Boolean> subscriber =
         uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(true);
+    subscriber.awaitItem().assertCompleted().assertItem(true);
   }
 
   @Test
@@ -1042,7 +1042,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Boolean> subscriber =
         uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(false);
+    subscriber.awaitItem().assertCompleted().assertItem(false);
   }
 
   @Test
@@ -1055,7 +1055,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Long> subscriber =
         uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(2L);
+    subscriber.awaitItem().assertCompleted().assertItem(2L);
   }
 
   @Test
@@ -1065,7 +1065,7 @@ class ProductReactiveDaoIT {
     // then
     UniAssertSubscriber<Void> subscriber =
         uni.subscribe().withSubscriber(UniAssertSubscriber.create());
-    subscriber.await().assertCompleted().assertItem(null);
+    subscriber.awaitItem().assertCompleted().assertItem(null);
     long counter = getCounterValue("up_votes");
     assertThat(counter).isEqualTo(10);
   }
@@ -1077,7 +1077,7 @@ class ProductReactiveDaoIT {
     // then
     AssertSubscriber<ReactiveRow> subscriber =
         uni.subscribe().withSubscriber(AssertSubscriber.create(1));
-    subscriber.await().assertCompleted();
+    subscriber.awaitCompletion();
     List<? extends Row> rows = subscriber.getItems();
     assertThat(rows).isEmpty();
     long counter = getCounterValue("down_votes");
