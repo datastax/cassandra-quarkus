@@ -90,7 +90,7 @@ public class QuarkusDaoSelectMethodGeneratorTest extends DaoMethodGeneratorTest 
       {
         "Invalid return type: Select methods must return one of [ENTITY, OPTIONAL_ENTITY, "
             + "FUTURE_OF_ENTITY, FUTURE_OF_OPTIONAL_ENTITY, PAGING_ITERABLE, STREAM, "
-            + "FUTURE_OF_ASYNC_PAGING_ITERABLE, MAPPED_REACTIVE_RESULT_SET, "
+            + "FUTURE_OF_ASYNC_PAGING_ITERABLE, FUTURE_OF_STREAM, MAPPED_REACTIVE_RESULT_SET, "
             + "MUTINY_MAPPED_REACTIVE_RESULT_SET, MULTI_OF_ENTITY, UNI_OF_ENTITY]",
         MethodSpec.methodBuilder("select")
             .addAnnotation(Select.class)
@@ -101,7 +101,7 @@ public class QuarkusDaoSelectMethodGeneratorTest extends DaoMethodGeneratorTest 
       {
         "Invalid return type: Select methods must return one of [ENTITY, OPTIONAL_ENTITY, "
             + "FUTURE_OF_ENTITY, FUTURE_OF_OPTIONAL_ENTITY, PAGING_ITERABLE, STREAM, "
-            + "FUTURE_OF_ASYNC_PAGING_ITERABLE, MAPPED_REACTIVE_RESULT_SET, "
+            + "FUTURE_OF_ASYNC_PAGING_ITERABLE, FUTURE_OF_STREAM, MAPPED_REACTIVE_RESULT_SET, "
             + "MUTINY_MAPPED_REACTIVE_RESULT_SET, MULTI_OF_ENTITY, UNI_OF_ENTITY]",
         MethodSpec.methodBuilder("select")
             .addAnnotation(Select.class)
