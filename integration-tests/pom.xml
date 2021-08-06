@@ -32,6 +32,7 @@
   <modules>
     <module>application</module>
     <module>main</module>
+    <module>dse</module>
     <module>metrics-microprofile</module>
     <module>metrics-disabled</module>
     <module>no-mapper</module>
