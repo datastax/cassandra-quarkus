@@ -24,14 +24,12 @@ import com.datastax.oss.quarkus.demo.FruitDto;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import io.quarkus.test.junit.TestProfile;
 import io.restassured.http.ContentType;
 import javax.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
 @QuarkusTestResource(CassandraTestResource.class)
-@TestProfile(CassandraTestProfile.class)
 public class FruitResourceIT {
 
   @Test

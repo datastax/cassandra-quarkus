@@ -55,7 +55,7 @@ public class CassandraMetricsMicrometerTest {
               Arrays.asList(
                   new AppArtifact("io.quarkus", "quarkus-micrometer", Version.getVersion()),
                   new AppArtifact("io.quarkus", "quarkus-resteasy", Version.getVersion())))
-          .withConfigurationResource("application-metrics.properties")
+          .overrideConfigKey("quarkus.cassandra.metrics.enabled", "true")
           // test a different prefix
           .overrideConfigKey("quarkus.cassandra.metrics.prefix", "custom.prefix");
 

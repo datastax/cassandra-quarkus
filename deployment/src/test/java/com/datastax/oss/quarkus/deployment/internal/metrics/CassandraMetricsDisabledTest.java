@@ -49,7 +49,7 @@ public class CassandraMetricsDisabledTest {
       new QuarkusUnitTest()
           .setArchiveProducer(
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
-          .withConfigurationResource("application-metrics.properties")
+
           // Micrometer is present...
           .setForcedDependencies(
               Arrays.asList(
