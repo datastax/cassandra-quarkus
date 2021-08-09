@@ -1,3 +1,9 @@
+### 1.1.2 (in progress)
+
+This release is built against Quarkus 2.1.0.Final and the Cassandra driver 4.13.0.
+
+- [new feature] Ability to specify container image and startup options in integration tests (fixes #192)
+
 ### 1.1.1
 
 This release is built against Quarkus 2.1.0.Final and the Cassandra driver 4.13.0.
