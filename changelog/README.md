@@ -1,4 +1,4 @@
-### 1.1.1 (in progress)
+### 1.1.1
 
 This release is built against Quarkus 2.1.0.Final and the Cassandra driver 4.13.0.
 
@@ -108,4 +108,3 @@ This release is built against Quarkus 1.13.7.Final and the Cassandra driver 4.11
 - [new feature] JAVA-2696: Native Graal support with Quarkus
 - [new feature] JAVA-2693: Add HealthChecks to extension
 - [new feature] JAVA-2682: Create a Quarkus Cassandra extension
-
