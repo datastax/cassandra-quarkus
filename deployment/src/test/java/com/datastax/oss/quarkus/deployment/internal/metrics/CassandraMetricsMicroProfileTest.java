@@ -59,7 +59,7 @@ public class CassandraMetricsMicroProfileTest {
           .setForcedDependencies(
               Collections.singletonList(
                   new AppArtifact("io.quarkus", "quarkus-smallrye-metrics", Version.getVersion())))
-          .withConfigurationResource("application-metrics.properties");
+          .overrideConfigKey("quarkus.cassandra.metrics.enabled", "true");
 
   @Test
   public void should_expose_driver_metrics_via_meter_registry() {

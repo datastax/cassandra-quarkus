@@ -41,7 +41,7 @@ public class UseQuarkusNettyEventLoopDisabledTest {
       new QuarkusUnitTest()
           .setArchiveProducer(
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
-          .withConfigurationResource("application-quarkus-netty-disabled.properties");
+          .overrideConfigKey("quarkus.cassandra.init.use-quarkus-event-loop", "false");
 
   @Test
   public void should_use_driver_netty_event_loop() throws ExecutionException, InterruptedException {

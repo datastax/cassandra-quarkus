@@ -34,7 +34,7 @@ public class CassandraHealthCheckBuildItemEnabledTest {
       new QuarkusUnitTest()
           .setArchiveProducer(
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
-          .withConfigurationResource("application-health-enabled.properties");
+          .overrideConfigKey("quarkus.cassandra.health.enabled", "true");
 
   @Test
   public void should_have_health_check_in_the_container() {

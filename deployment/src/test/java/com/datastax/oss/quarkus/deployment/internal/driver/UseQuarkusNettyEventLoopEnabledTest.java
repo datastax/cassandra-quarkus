@@ -41,7 +41,7 @@ public class UseQuarkusNettyEventLoopEnabledTest {
       new QuarkusUnitTest()
           .setArchiveProducer(
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
-          .withConfigurationResource("application-quarkus-netty-enabled.properties");
+          .overrideConfigKey("quarkus.cassandra.init.use-quarkus-event-loop", "true");
 
   @Test
   public void should_use_quarkus_netty_event_loop()

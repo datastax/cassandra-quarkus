@@ -45,7 +45,7 @@ public class EagerInitDisabledTest {
       new QuarkusUnitTest()
           .setArchiveProducer(
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
-          .withConfigurationResource("application-eager-init-disabled.properties")
+          .overrideConfigKey("quarkus.cassandra.init.eager-init", "false")
           .addBuildChainCustomizer(buildCustomizer());
 
   @Test

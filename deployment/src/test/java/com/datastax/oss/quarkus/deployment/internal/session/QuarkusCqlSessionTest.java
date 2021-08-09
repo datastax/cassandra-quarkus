@@ -46,7 +46,21 @@ public class QuarkusCqlSessionTest {
   @RegisterExtension
   static QuarkusUnitTest runner =
       new QuarkusUnitTest()
-          .withConfigurationResource("application-cassandra-client.properties")
+          .overrideConfigKey("quarkus.cassandra.keyspace", "test_keyspace")
+          .overrideConfigKey("quarkus.cassandra.auth.username", "alice")
+          .overrideConfigKey("quarkus.cassandra.auth.password", "fakePasswordForTests")
+          .overrideConfigKey("quarkus.cassandra.init.eager-init", "false")
+          .overrideConfigKey("quarkus.cassandra.init.reconnect-on-init", "false")
+          .overrideConfigKey("quarkus.cassandra.init.resolve-contact-points", "true")
+          .overrideConfigKey("quarkus.cassandra.request.timeout", "PT10S")
+          .overrideConfigKey("quarkus.cassandra.request.consistency-level", "ONE")
+          .overrideConfigKey("quarkus.cassandra.request.serial-consistency-level", "LOCAL_SERIAL")
+          .overrideConfigKey("quarkus.cassandra.request.page-size", "1000")
+          .overrideConfigKey("quarkus.cassandra.request.default-idempotence", "true")
+          .overrideConfigKey("quarkus.cassandra.graph.name", "test_graph")
+          .overrideConfigKey("quarkus.cassandra.graph.request.timeout", "PT60S")
+          .overrideConfigKey("quarkus.cassandra.graph.read-consistency-level", "QUORUM")
+          .overrideConfigKey("quarkus.cassandra.graph.write-consistency-level", "QUORUM")
           .setArchiveProducer(
               () ->
                   ShrinkWrap.create(JavaArchive.class)

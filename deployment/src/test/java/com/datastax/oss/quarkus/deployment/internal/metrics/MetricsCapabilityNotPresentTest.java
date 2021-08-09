@@ -39,8 +39,9 @@ public class MetricsCapabilityNotPresentTest {
       new QuarkusUnitTest()
           .setArchiveProducer(
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
+
           // Cassandra metrics are enabled, but no metrics capability is present
-          .withConfigurationResource("application-metrics.properties");
+          .overrideConfigKey("quarkus.cassandra.metrics.enabled", "true");
 
   @Test
   public void should_not_enable_metrics_when_metrics_disabled_by_configuration() {
