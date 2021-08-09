@@ -58,9 +58,9 @@ public class CassandraClientProducer {
   private String protocolCompression;
   private Object metricRegistry;
   private String metricsFactoryClass;
-  private List<String> requestTrackers = new ArrayList<>();
-  private List<String> nodeStateListeners = new ArrayList<>();
-  private List<String> schemaChangeListeners = new ArrayList<>();
+  private final List<String> requestTrackers = new ArrayList<>();
+  private final List<String> nodeStateListeners = new ArrayList<>();
+  private final List<String> schemaChangeListeners = new ArrayList<>();
 
   @Produces
   @ApplicationScoped
