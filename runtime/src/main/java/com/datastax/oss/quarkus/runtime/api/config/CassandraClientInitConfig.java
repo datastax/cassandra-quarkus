@@ -106,11 +106,27 @@ public class CassandraClientInitConfig {
   public boolean resolveContactPoints;
 
   /**
-   * Whether or not the DataStax Java driver should use the Netty event loop provided by the Quarkus
-   * framework.
+   * Whether the DataStax Java driver should use the main Netty event loop group provided by Quarkus
+   * and Vert.x.
    *
-   * <p>When set to true, the driver will not create its own event loops; instead, it will use the
-   * main event loop provided by Quarkus. The default is true.
+   * <p>The driver needs two Netty multi-threaded event loop groups: one (generally large) for I/O
+   * tasks (sending requests and processing responses); and another one (generally small) for
+   * administrative tasks (metadata refreshes, schema agreement checks, and processing of server
+   * events).
+   *
+   * <p>When set to true, the driver will use the main event loop group provided by Quarkus and
+   * Vert.x <em>for both I/O tasks and administrative tasks</em>. When set to false, the driver will
+   * instead create and manage its own event loops groups, backed by internal thread pools.
+   *
+   * <p>The default is true.
+   *
+   * <p>Make sure that the Quarkus/Vert.x main event loop is configured with a pool size of at least
+   * 4 threads. <em>Using fewer threads might cause the session to experience deadlocks</em>. By
+   * default, Quarkus allocates a pool size of twice the number of available cores, which is
+   * generally fine; this value can however be manually changed using the {@code
+   * quarkus.vertx.event-loops-pool-size} configuration property.
+   *
+   * @see <a href="https://quarkus.io/guides/vertx-reference">Quarkus Vert.x reference guide</a>
    */
   @ConfigItem(name = "use-quarkus-event-loop", defaultValue = "true")
   public boolean useQuarkusEventLoop;

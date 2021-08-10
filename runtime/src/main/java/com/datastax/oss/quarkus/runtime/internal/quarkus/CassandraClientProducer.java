@@ -33,6 +33,7 @@ import com.datastax.oss.quarkus.runtime.internal.session.QuarkusCqlSessionBuilde
 import com.typesafe.config.ConfigFactory;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.netty.channel.EventLoopGroup;
+import io.netty.util.concurrent.MultithreadEventExecutorGroup;
 import io.quarkus.arc.Unremovable;
 import io.quarkus.netty.MainEventLoopGroup;
 import io.smallrye.mutiny.Uni;
@@ -51,6 +52,8 @@ import org.slf4j.LoggerFactory;
 public class CassandraClientProducer {
 
   private static final Logger LOG = LoggerFactory.getLogger(CassandraClientProducer.class);
+
+  private static final int MIN_EVENT_LOOP_GROUP_SIZE = 4;
 
   private final AtomicBoolean produced = new AtomicBoolean(false);
 
@@ -85,6 +88,20 @@ public class CassandraClientProducer {
       builder.withMetricRegistry(metricRegistry);
     }
     if (config.cassandraClientInitConfig.useQuarkusEventLoop) {
+      if (mainEventLoop instanceof MultithreadEventExecutorGroup) {
+        // Check event loop group size. The default in Quarkus is 2 * cores, which is usually fine.
+        // https://quarkus.io/guides/vertx-reference#quarkus-vertx-core_quarkus.vertx.event-loops-pool-size
+        int executors = ((MultithreadEventExecutorGroup) mainEventLoop).executorCount();
+        if (executors < MIN_EVENT_LOOP_GROUP_SIZE) {
+          LOG.warn(
+              "Main event loop pool size is too small: {}; the Quarkus Cassandra session might experience deadlocks.",
+              executors);
+          LOG.warn(
+              "Please either set the quarkus.vertx.event-loops-pool-size property to a value >= {}, or "
+                  + "set the quarkus.cassandra.use-quarkus-event-loop property to false.",
+              MIN_EVENT_LOOP_GROUP_SIZE);
+        }
+      }
       builder.withQuarkusEventLoop(mainEventLoop);
     }
     CompletionStage<QuarkusCqlSession> sessionFuture = builder.buildAsync();
