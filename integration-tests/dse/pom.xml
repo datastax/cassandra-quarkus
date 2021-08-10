@@ -25,11 +25,6 @@
   </parent>
   <artifactId>cassandra-quarkus-integration-tests-dse</artifactId>
   <name>Cassandra Quarkus :: IT :: DSE Tests</name>
-  <properties>
-    <!-- This module cannot run in native mode so force the package type to jar -->
-    <quarkus.package.type>jar</quarkus.package.type>
-    <failsafe.testGroups>!native</failsafe.testGroups>
-  </properties>
   <dependencies>
     <dependency>
       <groupId>com.datastax.oss.quarkus</groupId>
@@ -132,4 +127,19 @@
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>native</id>
+      <activation>
+        <property>
+          <name>native</name>
+        </property>
+      </activation>
+      <properties>
+        <!-- This module cannot run in native mode so force the package type to jar and skip tests -->
+        <quarkus.package.type>jar</quarkus.package.type>
+        <skipITs>true</skipITs>
+      </properties>
+    </profile>
+  </profiles>
 </project>
