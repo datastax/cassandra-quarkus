@@ -94,7 +94,7 @@ public class CassandraClientProducer {
         int executors = ((MultithreadEventExecutorGroup) mainEventLoop).executorCount();
         if (executors < MIN_EVENT_LOOP_GROUP_SIZE) {
           LOG.warn(
-              "Main event loop pool size is too small: {}; the Quarkus Cassandra session might experience deadlocks. ",
+              "Main event loop pool size is too small: {}; the Quarkus Cassandra session might experience deadlocks.",
               executors);
           LOG.warn(
               "Please either set the quarkus.vertx.event-loops-pool-size property to a value >= {}, or "
