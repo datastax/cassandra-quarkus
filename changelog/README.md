@@ -1,6 +1,6 @@
 ### 1.1.2 (in progress)
 
-This release is built against Quarkus 2.1.0.Final and the Cassandra driver 4.13.0.
+This release is built against Quarkus 2.2.0.Final and the Cassandra driver 4.13.0.
 
 - [improvement] Warn users when Quarkus main event loop is too small (fixes #194)
 - [new feature] Ability to specify container image and startup options in integration tests (fixes #192)
