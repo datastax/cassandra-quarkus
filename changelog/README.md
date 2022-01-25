@@ -4,6 +4,7 @@ This release is built against Quarkus 2.4.0.Final and the Cassandra driver 4.13.
 
 - [improvement] Warn users when Quarkus main event loop is too small (fixes #194)
 - [new feature] Ability to specify container image and startup options in integration tests (fixes #192)
+- [bug] List quarkus-vertx among dependencies of the runtime module (fixes #203)
 
 ### 1.1.1
 
