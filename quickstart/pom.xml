@@ -29,6 +29,7 @@
     <java.version>11</java.version>
     <quarkus.version>2.4.0.Final</quarkus.version>
     <datastax-java-driver.version>4.13.0</datastax-java-driver.version>
+    <assertj.version>3.22.0</assertj.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
@@ -47,6 +48,11 @@
         <version>${project.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>${assertj.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
