@@ -28,6 +28,7 @@ public class CustomerNameConverter implements NameConverter {
     switch (javaName) {
       case "id":
       case "name":
+      case "address":
         return "customer_" + javaName;
     }
     return javaName.toLowerCase();

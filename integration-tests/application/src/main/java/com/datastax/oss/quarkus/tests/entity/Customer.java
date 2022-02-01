@@ -30,11 +30,14 @@ public class Customer {
 
   private String name;
 
+  private Address address;
+
   public Customer() {}
 
-  public Customer(UUID id, String name) {
+  public Customer(UUID id, String name, Address address) {
     this.id = id;
     this.name = name;
+    this.address = address;
   }
 
   public UUID getId() {
@@ -53,6 +56,14 @@ public class Customer {
     this.name = name;
   }
 
+  public Address getAddress() {
+    return address;
+  }
+
+  public void setAddress(Address address) {
+    this.address = address;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -62,12 +73,14 @@ public class Customer {
       return false;
     }
     Customer customer = (Customer) o;
-    return id.equals(customer.id) && name.equals(customer.name);
+    return id.equals(customer.id)
+        && name.equals(customer.name)
+        && Objects.equals(address, customer.address);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, name);
+    return Objects.hash(id, name, address);
   }
 
   @Override

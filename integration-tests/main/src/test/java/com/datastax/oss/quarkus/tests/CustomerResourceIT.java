@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.endsWith;
 
 import com.datastax.oss.quarkus.test.CassandraTestResource;
+import com.datastax.oss.quarkus.tests.entity.Address;
 import com.datastax.oss.quarkus.tests.entity.Customer;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
@@ -32,32 +33,37 @@ import org.junit.jupiter.api.Test;
 @QuarkusTest
 @QuarkusTestResource(CassandraTestResource.class)
 public class CustomerResourceIT {
+
+  private static final Address ADDRESS1 = new Address("Rue Montorgueil", "75002", "Paris");
+  private static final Address ADDRESS2 = new Address("Rue Montmartre", "75002", "Paris");
+
   @Test
   public void should_create_customer() {
-    Customer expected = new Customer(UUID.randomUUID(), "name");
+    Customer expected = new Customer(UUID.randomUUID(), "name", ADDRESS1);
     assertCreate(expected);
   }
 
   @Test
   public void should_update_customer() {
-    Customer expected = new Customer(UUID.randomUUID(), "name");
+    Customer expected = new Customer(UUID.randomUUID(), "name", ADDRESS1);
     assertCreate(expected);
     expected.setName("updated name");
+    expected.setAddress(ADDRESS2);
     assertUpdate(expected);
   }
 
   @Test
   public void should_delete_customer() {
-    Customer expected = new Customer(UUID.randomUUID(), "name");
+    Customer expected = new Customer(UUID.randomUUID(), "name", ADDRESS1);
     assertCreate(expected);
     assertDelete(expected);
   }
 
   @Test
   public void should_find_customers() {
-    Customer expected1 = new Customer(UUID.randomUUID(), "name1");
-    Customer expected2 = new Customer(UUID.randomUUID(), "name2");
-    Customer expected3 = new Customer(UUID.randomUUID(), "name3");
+    Customer expected1 = new Customer(UUID.randomUUID(), "name1", ADDRESS1);
+    Customer expected2 = new Customer(UUID.randomUUID(), "name2", ADDRESS2);
+    Customer expected3 = new Customer(UUID.randomUUID(), "name3", null);
     assertCreate(expected1);
     assertCreate(expected2);
     assertCreate(expected3);
