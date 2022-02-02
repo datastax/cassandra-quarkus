@@ -26,6 +26,7 @@ import io.quarkus.test.common.ResourceArg;
           name = "quarkus.cassandra.test.container.image",
           value = "datastax/dse-server:6.8.14"),
       // activate DSE Graph with the -g switch; the resulting command will be: dse cassandra -f -g
-      @ResourceArg(name = "quarkus.cassandra.test.container.cmd", value = "-g")
+      @ResourceArg(name = "quarkus.cassandra.test.container.cmd", value = "-g"),
+      @ResourceArg(name = "quarkus.cassandra.test.container.startup-timeout", value = "PT5M")
     })
 public abstract class DseTestBase {}
