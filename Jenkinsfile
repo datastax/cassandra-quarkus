@@ -87,7 +87,7 @@ pipeline {
         }
         environment {
           JABBA_VERSION = 'openjdk@1.11'
-          GRAALVM_VERSION = 'graalvm-ce-java11@21.1.0'
+          GRAALVM_VERSION = '11.0.13-graalvm-ce-21.3.0'
         }
 
         stages {
