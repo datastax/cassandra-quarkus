@@ -20,10 +20,8 @@ import static io.restassured.RestAssured.when;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.endsWith;
 
-import com.datastax.oss.quarkus.test.CassandraTestResource;
 import com.datastax.oss.quarkus.tests.entity.Address;
 import com.datastax.oss.quarkus.tests.entity.Customer;
-import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import java.util.UUID;
@@ -31,8 +29,7 @@ import javax.ws.rs.core.Response.Status;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-@QuarkusTestResource(CassandraTestResource.class)
-public class CustomerResourceIT {
+public class CustomerResourceIT extends DseTestBase {
 
   private static final Address ADDRESS1 = new Address("Rue Montorgueil", "75002", "Paris");
   private static final Address ADDRESS2 = new Address("Rue Montmartre", "75002", "Paris");
