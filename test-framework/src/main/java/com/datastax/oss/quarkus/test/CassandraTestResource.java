@@ -18,6 +18,7 @@ package com.datastax.oss.quarkus.test;
 import com.datastax.driver.core.Host;
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import java.net.URL;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -44,6 +45,9 @@ public class CassandraTestResource implements QuarkusTestResourceLifecycleManage
 
   public static final String QUARKUS_CASSANDRA_CONTAINER_JVM_OPTS_KEY =
       "quarkus.cassandra.test.container.jvm-opts";
+
+  public static final String QUARKUS_CASSANDRA_CONTAINER_STARTUP_TIMEOUT_KEY =
+      "quarkus.cassandra.test.container.startup-timeout";
 
   private static final String QUARKUS_CASSANDRA_CONTAINER_IMAGE_DEFAULT = "cassandra:latest";
 
@@ -90,7 +94,12 @@ public class CassandraTestResource implements QuarkusTestResourceLifecycleManage
     if (resource != null) {
       cassandraContainer.withInitScript("init_script.cql");
     }
-    cassandraContainer.setWaitStrategy(new CassandraQueryWaitStrategy());
+    CassandraQueryWaitStrategy waitStrategy = new CassandraQueryWaitStrategy();
+    String startupTimeout = initArgs.get(QUARKUS_CASSANDRA_CONTAINER_STARTUP_TIMEOUT_KEY);
+    if (startupTimeout != null) {
+      waitStrategy.withStartupTimeout(Duration.parse(startupTimeout));
+    }
+    cassandraContainer.setWaitStrategy(waitStrategy);
     String cmd = initArgs.get(QUARKUS_CASSANDRA_CONTAINER_CMD_KEY);
     if (cmd != null) {
       cassandraContainer.setCommand(cmd);
