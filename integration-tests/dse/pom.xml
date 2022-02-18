@@ -48,6 +48,11 @@
       <groupId>org.apache.tinkerpop</groupId>
       <artifactId>tinkergraph-gremlin</artifactId>
     </dependency>
+    <!-- ESRI -->
+    <dependency>
+      <groupId>com.esri.geometry</groupId>
+      <artifactId>esri-geometry-api</artifactId>
+    </dependency>
     <!-- Health enablement -->
     <dependency>
       <groupId>io.quarkus</groupId>

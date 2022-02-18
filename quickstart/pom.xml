@@ -27,8 +27,8 @@
   <inceptionYear>2020</inceptionYear>
   <properties>
     <java.version>11</java.version>
-    <quarkus.version>2.7.0.Final</quarkus.version>
-    <datastax-java-driver.version>4.13.0</datastax-java-driver.version>
+    <quarkus.version>2.7.1.Final</quarkus.version>
+    <datastax-java-driver.version>4.14.0</datastax-java-driver.version>
     <assertj.version>3.22.0</assertj.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
