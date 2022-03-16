@@ -63,7 +63,7 @@
       <dependency>
         <groupId>org.lz4</groupId>
         <artifactId>lz4-java</artifactId>
-        <version>1.6.0</version>
+        <version>1.7.1</version>
         <optional>true</optional>
       </dependency>
       <dependency>
@@ -94,6 +94,12 @@
         <groupId>org.apache.tinkerpop</groupId>
         <artifactId>tinkergraph-gremlin</artifactId>
         <version>3.4.10</version>
+        <optional>true</optional>
+      </dependency>
+      <dependency>
+        <groupId>com.esri.geometry</groupId>
+        <artifactId>esri-geometry-api</artifactId>
+        <version>1.2.1</version>
         <optional>true</optional>
       </dependency>
       <!-- Cassandra Quarkus Extension -->
