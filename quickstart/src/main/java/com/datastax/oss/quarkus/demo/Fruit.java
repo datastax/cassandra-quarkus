@@ -40,12 +40,16 @@ public class Fruit {
     this.description = description;
   }
 
-  /** @return The fruit name. */
+  /**
+   * @return The fruit name.
+   */
   public String getName() {
     return name;
   }
 
-  /** @return The fruit description. */
+  /**
+   * @return The fruit description.
+   */
   public String getDescription() {
     return description;
   }
