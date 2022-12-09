@@ -73,6 +73,7 @@ public class CassandraTestResource implements QuarkusTestResourceLifecycleManage
 
   private volatile CassandraContainer<?> cassandraContainer;
 
+  @SuppressWarnings("resource")
   @Override
   public void init(Map<String, String> initArgs) {
     String image =
@@ -140,7 +141,7 @@ public class CassandraTestResource implements QuarkusTestResourceLifecycleManage
   }
 
   private String getContactPoint() {
-    String host = cassandraContainer.getContainerIpAddress();
+    String host = cassandraContainer.getHost();
     if (host.equals("localhost")) {
       host = "127.0.0.1";
     }

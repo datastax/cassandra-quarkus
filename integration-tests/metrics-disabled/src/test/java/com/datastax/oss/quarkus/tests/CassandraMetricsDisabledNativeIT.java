@@ -15,9 +15,9 @@
  */
 package com.datastax.oss.quarkus.tests;
 
-import io.quarkus.test.junit.NativeImageTest;
+import io.quarkus.test.junit.QuarkusIntegrationTest;
 import org.junit.jupiter.api.Tag;
 
-@NativeImageTest
+@QuarkusIntegrationTest
 @Tag("native")
 public class CassandraMetricsDisabledNativeIT extends CassandraMetricsDisabledIT {}

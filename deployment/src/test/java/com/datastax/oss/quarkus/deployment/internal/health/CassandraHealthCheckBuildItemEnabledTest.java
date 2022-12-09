@@ -19,16 +19,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.datastax.oss.quarkus.runtime.internal.health.CassandraAsyncHealthCheck;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
-import io.quarkus.arc.Arc;
 import io.quarkus.test.QuarkusUnitTest;
-import java.util.Set;
-import javax.enterprise.inject.spi.Bean;
+import java.util.concurrent.ExecutionException;
+import javax.inject.Inject;
+import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.Readiness;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class CassandraHealthCheckBuildItemEnabledTest {
+
+  @Inject @Readiness CassandraAsyncHealthCheck healthCheck;
+
   @RegisterExtension
   static QuarkusUnitTest runner =
       new QuarkusUnitTest()
@@ -37,8 +41,15 @@ public class CassandraHealthCheckBuildItemEnabledTest {
           .overrideConfigKey("quarkus.cassandra.health.enabled", "true");
 
   @Test
-  public void should_have_health_check_in_the_container() {
-    Set<Bean<?>> beans = Arc.container().beanManager().getBeans(CassandraAsyncHealthCheck.class);
-    assertThat(beans.size()).isEqualTo(1);
+  public void should_have_health_check_in_the_container()
+      throws ExecutionException, InterruptedException {
+    assertThat(healthCheck).isNotNull();
+    assertThat(healthCheck.call().subscribe().asCompletionStage().get())
+        .isNotNull()
+        .satisfies(
+            hc -> {
+              assertThat(hc.getName()).isEqualTo("DataStax Apache Cassandra Driver health check");
+              assertThat(hc.getStatus()).isEqualTo(HealthCheckResponse.Status.UP);
+            });
   }
 }

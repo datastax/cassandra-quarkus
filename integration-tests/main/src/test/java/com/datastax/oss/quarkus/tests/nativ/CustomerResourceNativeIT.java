@@ -16,9 +16,9 @@
 package com.datastax.oss.quarkus.tests.nativ;
 
 import com.datastax.oss.quarkus.tests.CustomerResourceIT;
-import io.quarkus.test.junit.NativeImageTest;
+import io.quarkus.test.junit.QuarkusIntegrationTest;
 import org.junit.jupiter.api.Tag;
 
-@NativeImageTest
+@QuarkusIntegrationTest
 @Tag("native")
 public class CustomerResourceNativeIT extends CustomerResourceIT {}

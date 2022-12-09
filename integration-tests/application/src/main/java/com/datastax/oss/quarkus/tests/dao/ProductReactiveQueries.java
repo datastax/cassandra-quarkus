@@ -46,7 +46,8 @@ public class ProductReactiveQueries {
   public Multi<Product> queryProviderSelectMultiProduct() {
     return MutinyWrappers.toMulti(
         new DefaultMappedReactiveResultSet<>(
-            session.executeReactive("SELECT * FROM product"), productHelper::get));
+            session.executeReactive("SELECT * FROM product"),
+            source -> productHelper.get(source, false)));
   }
 
   public Uni<Product> queryProviderSelectUniProduct(UUID id) {
@@ -63,7 +64,8 @@ public class ProductReactiveQueries {
   public MutinyMappedReactiveResultSet<Product> queryProviderSelectMappedResultSet() {
     return new DefaultMutinyMappedReactiveResultSet<>(
         new DefaultMappedReactiveResultSet<>(
-            session.executeReactive("SELECT * FROM product"), productHelper::get));
+            session.executeReactive("SELECT * FROM product"),
+            source -> productHelper.get(source, false)));
   }
 
   public Multi<Row> queryProviderSelectMultiRow() {

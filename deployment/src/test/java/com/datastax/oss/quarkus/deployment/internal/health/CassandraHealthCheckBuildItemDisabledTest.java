@@ -16,19 +16,24 @@
 package com.datastax.oss.quarkus.deployment.internal.health;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.datastax.oss.quarkus.runtime.internal.health.CassandraAsyncHealthCheck;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
-import io.quarkus.arc.Arc;
 import io.quarkus.test.QuarkusUnitTest;
-import java.util.Set;
-import javax.enterprise.inject.spi.Bean;
+import javax.enterprise.inject.UnsatisfiedResolutionException;
+import javax.inject.Inject;
+import javax.inject.Provider;
+import org.eclipse.microprofile.health.Readiness;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class CassandraHealthCheckBuildItemDisabledTest {
+
+  @Inject @Readiness Provider<CassandraAsyncHealthCheck> healthCheckProvider;
+
   @RegisterExtension
   static QuarkusUnitTest runner =
       new QuarkusUnitTest()
@@ -38,7 +43,9 @@ public class CassandraHealthCheckBuildItemDisabledTest {
 
   @Test
   public void should_not_have_health_check_in_the_container() {
-    Set<Bean<?>> beans = Arc.container().beanManager().getBeans(CassandraAsyncHealthCheck.class);
-    assertThat(beans.size()).isZero();
+    assertThat(healthCheckProvider).isNotNull();
+    assertThatThrownBy(healthCheckProvider::get)
+        .isInstanceOf(UnsatisfiedResolutionException.class)
+        .hasMessageContaining("No bean found for required type");
   }
 }

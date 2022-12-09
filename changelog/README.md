@@ -1,3 +1,7 @@
+### 1.1.3 (in progress)
+
+This release is built against Quarkus 2.15.0.Final and the Cassandra driver 4.15.0.
+
 ### 1.1.2
 
 This release is built against Quarkus 2.7.1.Final and the Cassandra driver 4.14.0.

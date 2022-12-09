@@ -26,7 +26,7 @@
   <artifactId>cassandra-quarkus-client</artifactId>
   <name>Cassandra Quarkus :: Client :: Runtime</name>
   <!-- The contents of the description tag below will appear in code.quarkus.io -->
-  <description>Connect to Apache Cassandra databases</description>
+  <description>Connect to Apache Cassandra, DataStax Enterprise and DataStax Astra databases</description>
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -125,7 +125,7 @@
     <plugins>
       <plugin>
         <groupId>io.quarkus</groupId>
-        <artifactId>quarkus-bootstrap-maven-plugin</artifactId>
+        <artifactId>quarkus-extension-maven-plugin</artifactId>
         <executions>
           <execution>
             <goals>

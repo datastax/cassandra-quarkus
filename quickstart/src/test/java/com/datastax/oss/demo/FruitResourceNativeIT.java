@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.tests.nativ;
+package com.datastax.oss.demo;
 
-import com.datastax.oss.quarkus.tests.ProductResourceIT;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import org.junit.jupiter.api.Tag;
 
 @QuarkusIntegrationTest
 @Tag("native")
-public class ProductResourceNativeIT extends ProductResourceIT {}
+public class FruitResourceNativeIT extends FruitResourceIT {}

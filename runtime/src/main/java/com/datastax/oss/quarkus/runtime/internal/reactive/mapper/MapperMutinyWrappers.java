@@ -96,7 +96,7 @@ public class MapperMutinyWrappers {
     if (cols.size() == 1 && cols.get(0).getName().equals(APPLIED)) {
       return null;
     }
-    return entityHelper.get(row);
+    return entityHelper.get(row, false);
   }
 
   /** Copy of {@code DaoBase#extractCount(Row)}. */
