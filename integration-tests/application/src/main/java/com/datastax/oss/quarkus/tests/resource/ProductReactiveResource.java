@@ -37,7 +37,7 @@ public class ProductReactiveResource {
       consumes = MediaType.APPLICATION_JSON,
       order = 1)
   public void createProduct(RoutingExchange ex) {
-    Product product = Json.decodeValue(ex.context().getBody(), Product.class);
+    Product product = Json.decodeValue(ex.context().body().asString(), Product.class);
     service
         .create(product)
         .subscribe()
@@ -51,7 +51,7 @@ public class ProductReactiveResource {
       order = 1)
   public void updateProduct(RoutingExchange ex) {
     UUID id = ex.getParam("id").map(UUID::fromString).orElseThrow(IllegalStateException::new);
-    Product product = Json.decodeValue(ex.context().getBody(), Product.class);
+    Product product = Json.decodeValue(ex.context().body().asString(), Product.class);
     product.setId(id);
     service
         .update(product)

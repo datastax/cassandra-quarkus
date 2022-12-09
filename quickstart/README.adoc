@@ -529,13 +529,17 @@ are the same Mutiny types that we met before; they are automatically recognized 
 reactive REST API, so we don't need to convert them into JSON ourselves.
 
 To effectively integrate the reactive logic with the REST API, your application needs to declare a
-dependency to the Quarkus RestEasy Mutiny extension:
+dependency to the Quarkus RestEasy Reactive extension:
 
 [source,xml]
 ----
 <dependency>
   <groupId>io.quarkus</groupId>
-  <artifactId>quarkus-resteasy-mutiny</artifactId>
+  <artifactId>quarkus-resteasy-reactive</artifactId>
+</dependency>
+<dependency>
+  <groupId>io.quarkus</groupId>
+  <artifactId>quarkus-resteasy-reactive-jsonb</artifactId>
 </dependency>
 ----
 
