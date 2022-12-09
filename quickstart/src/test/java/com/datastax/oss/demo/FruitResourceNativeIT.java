@@ -16,6 +16,8 @@
 package com.datastax.oss.demo;
 
 import io.quarkus.test.junit.QuarkusIntegrationTest;
+import org.junit.jupiter.api.Tag;
 
 @QuarkusIntegrationTest
+@Tag("native")
 public class FruitResourceNativeIT extends FruitResourceIT {}
