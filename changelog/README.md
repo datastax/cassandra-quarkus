@@ -2,6 +2,8 @@
 
 This release is built against Quarkus 2.15.0.Final and the Cassandra driver 4.15.0.
 
+- [bug] [#214](https://github.com/datastax/cassandra-quarkus/issues/214) DAO initialization is not happening on main thread with eager init
+
 ### 1.1.2
 
 This release is built against Quarkus 2.7.1.Final and the Cassandra driver 4.14.0.

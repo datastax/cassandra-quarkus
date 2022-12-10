@@ -19,11 +19,15 @@ import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.api.mapper.QuarkusGeneratedDaoBean;
 import com.datastax.oss.quarkus.runtime.api.mapper.QuarkusGeneratedMapperBean;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
+import io.quarkus.arc.ClientProxy;
 import io.quarkus.runtime.StartupEvent;
 import io.smallrye.mutiny.Uni;
 import java.time.Duration;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.enterprise.context.Dependent;
@@ -49,8 +53,6 @@ public class CassandraClientStarter {
   @Inject @QuarkusGeneratedMapperBean Instance<Object> mappers;
   @Inject @QuarkusGeneratedDaoBean Instance<Object> daos;
 
-  private Duration timeout;
-
   @SuppressWarnings("unused")
   public void onStartup(@Observes StartupEvent event)
       throws ExecutionException, InterruptedException {
@@ -64,33 +66,39 @@ public class CassandraClientStarter {
     }
     if (config.cassandraClientInitConfig.eagerInit) {
       LOG.info("Eagerly initializing Quarkus Cassandra client.");
-      timeout = config.cassandraClientInitConfig.eagerInitTimeout;
-      initializeBeans(sessions, "session");
-      initializeBeans(mappers, "mapper");
-      initializeBeans(daos, "DAO");
+      Duration timeout = config.cassandraClientInitConfig.eagerInitTimeout;
+      ExecutorService executor = Executors.newSingleThreadExecutor();
+      Future<Void> initFuture =
+          executor.submit(
+              () -> {
+                initializeBeans(sessions);
+                initializeBeans(mappers);
+                initializeBeans(daos);
+                return null;
+              });
+      try {
+        initFuture.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
+      } catch (TimeoutException e) {
+        initFuture.cancel(true);
+        LOG.warn(
+            "Eager initialization of Quarkus Cassandra client did not complete within {}; "
+                + "resuming application startup with an uninitialized client.",
+            timeout);
+      }
+      executor.shutdownNow();
     } else {
       LOG.debug(
           "Eager initialization of Quarkus Cassandra client at startup is disabled by configuration.");
     }
   }
 
-  private void initializeBeans(Instance<?> beans, String beanName)
-      throws InterruptedException, ExecutionException {
+  private void initializeBeans(Instance<?> beans) throws InterruptedException, ExecutionException {
     for (Object bean : beans) {
-      try {
-        if (bean instanceof CompletionStage) {
-          ((CompletionStage<?>) bean)
-              .toCompletableFuture()
-              .get(timeout.toNanos(), TimeUnit.NANOSECONDS);
-        } else if (bean instanceof Uni) {
-          ((Uni<?>) bean).await().atMost(timeout);
-        }
-      } catch (TimeoutException | io.smallrye.mutiny.TimeoutException e) {
-        LOG.warn(
-            "Eager initialization of a {} bean did not complete within {}; "
-                + "resuming application startup with uninitialized bean.",
-            beanName,
-            timeout);
+      ClientProxy.unwrap(bean);
+      if (bean instanceof CompletionStage) {
+        ((CompletionStage<?>) bean).toCompletableFuture().get();
+      } else if (bean instanceof Uni) {
+        ((Uni<?>) bean).await().indefinitely();
       }
     }
   }
