@@ -1,8 +1,8 @@
-### 1.1.3 (in progress)
+### 1.1.3
 
 This release is built against Quarkus 2.15.0.Final and the Cassandra driver 4.15.0.
 
-- [bug] [#214](https://github.com/datastax/cassandra-quarkus/issues/214) DAO initialization is not happening on main thread with eager init
+- [bug] [#214](https://github.com/datastax/cassandra-quarkus/issues/214) Make DAO initialization happen during startup with eager init
 - [documentation] [#212](https://github.com/datastax/cassandra-quarkus/issues/212) Explain usage of the mapper annotation processor in the Quickstart guide 
 
 ### 1.1.2
