@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.datastax.oss.quarkus</groupId>
   <artifactId>cassandra-quarkus-quickstart</artifactId>
-  <version>1.1.4-SNAPSHOT</version>
+  <version>1.1.3-SNAPSHOT</version>
   <name>Cassandra Quarkus :: Quickstart</name>
   <description>Quickstart Application for the Quarkus extension for Apache Cassandra(R)</description>
   <url>https://github.com/datastax/cassandra-quarkus/quickstart</url>
