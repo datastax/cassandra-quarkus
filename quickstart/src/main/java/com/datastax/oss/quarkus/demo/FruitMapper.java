@@ -25,7 +25,7 @@ import com.datastax.oss.driver.api.mapper.annotations.Mapper;
  * object mapper.
  *
  * <p>An application-scoped {@link FruitMapper} bean will be automatically created and can be
- * injected everywhere in your application, see {@link FruitMapperProducer}.
+ * injected everywhere in your application.
  *
  * @see <a
  *     href="https://docs.datastax.com/en/developer/java-driver/latest/manual/mapper/mapper/">Using
