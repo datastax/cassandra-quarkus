@@ -95,7 +95,7 @@ public class Fruit {
 
 As stated above, we are using the DataStax Object Mapper. In other words, we are not going to write
 our CQL queries manually; instead, we will annotate our data model with a few annotations, and the
-mapper will generate proper CQL queries underneath.
+mapper will generate proper CQL queries for us underneath.
 
 This is why the `Fruit` class is annotated with `@Entity`: this annotation marks it as an _entity
 class_ that is mapped to a Cassandra table. Its instances are meant to be automatically persisted
@@ -131,7 +131,7 @@ Note also the special return type of the `findAll` method,
 link:https://docs.datastax.com/en/drivers/java/latest/com/datastax/oss/driver/api/core/PagingIterable.html[`PagingIterable`]:
 it's the base type of result sets returned by the driver.
 
-Finally, let's create the a Mapper interface:
+Finally, let's create a Mapper interface:
 
 [source,java]
 ----
@@ -145,6 +145,96 @@ public interface FruitMapper {
 The `@Mapper` annotation is yet another annotation recognized by the DataStax Object Mapper. A
 mapper is responsible for constructing instances of DAOs – in this case, out mapper is constructing
 an instance of our only DAO, `FruitDao`.
+
+Think of the mapper interface as a factory for DAO beans: if you intend to construct and inject a
+specific DAO bean in your own code, then you first need to add a `@DaoFactory` method for it in a
+`@Mapper` interface.
+
+TIP: `@DaoFactory` method names are irrelevant.
+
+`@DaoFactory` methods should return beans of the following types:
+
+- Any `@Dao`-annotated interface, e.g. `FruitDao`;
+- A `CompletationStage` of any `@Dao`-annotated interface, e.g. `CompletionStage<FruitDao>`.
+- A `Uni` of any `@Dao`-annotated interface, e.g. `Uni<FruitDao>`.
+
+TIP: `Uni` is a type from the Mutiny library, which is the reactive programming library used by
+Quarkus. This will be explained in more detail in the "Reactive Programming" section below.
+
+== Generating the DAO and Mapper Implementations
+
+As you probably guessed already, we are not going to implement the interfaces above. Instead, the
+Object Mapper will generate such implementations for us.
+
+The Object Mapper is composed of 2 pieces:
+
+1. A (compile-time) annotation processor that scans the classpath for classes annotated with
+`@Entity`, and generates code for them; and
+2. A runtime module that contains the logic to execute the generated queries.
+
+Therefore, enabling the Object Mapper requires two steps:
+
+1. Declare the `cassandra-quarkus-mapper-processor` annotation processor. With Maven, this is done
+by modifying the compiler plugin configuration in the project's `pom.xml` file as follows:
+
+[source,xml]
+----
+<plugin>
+  <artifactId>maven-compiler-plugin</artifactId>
+  <version>3.10.1</version>
+  <configuration>
+    <source>${java.version}</source>
+    <target>${java.version}</target>
+    <annotationProcessorPaths>
+      <path>
+        <groupId>com.datastax.oss.quarkus</groupId>
+        <artifactId>cassandra-quarkus-mapper-processor</artifactId>
+        <version>${cassandra-quarkus.version}</version>
+      </path>
+    </annotationProcessorPaths>
+  </configuration>
+</plugin>
+----
+
+With Gradle, this is done by adding the following line to the `build.gradle` file:
+
+[source,groovy]
+----
+annotationProcessor "com.datastax.oss.quarkus:cassandra-quarkus-mapper-processor:${cassandra-quarkus.version}"
+----
+
+IMPORTANT: make sure you are enabling the right annotation processor! The Cassandra Quarkus
+extension requires the `cassandra-quarkus-mapper-processor` annotation processor, and not the Java
+driver's `java-driver-mapper-processor`. The former has more capabilities than the latter, and is
+the only one suitable for use in a Quarkus application.
+
+[start=2]
+1. Declare the `cassandra-quarkus-mapper-runtime` dependency in compile scope in the project's
+`pom.xml` file as follows:
+
+[source,xml]
+----
+<dependency>
+  <groupId>com.datastax.oss.quarkus</groupId>
+  <artifactId>cassandra-quarkus-mapper-runtime</artifactId>
+  <version>${project.version}</version>
+  <scope>compile</scope>
+</dependency>
+----
+
+With Gradle, this is done by adding the following line to the `build.gradle` file:
+
+[source,groovy]
+----
+compile "com.datastax.oss.quarkus:cassandra-quarkus-mapper-runtime:${cassandra-quarkus.version}"
+----
+
+IMPORTANT: Although this module is called "runtime", it must be declared in compile scope.
+
+If your project is correctly set up, you should now be able to compile it without errors, and you
+should see the generated code in the `target/generated-sources/annotations` directory (if you are
+using Maven). You don't need to get familiar with the generated code though, as it is mostly
+internal machinery to interact with the database.
 
 == Creating a Service & JSON REST Endpoint
 
@@ -169,19 +259,20 @@ public class FruitService {
 ----
 
 Note how the service is being injected a `FruitDao` instance. This DAO instance is injected
-automatically.
+automatically, thanks to the generated implementations.
 
 The Cassandra Quarkus extension allows you to inject any of the following beans in your own
 components:
 
 - All `@Mapper`-annotated interfaces in your project.
-- All `@Dao`-annotated interfaces in your project, as long as they are produced by a corresponding
-`@DaoFactory`-annotated method declared in a mapper interface from your project.
+- You can also inject a `CompletionStage` or `Uni` of any `@Mapper`-annotated interface.
+- Any bean returned by a `@DaoFactory` method (see above for possible bean types).
 - The
 link:https://javadoc.io/doc/com.datastax.oss.quarkus/cassandra-quarkus-client/latest/com/datastax/oss/quarkus/runtime/api/session/QuarkusCqlSession.html[`QuarkusCqlSession`]
 bean: this application-scoped, singleton bean is your main entry point to the Cassandra client; it
 is a specialized Cassandra driver session instance with a few methods tailored especially for
 Quarkus. Read its javadocs carefully!
+- You can also inject `CompletationStage<QuarkusCqlSession>` or `Uni<QuarkusCqlSession>`.
 
 In our example, both `FruitMapper` and `FruitDao` could be injected anywhere. We chose to inject
 `FruitDao` in `FruitService`.
@@ -375,7 +466,8 @@ docker exec -it local-cassandra-instance cqlsh
 
 In the project root directory:
 
-- Run `mvn clean package` and then `java -jar ./target/cassandra-quarkus-quickstart-*-runner.jar` to start the application;
+- Run `mvn clean package` and then `java -jar ./target/cassandra-quarkus-quickstart-*-runner.jar` to
+  start the application;
 - Or better yet, run the application in dev mode: `mvn clean quarkus:dev`.
 
 Now you can use curl commands to interact with the underlying REST API.
@@ -424,7 +516,7 @@ link:https://quarkus.io/guides/getting-started-reactive[Getting Started with Rea
 
 Let's rewrite our application using reactive programming with Mutiny.
 
-First, let's to declare another DAO interface that works in a reactive way:
+First, let's declare another DAO interface that works in a reactive way:
 
 [source,java]
 ----
@@ -771,15 +863,17 @@ You can then point your browser to `http://localhost:8080/fruits.html` and use y
 
 == Eager vs Lazy Initialization
 
-This extension allows you to inject either:
+As explained above, this extension allows you to inject many types of beans:
 
-- a `QuarkusCqlSession` bean;
-- or the asynchronous version of this bean, that is, `CompletionStage<QuarkusCqlSession>`;
-- or the reactive version of this bean, that is, `Uni<QuarkusCqlSession>`.
+- A simple bean like `QuarkusCqlSession` or `FruitDao`;
+- The asynchronous version of that bean, e.g. `CompletionStage<QuarkusCqlSession>` or
+  `CompletionStage<FruitDao>;
+- The reactive version of that bean, e.g., `Uni<QuarkusCqlSession>` or `Uni<FruitDao>`.
 
-The most straightforward approach is obviously to inject `QuarkusCqlSession` directly. This should
-work just fine for most applications; however, the `QuarkusCqlSession` bean needs to be initialized
-before it can be used, and this process is blocking.
+The most straightforward approach is obviously to inject the bean directly. This should work just
+fine for most applications; however, the `QuarkusCqlSession` bean, and all DAO beans that depend on
+it, might take some time to initialize before they can be used for the first time, and this process
+is blocking.
 
 Fortunately, it is possible to control when the initialization should happen: the
 `quarkus.cassandra.init.eager-init` parameter determines if the `QuarkusCqlSession` bean should be
