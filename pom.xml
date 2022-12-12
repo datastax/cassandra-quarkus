@@ -121,7 +121,11 @@
         </plugin>
         <plugin>
           <artifactId>maven-gpg-plugin</artifactId>
-          <version>3.0.1</version>
+          <!-- Upgrade to 3.0.1 hits
+          https://issues.apache.org/jira/browse/MGPG-90
+          https://issues.apache.org/jira/browse/MGPG-84
+          -->
+          <version>1.6</version>
         </plugin>
         <plugin>
           <artifactId>maven-install-plugin</artifactId>
