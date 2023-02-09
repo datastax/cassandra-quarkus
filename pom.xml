@@ -33,11 +33,7 @@
     Note: when upgrading the Quarkus version or the DataStax Java driver version, make sure that you
     upgrade them in the quickstart module too.
     -->
-<<<<<<< HEAD
     <quarkus.version>2.16.2.Final</quarkus.version>
-=======
-    <quarkus.version>2.15.3.Final</quarkus.version>
->>>>>>> 9d897dc (1. Quarkus update to 2.15.3.Final)
     <datastax-java-driver.version>4.15.0</datastax-java-driver.version>
     <assertj.version>3.23.1</assertj.version>
     <maven.compiler.target>11</maven.compiler.target>
