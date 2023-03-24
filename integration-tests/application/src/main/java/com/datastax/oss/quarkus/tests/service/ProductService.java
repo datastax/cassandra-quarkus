@@ -18,10 +18,10 @@ package com.datastax.oss.quarkus.tests.service;
 import com.datastax.oss.quarkus.tests.dao.ProductDao;
 import com.datastax.oss.quarkus.tests.entity.Product;
 import io.smallrye.mutiny.Multi;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 @ApplicationScoped
 public class ProductService {

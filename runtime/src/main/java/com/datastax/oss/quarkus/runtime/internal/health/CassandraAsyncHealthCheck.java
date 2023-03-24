@@ -22,11 +22,11 @@ import com.datastax.oss.quarkus.runtime.internal.quarkus.CassandraClientRecorder
 import io.quarkus.arc.Arc;
 import io.smallrye.health.api.AsyncHealthCheck;
 import io.smallrye.mutiny.Uni;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.HealthCheckResponseBuilder;
 import org.eclipse.microprofile.health.Readiness;

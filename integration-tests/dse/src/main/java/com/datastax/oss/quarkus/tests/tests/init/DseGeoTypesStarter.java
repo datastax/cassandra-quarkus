@@ -19,10 +19,10 @@ import com.datastax.dse.driver.api.core.data.geometry.Point;
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import io.quarkus.runtime.StartupEvent;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 import java.time.Duration;
-import javax.enterprise.context.Dependent;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
 
 @Dependent
 public class DseGeoTypesStarter {

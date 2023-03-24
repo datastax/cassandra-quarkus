@@ -49,5 +49,5 @@ public interface MutinyGraphReactiveResultSet
    */
   @NonNull
   @Override
-  Multi<ExecutionInfo> getExecutionInfos();
+  MultiPublisher<ExecutionInfo> getExecutionInfos();
 }

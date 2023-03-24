@@ -20,10 +20,10 @@ import io.quarkus.arc.Arc;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
+import jakarta.enterprise.util.TypeLiteral;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import javax.enterprise.util.TypeLiteral;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

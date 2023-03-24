@@ -24,8 +24,8 @@ import com.datastax.oss.quarkus.tests.entity.Product;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
+import jakarta.ws.rs.core.Response.Status;
 import java.util.UUID;
-import javax.ws.rs.core.Response.Status;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest

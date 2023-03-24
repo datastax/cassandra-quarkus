@@ -19,9 +19,9 @@ import com.datastax.oss.quarkus.tests.dao.ProductReactiveDao;
 import com.datastax.oss.quarkus.tests.entity.Product;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.util.UUID;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 
 @ApplicationScoped
 public class ProductReactiveService {

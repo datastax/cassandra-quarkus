@@ -15,27 +15,29 @@
  */
 package com.datastax.oss.quarkus.runtime.internal.reactive;
 
+import com.datastax.oss.quarkus.runtime.api.reactive.MultiPublisher;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import java.util.concurrent.Executor;
+import mutiny.zero.flow.adapters.AdaptersToFlow;
 import org.reactivestreams.Publisher;
 
 public class MutinyWrappers {
 
-  public static <T> Multi<T> toMulti(Publisher<T> source) {
-    Multi<T> multi = Multi.createFrom().publisher(source);
+  public static <T> MultiPublisher<T> toMulti(Publisher<T> source) {
+    Multi<T> multi = Multi.createFrom().publisher(AdaptersToFlow.publisher(source));
     Context context = Vertx.currentContext();
     if (context != null) {
       multi = multi.emitOn(new VertxContextExecutor(context));
     }
-    return multi;
+    return new DefaultMultiPublisher<>(multi);
   }
 
   public static <T> Uni<T> toUni(Publisher<T> source) {
-    Uni<T> uni = Uni.createFrom().publisher(source);
+    Uni<T> uni = Uni.createFrom().publisher(AdaptersToFlow.publisher(source));
     Context context = Vertx.currentContext();
     if (context != null) {
       uni = uni.emitOn(new VertxContextExecutor(context));

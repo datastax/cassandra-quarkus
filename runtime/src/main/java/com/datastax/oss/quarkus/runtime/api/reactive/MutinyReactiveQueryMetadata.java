@@ -43,7 +43,7 @@ public interface MutinyReactiveQueryMetadata extends ReactiveQueryMetadata {
    */
   @NonNull
   @Override
-  Multi<ColumnDefinitions> getColumnDefinitions();
+  MultiPublisher<ColumnDefinitions> getColumnDefinitions();
 
   /**
    * Returns {@linkplain ExecutionInfo information about the execution} of all requests that have
@@ -58,7 +58,7 @@ public interface MutinyReactiveQueryMetadata extends ReactiveQueryMetadata {
    */
   @NonNull
   @Override
-  Multi<ExecutionInfo> getExecutionInfos();
+  MultiPublisher<ExecutionInfo> getExecutionInfos();
 
   /**
    * If the query that produced this result was a conditional update, indicates whether it was
@@ -84,5 +84,5 @@ public interface MutinyReactiveQueryMetadata extends ReactiveQueryMetadata {
    */
   @NonNull
   @Override
-  Multi<Boolean> wasApplied();
+  MultiPublisher<Boolean> wasApplied();
 }

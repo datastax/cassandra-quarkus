@@ -18,34 +18,43 @@ package com.datastax.oss.quarkus.runtime.internal.reactive;
 import com.datastax.dse.driver.api.core.graph.reactive.ReactiveGraphNode;
 import com.datastax.dse.driver.api.core.graph.reactive.ReactiveGraphResultSet;
 import com.datastax.oss.driver.api.core.cql.ExecutionInfo;
+import com.datastax.oss.quarkus.runtime.api.reactive.MultiPublisher;
 import com.datastax.oss.quarkus.runtime.api.reactive.MutinyGraphReactiveResultSet;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
 import io.smallrye.mutiny.operators.AbstractMulti;
 import io.smallrye.mutiny.subscription.MultiSubscriber;
+import mutiny.zero.flow.adapters.AdaptersToFlow;
+import org.reactivestreams.Subscriber;
 
 public class DefaultMutinyGraphReactiveResultSet extends AbstractMulti<ReactiveGraphNode>
     implements MutinyGraphReactiveResultSet {
 
-  private final Multi<ReactiveGraphNode> multi;
-  private final Multi<ExecutionInfo> executionInfos;
+  private final MultiPublisher<ReactiveGraphNode> multi;
+  private final MultiPublisher<ExecutionInfo> executionInfos;
 
   public DefaultMutinyGraphReactiveResultSet(ReactiveGraphResultSet reactiveGraphResultSet) {
     multi = MutinyWrappers.toMulti(reactiveGraphResultSet);
     @SuppressWarnings("unchecked")
-    Multi<ExecutionInfo> executionInfos =
-        (Multi<ExecutionInfo>) MutinyWrappers.toMulti(reactiveGraphResultSet.getExecutionInfos());
+    MultiPublisher<ExecutionInfo> executionInfos =
+        (MultiPublisher<ExecutionInfo>)
+            MutinyWrappers.toMulti(reactiveGraphResultSet.getExecutionInfos());
     this.executionInfos = executionInfos;
   }
 
   @NonNull
   @Override
-  public Multi<ExecutionInfo> getExecutionInfos() {
+  public MultiPublisher<ExecutionInfo> getExecutionInfos() {
     return executionInfos;
   }
 
+  @Override
   public void subscribe(MultiSubscriber<? super ReactiveGraphNode> subscriber) {
     multi.subscribe(Infrastructure.onMultiSubscription(multi, subscriber));
+  }
+
+  @Override
+  public void subscribe(Subscriber<? super ReactiveGraphNode> subscriber) {
+    subscribe(AdaptersToFlow.subscriber(subscriber));
   }
 }

@@ -18,54 +18,62 @@ package com.datastax.oss.quarkus.runtime.internal.reactive.mapper;
 import com.datastax.dse.driver.api.mapper.reactive.MappedReactiveResultSet;
 import com.datastax.oss.driver.api.core.cql.ColumnDefinitions;
 import com.datastax.oss.driver.api.core.cql.ExecutionInfo;
+import com.datastax.oss.quarkus.runtime.api.reactive.MultiPublisher;
 import com.datastax.oss.quarkus.runtime.api.reactive.mapper.MutinyMappedReactiveResultSet;
 import com.datastax.oss.quarkus.runtime.internal.reactive.MutinyWrappers;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
 import io.smallrye.mutiny.operators.AbstractMulti;
 import io.smallrye.mutiny.subscription.MultiSubscriber;
+import mutiny.zero.flow.adapters.AdaptersToFlow;
+import org.reactivestreams.Subscriber;
 
 public class DefaultMutinyMappedReactiveResultSet<EntityT> extends AbstractMulti<EntityT>
     implements MutinyMappedReactiveResultSet<EntityT> {
-  private final Multi<EntityT> multi;
-  private final Multi<ExecutionInfo> executionInfos;
-  private final Multi<ColumnDefinitions> columnDefinitions;
-  private final Multi<Boolean> wasApplied;
+  private final MultiPublisher<EntityT> multi;
+  private final MultiPublisher<ExecutionInfo> executionInfos;
+  private final MultiPublisher<ColumnDefinitions> columnDefinitions;
+  private final MultiPublisher<Boolean> wasApplied;
 
   public DefaultMutinyMappedReactiveResultSet(MappedReactiveResultSet<EntityT> resultSet) {
     multi = MutinyWrappers.toMulti(resultSet);
     @SuppressWarnings("unchecked")
-    Multi<ColumnDefinitions> columnDefinitions =
-        (Multi<ColumnDefinitions>) MutinyWrappers.toMulti(resultSet.getColumnDefinitions());
+    MultiPublisher<ColumnDefinitions> columnDefinitions =
+        (MultiPublisher<ColumnDefinitions>)
+            MutinyWrappers.toMulti(resultSet.getColumnDefinitions());
     this.columnDefinitions = columnDefinitions;
     @SuppressWarnings("unchecked")
-    Multi<ExecutionInfo> executionInfos =
-        (Multi<ExecutionInfo>) MutinyWrappers.toMulti(resultSet.getExecutionInfos());
+    MultiPublisher<ExecutionInfo> executionInfos =
+        (MultiPublisher<ExecutionInfo>) MutinyWrappers.toMulti(resultSet.getExecutionInfos());
     this.executionInfos = executionInfos;
     wasApplied = MutinyWrappers.toMulti(resultSet.wasApplied());
   }
 
   @NonNull
   @Override
-  public Multi<ColumnDefinitions> getColumnDefinitions() {
+  public MultiPublisher<ColumnDefinitions> getColumnDefinitions() {
     return columnDefinitions;
   }
 
   @NonNull
   @Override
-  public Multi<ExecutionInfo> getExecutionInfos() {
+  public MultiPublisher<ExecutionInfo> getExecutionInfos() {
     return executionInfos;
   }
 
   @NonNull
   @Override
-  public Multi<Boolean> wasApplied() {
+  public MultiPublisher<Boolean> wasApplied() {
     return wasApplied;
   }
 
   @Override
   public void subscribe(MultiSubscriber<? super EntityT> subscriber) {
     multi.subscribe(Infrastructure.onMultiSubscription(multi, subscriber));
+  }
+
+  @Override
+  public void subscribe(Subscriber<? super EntityT> subscriber) {
+    subscribe(AdaptersToFlow.subscriber(subscriber));
   }
 }

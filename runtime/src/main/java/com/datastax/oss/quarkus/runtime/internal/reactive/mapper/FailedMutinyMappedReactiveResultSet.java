@@ -17,12 +17,16 @@ package com.datastax.oss.quarkus.runtime.internal.reactive.mapper;
 
 import com.datastax.oss.driver.api.core.cql.ColumnDefinitions;
 import com.datastax.oss.driver.api.core.cql.ExecutionInfo;
+import com.datastax.oss.quarkus.runtime.api.reactive.MultiPublisher;
 import com.datastax.oss.quarkus.runtime.api.reactive.mapper.MutinyMappedReactiveResultSet;
+import com.datastax.oss.quarkus.runtime.internal.reactive.DefaultMultiPublisher;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
 import io.smallrye.mutiny.operators.AbstractMulti;
 import io.smallrye.mutiny.subscription.MultiSubscriber;
+import mutiny.zero.flow.adapters.AdaptersToFlow;
+import org.reactivestreams.Subscriber;
 
 /**
  * A mapped reactive result set that immediately signals the error passed at instantiation to all
@@ -39,23 +43,29 @@ public class FailedMutinyMappedReactiveResultSet<T> extends AbstractMulti<T>
 
   @NonNull
   @Override
-  public Multi<ColumnDefinitions> getColumnDefinitions() {
-    return inner.onItem().castTo(ColumnDefinitions.class);
+  public MultiPublisher<ColumnDefinitions> getColumnDefinitions() {
+    return new DefaultMultiPublisher<>(inner.onItem().castTo(ColumnDefinitions.class));
   }
 
   @NonNull
   @Override
-  public Multi<ExecutionInfo> getExecutionInfos() {
-    return inner.onItem().castTo(ExecutionInfo.class);
+  public MultiPublisher<ExecutionInfo> getExecutionInfos() {
+    return new DefaultMultiPublisher<>(inner.onItem().castTo(ExecutionInfo.class));
   }
 
   @NonNull
   @Override
-  public Multi<Boolean> wasApplied() {
-    return inner.onItem().castTo(Boolean.class);
+  public MultiPublisher<Boolean> wasApplied() {
+    return new DefaultMultiPublisher<>(inner.onItem().castTo(Boolean.class));
   }
 
+  @Override
   public void subscribe(MultiSubscriber<? super T> subscriber) {
     inner.subscribe(Infrastructure.onMultiSubscription(inner, subscriber));
+  }
+
+  @Override
+  public void subscribe(Subscriber<? super T> subscriber) {
+    subscribe(AdaptersToFlow.subscriber(subscriber));
   }
 }
