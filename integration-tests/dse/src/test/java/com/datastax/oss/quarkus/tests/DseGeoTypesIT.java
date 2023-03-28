@@ -18,11 +18,13 @@ package com.datastax.oss.quarkus.tests;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.core.StringContains.containsString;
 
+import com.datastax.oss.quarkus.test.SkipIfNotAmd64;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.ws.rs.core.Response.Status;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
+@SkipIfNotAmd64
 public class DseGeoTypesIT extends DseTestBase {
 
   @Test
