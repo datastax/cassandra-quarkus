@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.datastax.oss.quarkus</groupId>
   <artifactId>cassandra-quarkus-quickstart</artifactId>
-  <version>1.2.0-alpha1-SNAPSHOT</version>
+  <version>1.2.0-alpha1</version>
   <name>Cassandra Quarkus :: Quickstart</name>
   <description>Quickstart Application for the Quarkus extension for Apache Cassandra(R)</description>
   <url>https://github.com/datastax/cassandra-quarkus/quickstart</url>
@@ -314,7 +314,7 @@
     <connection>scm:git:git@github.com:datastax/cassandra-quarkus.git</connection>
     <developerConnection>scm:git:git@github.com:datastax/cassandra-quarkus.git</developerConnection>
     <url>https://github.com/datastax/cassandra-quarkus</url>
-    <tag>HEAD</tag>
+    <tag>1.2.0-alpha1</tag>
   </scm>
   <developers>
     <developer>
