@@ -21,7 +21,7 @@
   <parent>
     <groupId>com.datastax.oss.quarkus</groupId>
     <artifactId>cassandra-quarkus-parent</artifactId>
-    <version>1.2.0-alpha1</version>
+    <version>1.2.0-alpha2-SNAPSHOT</version>
   </parent>
   <artifactId>cassandra-quarkus-bom</artifactId>
   <packaging>pom</packaging>
