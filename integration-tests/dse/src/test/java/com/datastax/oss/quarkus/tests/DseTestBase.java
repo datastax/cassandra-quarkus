@@ -16,6 +16,7 @@
 package com.datastax.oss.quarkus.tests;
 
 import com.datastax.oss.quarkus.test.CassandraTestResource;
+import com.datastax.oss.quarkus.test.SkipIfNotAmd64;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.ResourceArg;
 
@@ -29,4 +30,5 @@ import io.quarkus.test.common.ResourceArg;
       @ResourceArg(name = "quarkus.cassandra.test.container.cmd", value = "-g"),
       @ResourceArg(name = "quarkus.cassandra.test.container.startup-timeout", value = "PT5M")
     })
+@SkipIfNotAmd64
 public abstract class DseTestBase {}
