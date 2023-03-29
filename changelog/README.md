@@ -1,3 +1,10 @@
+### 1.2.0-alpha1
+
+This release is built against Quarkus 3.0.0.Beta1 and the Cassandra driver 4.15.0.
+
+- [improvement] Upgrade to Quarkus 3.0.0.Beta1
+- [bug] Skip DSE integration tests if we're not on amd64 (fixes #225)
+
 ### 1.1.3
 
 This release is built against Quarkus 2.15.0.Final and the Cassandra driver 4.15.0.
