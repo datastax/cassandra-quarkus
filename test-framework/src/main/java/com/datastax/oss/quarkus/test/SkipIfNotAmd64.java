@@ -15,10 +15,12 @@
  */
 package com.datastax.oss.quarkus.test;
 
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @Retention(RetentionPolicy.RUNTIME)
 @ExtendWith(CheckAmd64Condition.class)
+@Inherited
 public @interface SkipIfNotAmd64 {}

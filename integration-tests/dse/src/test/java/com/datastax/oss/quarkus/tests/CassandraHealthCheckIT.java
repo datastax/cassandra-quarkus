@@ -19,13 +19,11 @@ import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 
-import com.datastax.oss.quarkus.test.SkipIfNotAmd64;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.ws.rs.core.Response.Status;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-@SkipIfNotAmd64
 public class CassandraHealthCheckIT extends DseTestBase {
 
   @Test

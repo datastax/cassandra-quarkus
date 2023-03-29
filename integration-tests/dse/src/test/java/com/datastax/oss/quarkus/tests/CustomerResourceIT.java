@@ -20,7 +20,6 @@ import static io.restassured.RestAssured.when;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.endsWith;
 
-import com.datastax.oss.quarkus.test.SkipIfNotAmd64;
 import com.datastax.oss.quarkus.tests.entity.Address;
 import com.datastax.oss.quarkus.tests.entity.Customer;
 import io.quarkus.test.junit.QuarkusTest;
@@ -30,7 +29,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-@SkipIfNotAmd64
 public class CustomerResourceIT extends DseTestBase {
 
   private static final Address ADDRESS1 = new Address("Rue Montorgueil", "75002", "Paris");
