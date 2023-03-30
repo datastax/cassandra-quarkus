@@ -1,3 +1,9 @@
+### 1.2.0-alpha2
+
+This release is built against [Quarkus 3.0.0.CR2](https://github.com/quarkusio/quarkus/releases/tag/3.0.0.CR2) and the Cassanrda driver [4.15.0](https://search.maven.org/artifact/com.datastax.oss/java-driver-core/4.15.0/bundle).
+
+- [improvement] Upgrade to Quarkus 3.0.0.CR2
+
 ### 1.2.0-alpha1
 
 This release is built against Quarkus 3.0.0.Beta1 and the Cassandra driver 4.15.0.
