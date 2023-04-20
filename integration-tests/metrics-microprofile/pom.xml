@@ -21,7 +21,7 @@
   <parent>
     <groupId>com.datastax.oss.quarkus</groupId>
     <artifactId>cassandra-quarkus-integration-tests</artifactId>
-    <version>1.2.0-alpha3-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
   </parent>
   <artifactId>cassandra-quarkus-integration-tests-metrics-microprofile</artifactId>
   <name>Cassandra Quarkus :: IT :: MicroProfile Metrics Tests</name>
