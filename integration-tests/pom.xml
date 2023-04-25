@@ -36,6 +36,7 @@
     <module>metrics-microprofile</module>
     <module>metrics-disabled</module>
     <module>no-mapper</module>
+    <module>devservices</module>
   </modules>
   <dependencyManagement>
     <dependencies>

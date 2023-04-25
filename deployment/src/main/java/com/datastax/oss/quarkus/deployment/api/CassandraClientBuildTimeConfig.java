@@ -101,4 +101,11 @@ public class CassandraClientBuildTimeConfig {
   /** The classes of {@link SchemaChangeListener} implementations to register. */
   @ConfigItem(name = "schema-change-listeners")
   public Optional<List<String>> schemaChangeListeners;
+
+  /**
+   * Configuration for DevServices. DevServices allows Quarkus to automatically start a Cassandra in
+   * dev and test mode.
+   */
+  @ConfigItem(name = "devservices")
+  public CassandraDevServicesBuildTimeConfig devservices;
 }
