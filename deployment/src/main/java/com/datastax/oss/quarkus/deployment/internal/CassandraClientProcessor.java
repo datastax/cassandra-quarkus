@@ -78,7 +78,6 @@ class CassandraClientProcessor {
                 "org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph",
                 "org.apache.tinkerpop.gremlin.structure.util.empty.EmptyGraph",
                 "org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource")
-            .constructors(true)
             .methods(true)
             .fields(true)
             .build());
