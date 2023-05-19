@@ -65,24 +65,22 @@ class CassandraClientProcessor {
   @BuildStep
   List<ReflectiveClassBuildItem> registerGraphForReflection() {
 
-    /* TODO: We're creating an RCBI instance per class here to match up with the pre-Quarkus3.0 usage.
-     * Check to see if we can just simplify this to something like RCBI.builder(names).foo().build() */
-    return Stream.of(
-            // Required for the driver DependencyCheck mechanism
-            "org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal",
-            // Should be initialized at build time:
-            "org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistryV3d0",
-            "org.apache.tinkerpop.shaded.jackson.databind.deser.std.StdDeserializer",
-            // Required by Tinkerpop:
-            // TODO check if this is really all that is instantiated by reflection
-            "org.apache.tinkerpop.gremlin.structure.Graph",
-            "org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph",
-            "org.apache.tinkerpop.gremlin.structure.util.empty.EmptyGraph",
-            "org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource")
-        .map(
-            (clzName) ->
-                ReflectiveClassBuildItem.builder(clzName).methods(true).fields(true).build())
-        .collect(Collectors.toList());
+    return Collections.singletonList(
+        ReflectiveClassBuildItem.builder(
+                // Required for the driver DependencyCheck mechanism
+                "org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal",
+                // Should be initialized at build time:
+                "org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerIoRegistryV3d0",
+                "org.apache.tinkerpop.shaded.jackson.databind.deser.std.StdDeserializer",
+                // Required by Tinkerpop:
+                // TODO check if this is really all that is instantiated by reflection
+                "org.apache.tinkerpop.gremlin.structure.Graph",
+                "org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph",
+                "org.apache.tinkerpop.gremlin.structure.util.empty.EmptyGraph",
+                "org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource")
+            .methods(true)
+            .fields(true)
+            .build());
   }
 
   @BuildStep
@@ -94,10 +92,11 @@ class CassandraClientProcessor {
   @BuildStep
   List<ReflectiveClassBuildItem> registerJsonForReflection() {
     // Required for the driver DependencyCheck mechanism
-    return Stream.of(
-            "com.fasterxml.jackson.core.JsonParser", "com.fasterxml.jackson.databind.ObjectMapper")
-        .map((clzName) -> ReflectiveClassBuildItem.builder(clzName).build())
-        .collect(Collectors.toList());
+    return Collections.singletonList(
+        ReflectiveClassBuildItem.builder(
+                "com.fasterxml.jackson.core.JsonParser",
+                "com.fasterxml.jackson.databind.ObjectMapper")
+            .build());
   }
 
   @BuildStep
@@ -111,20 +110,20 @@ class CassandraClientProcessor {
   List<ReflectiveClassBuildItem> registerLz4ForReflection(
       CassandraClientBuildTimeConfig buildTimeConfig) {
     if (buildTimeConfig.protocolCompression.equalsIgnoreCase("lz4")) {
-      return Stream.of(
-              "net.jpountz.lz4.LZ4Compressor",
-              "net.jpountz.lz4.LZ4JavaSafeCompressor",
-              "net.jpountz.lz4.LZ4HCJavaSafeCompressor",
-              "net.jpountz.lz4.LZ4JavaSafeFastDecompressor",
-              "net.jpountz.lz4.LZ4JavaSafeSafeDecompressor",
-              "net.jpountz.lz4.LZ4JavaUnsafeCompressor",
-              "net.jpountz.lz4.LZ4HCJavaUnsafeCompressor",
-              "net.jpountz.lz4.LZ4JavaUnsafeFastDecompressor",
-              "net.jpountz.lz4.LZ4JavaUnsafeSafeDecompressor")
-          .map(
-              (clzName) ->
-                  ReflectiveClassBuildItem.builder(clzName).constructors(true).fields(true).build())
-          .collect(Collectors.toList());
+      return Collections.singletonList(
+          ReflectiveClassBuildItem.builder(
+                  "net.jpountz.lz4.LZ4Compressor",
+                  "net.jpountz.lz4.LZ4JavaSafeCompressor",
+                  "net.jpountz.lz4.LZ4HCJavaSafeCompressor",
+                  "net.jpountz.lz4.LZ4JavaSafeFastDecompressor",
+                  "net.jpountz.lz4.LZ4JavaSafeSafeDecompressor",
+                  "net.jpountz.lz4.LZ4JavaUnsafeCompressor",
+                  "net.jpountz.lz4.LZ4HCJavaUnsafeCompressor",
+                  "net.jpountz.lz4.LZ4JavaUnsafeFastDecompressor",
+                  "net.jpountz.lz4.LZ4JavaUnsafeSafeDecompressor")
+              .constructors(true)
+              .fields(true)
+              .build());
     }
     return Collections.emptyList();
   }
