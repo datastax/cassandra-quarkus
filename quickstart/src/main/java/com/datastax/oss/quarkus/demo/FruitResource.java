@@ -47,10 +47,11 @@ public class FruitResource {
   }
 
   private FruitDto convertToDto(Fruit fruit) {
-    return new FruitDto(fruit.getName(), fruit.getDescription());
+    return new FruitDto(fruit.getName(), fruit.getDescription(), fruit.getType().name());
   }
 
   private Fruit convertFromDto(FruitDto fruitDto) {
-    return new Fruit(fruitDto.getName(), fruitDto.getDescription());
+    Fruit.Type type = Fruit.Type.valueOf(fruitDto.getType());
+    return new Fruit(fruitDto.getName(), fruitDto.getDescription(), type);
   }
 }

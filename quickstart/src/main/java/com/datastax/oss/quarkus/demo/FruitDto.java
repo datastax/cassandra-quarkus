@@ -15,50 +15,17 @@
  */
 package com.datastax.oss.quarkus.demo;
 
-import java.util.Objects;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /** A DTO (Data Transfer Object) used to convey information from a {@link Fruit} domain object. */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class FruitDto {
 
   private String name;
   private String description;
-
-  public FruitDto() {}
-
-  public FruitDto(String name, String description) {
-    this.name = name;
-    this.description = description;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    FruitDto fruitDto = (FruitDto) o;
-
-    if (!Objects.equals(name, fruitDto.name)) return false;
-    return Objects.equals(description, fruitDto.description);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(description, name);
-  }
+  private String type;
 }

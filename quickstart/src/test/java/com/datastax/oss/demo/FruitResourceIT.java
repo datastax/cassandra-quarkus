@@ -35,7 +35,7 @@ public class FruitResourceIT {
   @Test
   public void should_save_and_retrieve_entity() {
     // given
-    FruitDto expected = new FruitDto("apple", "this was created via IT test");
+    FruitDto expected = new FruitDto("apple", "this was created via IT test", "LOCAL");
 
     // when creating, then
     given()
@@ -63,7 +63,8 @@ public class FruitResourceIT {
   @Test
   public void should_save_and_retrieve_entity_reactive() {
     // given
-    FruitDto expected = new FruitDto("banana", "this was created via reactive IT test");
+    FruitDto expected =
+        new FruitDto("banana", "this was created via reactive IT test", "DELIVERED");
 
     // when creating, then
     given()

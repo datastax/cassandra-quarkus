@@ -76,6 +76,7 @@ First, let's create our data model – represented by the `Fruit` class – as f
 
 [source,java]
 ----
+@Data
 @Entity
 @PropertyStrategy(mutable = false)
 public class Fruit {
@@ -84,12 +85,12 @@ public class Fruit {
     private final String name;
 
     private final String description;
+    private final Type type;
 
-    public Fruit(String name, String description) {
-      this.name = name;
-      this.description = description;
+    public enum Type {
+      LOCAL,
+      DELIVERED
     }
-  // getters, hashCode, equals, toString methods omitted for brevity
 }
 ----
 
@@ -104,6 +105,29 @@ class name: `fruit`.
 
 Also, the `name` field represents a Cassandra partition key, and so we are annotating it with
 `@PartitionKey` – another annotation from the Object Mapper library.
+
+Also, we use here `@Data` annotation from Lombok that allow us not to write manually getter/setter
+and other boilerplate code. And as you can see one field has Enum type that is not supported by
+cassandra. To handle it we should register our own `TypeCodec`
+
+We perform it when app is ready in next way:
+[source,java]
+----
+@ApplicationScoped
+public class AppLifecycleBeanCodecRegistration {
+
+  @Inject CqlSession session;
+
+  void onStart(@Observes StartupEvent ev) {
+    TypeCodec<Fruit.Type> myEnumCodec = new EnumNameCodec<>(Fruit.Type.class);
+
+    MutableCodecRegistry registry = (MutableCodecRegistry) session.getContext().getCodecRegistry();
+    registry.register(myEnumCodec);
+  }
+}
+----
+So we subscribe on `StartupEvent` and add to CodecRegistry our <String, Enum> codec that
+automatically convert Enum to TEXT and vise versa.
 
 IMPORTANT: Entity classes are normally required to have a default no-arg constructor, unless they
 are annotated with `@PropertyStrategy(mutable = false)`, which is the case here.
@@ -174,18 +198,23 @@ The Object Mapper is composed of 2 pieces:
 
 Therefore, enabling the Object Mapper requires two steps:
 
-1. Declare the `cassandra-quarkus-mapper-processor` annotation processor. With Maven, this is done
-by modifying the compiler plugin configuration in the project's `pom.xml` file as follows:
+1. Declare the `lombok` and the `cassandra-quarkus-mapper-processor` annotation processor (order is important).
+With Maven, this is done by modifying the compiler plugin configuration in the project's `pom.xml` file as follows:
 
 [source,xml]
 ----
 <plugin>
   <artifactId>maven-compiler-plugin</artifactId>
-  <version>3.10.1</version>
+  <version>${compiler-plugin.version}</version>
   <configuration>
     <source>${java.version}</source>
     <target>${java.version}</target>
     <annotationProcessorPaths>
+      <path>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>${lombok.version}</version>
+      </path>
       <path>
         <groupId>com.datastax.oss.quarkus</groupId>
         <artifactId>cassandra-quarkus-mapper-processor</artifactId>
@@ -200,6 +229,8 @@ With Gradle, this is done by adding the following line to the `build.gradle` fil
 
 [source,groovy]
 ----
+annotationProcessor "org.projectlombok:lombok:${lombok.version}"
+
 annotationProcessor "com.datastax.oss.quarkus:cassandra-quarkus-mapper-processor:${cassandra-quarkus.version}"
 ----
 
@@ -292,11 +323,12 @@ public class FruitResource {
   }
 
   private FruitDto convertToDto(Fruit fruit) {
-    return new FruitDto(fruit.getName(), fruit.getDescription());
+    return new FruitDto(fruit.getName(), fruit.getDescription(), fruit.getType().name());
   }
 
   private Fruit convertFromDto(FruitDto fruitDto) {
-    return new Fruit(fruitDto.getName(), fruitDto.getDescription());
+    Fruit.Type type = Fruit.Type.valueOf(fruitDto.getType());
+    return new Fruit(fruitDto.getName(), fruitDto.getDescription(), type);
   }
 }
 ----
@@ -306,23 +338,18 @@ Notice how `FruitResource` is being injected a `FruitService` instance automatic
 It is generally not recommended using the same entity object between the REST API and the data
 access layer. These layers should indeed be decoupled and use distinct APIs in order to allow each
 API to evolve independently of the other. This is the reason why our REST API is using a different
-object: the `FruitDto` class – the word DTO stands for "Data Transfer Object". This DTO object will
-be automatically converted to and from JSON in HTTP messages:
+object: the `FruitDto` class – the word DTO stands for "Data Transfer Object". It's annotated by
+`@Data` that allow us not to write boilerplate code. This DTO object will be automatically
+converted to and from JSON in HTTP messages:
 
 [source,java]
 ----
+@Data
 public class FruitDto {
 
   private String name;
   private String description;
-
-  public FruitDto() {}
-
-  public FruitDto(String name, String description) {
-    this.name = name;
-    this.description = description;
-  }
-  // getters and setters omitted for brevity
+  private String type;
 }
 ----
 
