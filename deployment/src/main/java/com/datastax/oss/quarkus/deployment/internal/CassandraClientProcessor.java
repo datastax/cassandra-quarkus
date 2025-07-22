@@ -109,7 +109,7 @@ class CassandraClientProcessor {
   @BuildStep
   List<ReflectiveClassBuildItem> registerLz4ForReflection(
       CassandraClientBuildTimeConfig buildTimeConfig) {
-    if (buildTimeConfig.protocolCompression.equalsIgnoreCase("lz4")) {
+    if (buildTimeConfig.protocolCompression().equalsIgnoreCase("lz4")) {
       return Collections.singletonList(
           ReflectiveClassBuildItem.builder(
                   "net.jpountz.lz4.LZ4Compressor",
@@ -135,7 +135,7 @@ class CassandraClientProcessor {
       CassandraClientRecorder recorder,
       BeanContainerBuildItem beanContainer) {
     return buildTimeConfig
-        .requestTrackers
+        .requestTrackers()
         .map(
             classes ->
                 classes.stream()
@@ -155,7 +155,7 @@ class CassandraClientProcessor {
       CassandraClientRecorder recorder,
       BeanContainerBuildItem beanContainer) {
     return buildTimeConfig
-        .nodeStateListeners
+        .nodeStateListeners()
         .map(
             classes ->
                 classes.stream()
@@ -175,7 +175,7 @@ class CassandraClientProcessor {
       CassandraClientRecorder recorder,
       BeanContainerBuildItem beanContainer) {
     return buildTimeConfig
-        .schemaChangeListeners
+        .schemaChangeListeners()
         .map(
             classes ->
                 classes.stream()
@@ -199,7 +199,7 @@ class CassandraClientProcessor {
       CassandraClientBuildTimeConfig buildTimeConfig,
       Optional<MetricsCapabilityBuildItem> metricsCapability) {
 
-    if (buildTimeConfig.metricsEnabled && metricsCapability.isPresent()) {
+    if (buildTimeConfig.metricsEnabled() && metricsCapability.isPresent()) {
 
       Stream<String> clzStream = Stream.empty();
       MetricsCapabilityBuildItem metricsCapabilityItem = metricsCapability.get();
@@ -249,7 +249,7 @@ class CassandraClientProcessor {
       CassandraClientBuildTimeConfig buildTimeConfig,
       Optional<MetricsCapabilityBuildItem> metricsCapability,
       BeanContainerBuildItem beanContainer) {
-    if (buildTimeConfig.metricsEnabled) {
+    if (buildTimeConfig.metricsEnabled()) {
       if (metricsCapability.isPresent()) {
         MetricsCapabilityBuildItem metricsCapabilityItem = metricsCapability.get();
         if (metricsCapabilityItem.metricsSupported(MetricsFactory.MICROMETER)) {
@@ -312,7 +312,7 @@ class CassandraClientProcessor {
       CassandraClientRecorder recorder,
       CassandraClientBuildTimeConfig buildTimeConfig,
       BeanContainerBuildItem beanContainer) {
-    recorder.configureCompression(buildTimeConfig.protocolCompression);
+    recorder.configureCompression(buildTimeConfig.protocolCompression());
   }
 
   @BuildStep
@@ -339,7 +339,7 @@ class CassandraClientProcessor {
   HealthBuildItem addHealthCheck(CassandraClientBuildTimeConfig buildTimeConfig) {
     return new HealthBuildItem(
         "com.datastax.oss.quarkus.runtime.internal.health.CassandraAsyncHealthCheck",
-        buildTimeConfig.healthEnabled);
+        buildTimeConfig.healthEnabled());
   }
 
   /**

@@ -17,14 +17,14 @@ package com.datastax.oss.quarkus.runtime.api.config;
 
 import com.datastax.oss.driver.api.core.ConsistencyLevel;
 import io.quarkus.runtime.annotations.ConfigGroup;
-import io.quarkus.runtime.annotations.ConfigItem;
+import io.smallrye.config.WithName;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.OptionalInt;
 
 /** This class holds runtime configuration items related to connection settings. */
 @ConfigGroup
-public class CassandraClientRequestConfig {
+public interface CassandraClientRequestConfig {
 
   /**
    * How long the driver waits for a request to complete. If not specified, it defaults to 2
@@ -41,28 +41,24 @@ public class CassandraClientRequestConfig {
    * DDL and DML; you can then set the DML timeout much lower (down to a few milliseconds if
    * needed).
    */
-  @ConfigItem(name = "timeout")
-  public Optional<Duration> requestTimeout;
+  @WithName("timeout")
+  Optional<Duration> requestTimeout();
 
   /**
    * The default consistency level to use. If not specified, it defaults to {@link
    * ConsistencyLevel#LOCAL_ONE}.
    */
-  @ConfigItem(name = "consistency-level")
-  public Optional<String> consistencyLevel;
+  Optional<String> consistencyLevel();
 
   /**
    * The default serial consistency level to use. If not specified, it defaults to {@link
    * ConsistencyLevel#SERIAL}.
    */
-  @ConfigItem(name = "serial-consistency-level")
-  public Optional<String> serialConsistencyLevel;
+  Optional<String> serialConsistencyLevel();
 
   /** The default page size to use. If not specified, it defaults to 5000. */
-  @ConfigItem(name = "page-size")
-  public OptionalInt pageSize;
+  OptionalInt pageSize();
 
   /** The default idempotence of a request. If not specified, it defaults to false. */
-  @ConfigItem(name = "default-idempotence")
-  public Optional<Boolean> defaultIdempotence;
+  Optional<Boolean> defaultIdempotence();
 }
