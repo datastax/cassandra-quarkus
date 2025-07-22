@@ -17,17 +17,17 @@ package com.datastax.oss.quarkus.runtime.api.config;
 
 import com.datastax.oss.driver.api.core.ConsistencyLevel;
 import io.quarkus.runtime.annotations.ConfigGroup;
-import io.quarkus.runtime.annotations.ConfigItem;
+import io.smallrye.config.WithName;
 import java.time.Duration;
 import java.util.Optional;
 
 /** This class holds runtime configuration items related to DSE Graph settings. */
 @ConfigGroup
-public class CassandraClientGraphConfig {
+public interface CassandraClientGraphConfig {
 
   /** The name of the graph targeted by graph statements. */
-  @ConfigItem(name = "name")
-  public Optional<String> graphName;
+  @WithName("name")
+  Optional<String> graphName();
 
   /**
    * How long the driver waits for a graph request to complete.
@@ -45,8 +45,8 @@ public class CassandraClientGraphConfig {
    * <p>If this value is left unset (default) or is explicitly set to zero, no timeout will be
    * applied.
    */
-  @ConfigItem(name = "request.timeout")
-  public Optional<Duration> graphRequestTimeout;
+  @WithName("request.timeout")
+  Optional<Duration> graphRequestTimeout();
 
   /**
    * The read consistency level to use for graph statements. If not specified, it defaults to {@link
@@ -56,8 +56,8 @@ public class CassandraClientGraphConfig {
    * queries that will be produced by a traversal. Hence the consistency level for reads and writes
    * can be set separately.
    */
-  @ConfigItem(name = "read-consistency-level")
-  public Optional<String> graphReadConsistencyLevel;
+  @WithName("read-consistency-level")
+  Optional<String> graphReadConsistencyLevel();
 
   /**
    * The write consistency level to use for graph statements. If not specified, it defaults to
@@ -67,6 +67,6 @@ public class CassandraClientGraphConfig {
    * queries that will be produced by a traversal. Hence the consistency level for reads and writes
    * can be set separately.
    */
-  @ConfigItem(name = "write-consistency-level")
-  public Optional<String> graphWriteConsistencyLevel;
+  @WithName("write-consistency-level")
+  Optional<String> graphWriteConsistencyLevel();
 }

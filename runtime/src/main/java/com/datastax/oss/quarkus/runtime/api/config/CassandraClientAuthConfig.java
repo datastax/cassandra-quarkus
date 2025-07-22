@@ -16,24 +16,21 @@
 package com.datastax.oss.quarkus.runtime.api.config;
 
 import io.quarkus.runtime.annotations.ConfigGroup;
-import io.quarkus.runtime.annotations.ConfigItem;
 import java.util.Optional;
 
 /** This class holds runtime configuration items related to authentication. */
 @ConfigGroup
-public class CassandraClientAuthConfig {
+public interface CassandraClientAuthConfig {
 
   /**
    * The username used to connect to Apache Cassandra(R). If a username and a password are both
    * provided, plain text authentication will be automatically enabled.
    */
-  @ConfigItem(name = "username")
-  public Optional<String> username;
+  Optional<String> username();
 
   /**
    * The auth_provider password used to connect to Apache Cassandra(R). If a username and a password
    * are both provided, plain text authentication will be automatically enabled.
    */
-  @ConfigItem(name = "password")
-  public Optional<String> password;
+  Optional<String> password();
 }
