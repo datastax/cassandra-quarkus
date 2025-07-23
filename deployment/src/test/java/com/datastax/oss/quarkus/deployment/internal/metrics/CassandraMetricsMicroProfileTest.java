@@ -21,8 +21,8 @@ import static org.assertj.core.api.Assertions.fail;
 import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
-import io.quarkus.bootstrap.model.AppArtifact;
 import io.quarkus.builder.Version;
+import io.quarkus.maven.dependency.Dependency;
 import io.quarkus.test.QuarkusUnitTest;
 import io.quarkus.test.common.QuarkusTestResource;
 import jakarta.inject.Inject;
@@ -58,7 +58,7 @@ public class CassandraMetricsMicroProfileTest {
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
           .setForcedDependencies(
               Collections.singletonList(
-                  new AppArtifact("io.quarkus", "quarkus-smallrye-metrics", Version.getVersion())))
+                  Dependency.of("io.quarkus", "quarkus-smallrye-metrics", Version.getVersion())))
           .overrideConfigKey("quarkus.cassandra.metrics.enabled", "true");
 
   @Test
@@ -102,6 +102,6 @@ public class CassandraMetricsMicroProfileTest {
   }
 
   private boolean filterAllCassandraMetrics(MetricID id) {
-    return id.getName().startsWith(config.cassandraClientMetricsConfig.prefix);
+    return id.getName().startsWith(config.cassandraClientMetricsConfig().prefix());
   }
 }

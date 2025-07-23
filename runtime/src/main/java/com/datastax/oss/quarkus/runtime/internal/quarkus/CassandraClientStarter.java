@@ -59,14 +59,14 @@ public class CassandraClientStarter {
     if (LOG.isDebugEnabled()) {
       LOG.debug(
           "CassandraClientStarter.startup, eager = {}, sessions = {}, mappers = {}, daos = {}",
-          config.cassandraClientInitConfig.eagerInit,
+          config.cassandraClientInitConfig().eagerInit(),
           sessions.stream().count(),
           mappers.stream().count(),
           daos.stream().count());
     }
-    if (config.cassandraClientInitConfig.eagerInit) {
+    if (config.cassandraClientInitConfig().eagerInit()) {
       LOG.info("Eagerly initializing Quarkus Cassandra client.");
-      Duration timeout = config.cassandraClientInitConfig.eagerInitTimeout;
+      Duration timeout = config.cassandraClientInitConfig().eagerInitTimeout();
       ExecutorService executor = Executors.newSingleThreadExecutor();
       Future<Void> initFuture =
           executor.submit(
