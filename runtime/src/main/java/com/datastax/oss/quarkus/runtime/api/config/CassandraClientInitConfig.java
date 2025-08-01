@@ -16,12 +16,12 @@
 package com.datastax.oss.quarkus.runtime.api.config;
 
 import io.quarkus.runtime.annotations.ConfigGroup;
-import io.quarkus.runtime.annotations.ConfigItem;
+import io.smallrye.config.WithDefault;
 import java.time.Duration;
 
 /** This class holds runtime configuration items related to session initialization. */
 @ConfigGroup
-public class CassandraClientInitConfig {
+public interface CassandraClientInitConfig {
 
   /**
    * Whether to eagerly initialize the Cassandra client at application startup. This includes the
@@ -40,8 +40,8 @@ public class CassandraClientInitConfig {
    *
    * <p>The default is false.
    */
-  @ConfigItem(name = "eager-init", defaultValue = "false")
-  public boolean eagerInit;
+  @WithDefault("false")
+  boolean eagerInit();
 
   /**
    * How long to wait for the Cassandra client to initialize at application startup. Ignored when
@@ -55,8 +55,8 @@ public class CassandraClientInitConfig {
    *
    * <p>The default is 10 seconds.
    */
-  @ConfigItem(name = "eager-init-timeout", defaultValue = "PT10S")
-  public Duration eagerInitTimeout;
+  @WithDefault("PT10S")
+  Duration eagerInitTimeout();
 
   /**
    * Whether to log an informational message explaining how to best use eager initialization.
@@ -69,8 +69,8 @@ public class CassandraClientInitConfig {
    * application threads. An informational message will be logged if this rule in infringed, unless
    * this option is set to false.
    */
-  @ConfigItem(name = "print-eager-init-info", defaultValue = "true")
-  public boolean printEagerInitInfo;
+  @WithDefault("true")
+  boolean printEagerInitInfo();
 
   /**
    * Whether to try to reconnect if the first connection attempt fails.
@@ -83,8 +83,8 @@ public class CassandraClientInitConfig {
    *
    * <p>The default is true.
    */
-  @ConfigItem(name = "reconnect-on-init", defaultValue = "true")
-  public boolean reconnectOnInit;
+  @WithDefault("true")
+  boolean reconnectOnInit();
 
   /**
    * Whether to resolve contact points eagerly when initializing the session.
@@ -102,8 +102,8 @@ public class CassandraClientInitConfig {
    *
    * <p>The default is false.
    */
-  @ConfigItem(name = "resolve-contact-points", defaultValue = "false")
-  public boolean resolveContactPoints;
+  @WithDefault("false")
+  boolean resolveContactPoints();
 
   /**
    * Whether the DataStax Java driver should use the main Netty event loop group provided by Quarkus
@@ -128,6 +128,6 @@ public class CassandraClientInitConfig {
    *
    * @see <a href="https://quarkus.io/guides/vertx-reference">Quarkus Vert.x reference guide</a>
    */
-  @ConfigItem(name = "use-quarkus-event-loop", defaultValue = "true")
-  public boolean useQuarkusEventLoop;
+  @WithDefault("true")
+  boolean useQuarkusEventLoop();
 }

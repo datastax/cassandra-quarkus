@@ -15,9 +15,11 @@
  */
 package com.datastax.oss.quarkus.runtime.api.config;
 
-import io.quarkus.runtime.annotations.ConfigItem;
 import io.quarkus.runtime.annotations.ConfigPhase;
 import io.quarkus.runtime.annotations.ConfigRoot;
+import io.smallrye.config.ConfigMapping;
+import io.smallrye.config.WithName;
+import io.smallrye.config.WithParentName;
 
 /**
  * This class holds runtime configuration items for the Cassandra Quarkus extension.
@@ -25,36 +27,34 @@ import io.quarkus.runtime.annotations.ConfigRoot;
  * <p>Settings specified in application.properties under the {@code quarkus.cassandra} prefix will
  * be mapped to fields in this class and its child configuration classes.
  */
-@ConfigRoot(name = CassandraClientConfig.CONFIG_NAME, phase = ConfigPhase.RUN_TIME)
-public class CassandraClientConfig {
-
-  public static final String CONFIG_NAME = "cassandra";
-
+@ConfigMapping(prefix = "quarkus.cassandra")
+@ConfigRoot(phase = ConfigPhase.RUN_TIME)
+public interface CassandraClientConfig {
   /** The client connection configuration settings. */
-  @ConfigItem(name = ConfigItem.PARENT)
-  public CassandraClientConnectionConfig cassandraClientConnectionConfig;
+  @WithParentName
+  CassandraClientConnectionConfig cassandraClientConnectionConfig();
 
   /** The metrics settings. */
-  @ConfigItem(name = "metrics")
-  public CassandraClientMetricsConfig cassandraClientMetricsConfig;
+  @WithName("metrics")
+  CassandraClientMetricsConfig cassandraClientMetricsConfig();
 
   /** The cloud (DataStax Astra) configuration settings. */
-  @ConfigItem(name = "cloud")
-  public CassandraClientCloudConfig cassandraClientCloudConfig;
+  @WithName("cloud")
+  CassandraClientCloudConfig cassandraClientCloudConfig();
 
   /** The session initialization settings. */
-  @ConfigItem(name = "init")
-  public CassandraClientInitConfig cassandraClientInitConfig;
+  @WithName("init")
+  CassandraClientInitConfig cassandraClientInitConfig();
 
   /** The authentication settings. */
-  @ConfigItem(name = "auth")
-  public CassandraClientAuthConfig cassandraClientAuthConfig;
+  @WithName("auth")
+  CassandraClientAuthConfig cassandraClientAuthConfig();
 
   /** The request settings. */
-  @ConfigItem(name = "request")
-  public CassandraClientRequestConfig cassandraClientRequestConfig;
+  @WithName("request")
+  CassandraClientRequestConfig cassandraClientRequestConfig();
 
   /** The DSE Graph settings. */
-  @ConfigItem(name = "graph")
-  public CassandraClientGraphConfig cassandraClientGraphConfig;
+  @WithName("graph")
+  CassandraClientGraphConfig cassandraClientGraphConfig();
 }

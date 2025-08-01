@@ -16,13 +16,12 @@
 package com.datastax.oss.quarkus.runtime.api.config;
 
 import io.quarkus.runtime.annotations.ConfigGroup;
-import io.quarkus.runtime.annotations.ConfigItem;
 import java.nio.file.Path;
 import java.util.Optional;
 
 /** This class holds runtime configuration items related to DataStax Astra cloud clusters. */
 @ConfigGroup
-public class CassandraClientCloudConfig {
+public interface CassandraClientCloudConfig {
 
   /**
    * The path to a cloud secure bundle used to connect to DataStax Astra.
@@ -30,6 +29,5 @@ public class CassandraClientCloudConfig {
    * <p>This setting is not required to connect to connect to Apache Cassandra (R) or DataStax
    * Enterprise (DSE).
    */
-  @ConfigItem(name = "secure-connect-bundle")
-  public Optional<Path> secureConnectBundle;
+  Optional<Path> secureConnectBundle();
 }
