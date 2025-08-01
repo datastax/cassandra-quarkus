@@ -26,8 +26,8 @@ import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Meter.Id;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
-import io.quarkus.bootstrap.model.AppArtifact;
 import io.quarkus.builder.Version;
+import io.quarkus.maven.dependency.Dependency;
 import io.quarkus.test.QuarkusUnitTest;
 import io.quarkus.test.common.QuarkusTestResource;
 import jakarta.inject.Inject;
@@ -53,8 +53,8 @@ public class CassandraMetricsMicrometerTest {
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
           .setForcedDependencies(
               Arrays.asList(
-                  new AppArtifact("io.quarkus", "quarkus-micrometer", Version.getVersion()),
-                  new AppArtifact("io.quarkus", "quarkus-resteasy", Version.getVersion())))
+                  Dependency.of("io.quarkus", "quarkus-micrometer", Version.getVersion()),
+                  Dependency.of("io.quarkus", "quarkus-resteasy", Version.getVersion())))
           .overrideConfigKey("quarkus.cassandra.metrics.enabled", "true")
           // test a different prefix
           .overrideConfigKey("quarkus.cassandra.metrics.prefix", "custom.prefix");
@@ -97,7 +97,7 @@ public class CassandraMetricsMicrometerTest {
   }
 
   private boolean filterAllCassandraMetrics(Id id) {
-    assertThat(config.cassandraClientMetricsConfig.prefix).isEqualTo("custom.prefix");
-    return id.getName().startsWith(config.cassandraClientMetricsConfig.prefix);
+    assertThat(config.cassandraClientMetricsConfig().prefix()).isEqualTo("custom.prefix");
+    return id.getName().startsWith(config.cassandraClientMetricsConfig().prefix());
   }
 }

@@ -141,8 +141,8 @@
         </property>
       </activation>
       <properties>
-        <!-- This module cannot run in native mode so force the package type to jar and skip tests -->
-        <quarkus.package.type>jar</quarkus.package.type>
+        <!-- This module cannot run in native mode so skip tests -->
+        <quarkus.native.enabled>false</quarkus.native.enabled>
         <skipITs>true</skipITs>
       </properties>
     </profile>

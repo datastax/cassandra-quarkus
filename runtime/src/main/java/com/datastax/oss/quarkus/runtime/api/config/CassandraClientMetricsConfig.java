@@ -16,13 +16,14 @@
 package com.datastax.oss.quarkus.runtime.api.config;
 
 import io.quarkus.runtime.annotations.ConfigGroup;
-import io.quarkus.runtime.annotations.ConfigItem;
+import io.smallrye.config.WithDefault;
+import io.smallrye.config.WithName;
 import java.util.List;
 import java.util.Optional;
 
 /** This class holds runtime configuration items related to metrics. */
 @ConfigGroup
-public class CassandraClientMetricsConfig {
+public interface CassandraClientMetricsConfig {
 
   /**
    * The metric names specified here will be taken into account only if metrics are globally
@@ -43,15 +44,14 @@ public class CassandraClientMetricsConfig {
    * href="https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/#configuration">
    * Metrics configuration</a> in the Java driver manual.
    */
-  @ConfigItem(
-      name = "session.enabled",
-      defaultValue =
-          "bytes-sent,"
-              + "bytes-received,"
-              + "connected-nodes,"
-              + "cql-requests,"
-              + "cql-client-timeouts")
-  public Optional<List<String>> enabledSessionMetrics;
+  @WithName("session.enabled")
+  @WithDefault(
+      "bytes-sent,"
+          + "bytes-received,"
+          + "connected-nodes,"
+          + "cql-requests,"
+          + "cql-client-timeouts")
+  Optional<List<String>> enabledSessionMetrics();
 
   /**
    * List of node-level metric names to enable.
@@ -74,36 +74,35 @@ public class CassandraClientMetricsConfig {
    * href="https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/#configuration">
    * Metrics configuration</a> in the Java driver manual.
    */
-  @ConfigItem(
-      name = "node.enabled",
-      defaultValue =
-          "pool.open-connections,"
-              + "pool.in-flight,"
-              + "bytes-sent,"
-              + "bytes-received,"
-              + "cql-messages,"
-              + "errors.request.unsent,"
-              + "errors.request.aborted,"
-              + "errors.request.write-timeouts,"
-              + "errors.request.read-timeouts,"
-              + "errors.request.unavailables,"
-              + "errors.request.others,"
-              + "errors.connection.init,"
-              + "errors.connection.auth,"
-              + "retries.total,"
-              + "retries.aborted,"
-              + "retries.read-timeout,"
-              + "retries.write-timeout,"
-              + "retries.unavailable,"
-              + "retries.other,"
-              + "ignores.total,"
-              + "ignores.aborted,"
-              + "ignores.read-timeout,"
-              + "ignores.write-timeout,"
-              + "ignores.unavailable,"
-              + "ignores.other,"
-              + "speculative-executions")
-  public Optional<List<String>> enabledNodeMetrics;
+  @WithName("node.enabled")
+  @WithDefault(
+      "pool.open-connections,"
+          + "pool.in-flight,"
+          + "bytes-sent,"
+          + "bytes-received,"
+          + "cql-messages,"
+          + "errors.request.unsent,"
+          + "errors.request.aborted,"
+          + "errors.request.write-timeouts,"
+          + "errors.request.read-timeouts,"
+          + "errors.request.unavailables,"
+          + "errors.request.others,"
+          + "errors.connection.init,"
+          + "errors.connection.auth,"
+          + "retries.total,"
+          + "retries.aborted,"
+          + "retries.read-timeout,"
+          + "retries.write-timeout,"
+          + "retries.unavailable,"
+          + "retries.other,"
+          + "ignores.total,"
+          + "ignores.aborted,"
+          + "ignores.read-timeout,"
+          + "ignores.write-timeout,"
+          + "ignores.unavailable,"
+          + "ignores.other,"
+          + "speculative-executions")
+  Optional<List<String>> enabledNodeMetrics();
 
   /**
    * The prefix for metric names.
@@ -120,6 +119,6 @@ public class CassandraClientMetricsConfig {
    * href="https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/#configuration">
    * Metrics configuration</a> in the Java driver manual.
    */
-  @ConfigItem(name = "prefix", defaultValue = "cassandra")
-  public String prefix;
+  @WithDefault("cassandra")
+  String prefix();
 }

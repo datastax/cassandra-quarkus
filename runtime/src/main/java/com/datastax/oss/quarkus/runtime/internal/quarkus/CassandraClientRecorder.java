@@ -104,7 +104,9 @@ public class CassandraClientRecorder {
   }
 
   private Object locateMicroProfileVendorMetricRegistry()
-      throws ClassNotFoundException, IllegalAccessException, InvocationTargetException,
+      throws ClassNotFoundException,
+          IllegalAccessException,
+          InvocationTargetException,
           NoSuchMethodException {
     Class<?> metricRegistriesClass = Class.forName("io.smallrye.metrics.MetricRegistries");
     Object metricRegistries = Arc.container().instance(metricRegistriesClass).get();

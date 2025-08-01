@@ -27,7 +27,7 @@
   <inceptionYear>2020</inceptionYear>
   <properties>
     <java.version>11</java.version>
-    <quarkus.version>3.1.0.Final</quarkus.version>
+    <quarkus.version>3.25.0</quarkus.version>
     <datastax-java-driver.version>4.15.0</datastax-java-driver.version>
     <assertj.version>3.23.1</assertj.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -76,11 +76,11 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-resteasy-reactive</artifactId>
+      <artifactId>quarkus-rest</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-resteasy-reactive-jackson</artifactId>
+      <artifactId>quarkus-rest-jackson</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -116,7 +116,7 @@
       <plugin>
         <groupId>com.spotify.fmt</groupId>
         <artifactId>fmt-maven-plugin</artifactId>
-        <version>2.19</version>
+        <version>2.27</version>
         <executions>
           <execution>
             <goals>
@@ -211,7 +211,7 @@
         </property>
       </activation>
       <properties>
-        <quarkus.package.type>native</quarkus.package.type>
+        <quarkus.native.enabled>true</quarkus.native.enabled>
         <quarkus.native.enable-http-url-handler>true</quarkus.native.enable-http-url-handler>
         <failsafe.testGroups>native</failsafe.testGroups>
       </properties>

@@ -18,9 +18,11 @@ package com.datastax.oss.quarkus.deployment.api;
 import com.datastax.oss.driver.api.core.metadata.NodeStateListener;
 import com.datastax.oss.driver.api.core.metadata.schema.SchemaChangeListener;
 import com.datastax.oss.driver.api.core.tracker.RequestTracker;
-import io.quarkus.runtime.annotations.ConfigItem;
 import io.quarkus.runtime.annotations.ConfigPhase;
 import io.quarkus.runtime.annotations.ConfigRoot;
+import io.smallrye.config.ConfigMapping;
+import io.smallrye.config.WithDefault;
+import io.smallrye.config.WithName;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,14 +32,16 @@ import java.util.Optional;
  * <p>Settings specified in application.properties under the {@code quarkus.cassandra} prefix will
  * be mapped to fields in this class and its child configuration classes.
  */
-@ConfigRoot(name = "cassandra", phase = ConfigPhase.BUILD_TIME)
-public class CassandraClientBuildTimeConfig {
+@ConfigMapping(prefix = "quarkus.cassandra")
+@ConfigRoot(phase = ConfigPhase.BUILD_TIME)
+public interface CassandraClientBuildTimeConfig {
 
   /**
    * Whether or not an health check is published in case the smallrye-health extension is present.
    */
-  @ConfigItem(name = "health.enabled", defaultValue = "true")
-  public boolean healthEnabled;
+  @WithName("health.enabled")
+  @WithDefault("true")
+  boolean healthEnabled();
 
   /**
    * Whether or not metrics for the Cassandra driver should be published.
@@ -70,8 +74,9 @@ public class CassandraClientBuildTimeConfig {
    * href="https://docs.datastax.com/en/developer/java-driver/latest/manual/core/metrics/#configuration">
    * Metrics configuration</a> in the Java driver manual.
    */
-  @ConfigItem(name = "metrics.enabled", defaultValue = "false")
-  public boolean metricsEnabled;
+  @WithName("metrics.enabled")
+  @WithDefault("false")
+  boolean metricsEnabled();
 
   /**
    * The name of the algorithm used to compress protocol frames.
@@ -87,18 +92,16 @@ public class CassandraClientBuildTimeConfig {
    *       mode.</em>
    * </ul>
    */
-  @ConfigItem(name = "protocol.compression", defaultValue = "none")
-  public String protocolCompression;
+  @WithName("protocol.compression")
+  @WithDefault("none")
+  String protocolCompression();
 
   /** The classes of {@link RequestTracker} implementations to register. */
-  @ConfigItem(name = "request-trackers")
-  public Optional<List<String>> requestTrackers;
+  Optional<List<String>> requestTrackers();
 
   /** The classes of {@link NodeStateListener} implementations to register. */
-  @ConfigItem(name = "node-state-listeners")
-  public Optional<List<String>> nodeStateListeners;
+  Optional<List<String>> nodeStateListeners();
 
   /** The classes of {@link SchemaChangeListener} implementations to register. */
-  @ConfigItem(name = "schema-change-listeners")
-  public Optional<List<String>> schemaChangeListeners;
+  Optional<List<String>> schemaChangeListeners();
 }

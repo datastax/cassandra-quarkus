@@ -24,8 +24,8 @@ import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.micrometer.core.instrument.Meter.Id;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.quarkus.bootstrap.model.AppArtifact;
 import io.quarkus.builder.Version;
+import io.quarkus.maven.dependency.Dependency;
 import io.quarkus.test.QuarkusUnitTest;
 import io.quarkus.test.common.QuarkusTestResource;
 import jakarta.inject.Inject;
@@ -53,8 +53,8 @@ public class CassandraMetricsDisabledTest {
           // Micrometer is present...
           .setForcedDependencies(
               Arrays.asList(
-                  new AppArtifact("io.quarkus", "quarkus-micrometer", Version.getVersion()),
-                  new AppArtifact("io.quarkus", "quarkus-resteasy", Version.getVersion())))
+                  Dependency.of("io.quarkus", "quarkus-micrometer", Version.getVersion()),
+                  Dependency.of("io.quarkus", "quarkus-resteasy", Version.getVersion())))
           // but Cassandra metrics are disabled
           .overrideConfigKey("quarkus.cassandra.metrics.enabled", "false");
 
@@ -78,6 +78,6 @@ public class CassandraMetricsDisabledTest {
   }
 
   private boolean filterAllCassandraMetrics(Id id) {
-    return id.getName().startsWith(config.cassandraClientMetricsConfig.prefix);
+    return id.getName().startsWith(config.cassandraClientMetricsConfig().prefix());
   }
 }

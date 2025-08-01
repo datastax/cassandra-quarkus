@@ -16,13 +16,12 @@
 package com.datastax.oss.quarkus.runtime.api.config;
 
 import io.quarkus.runtime.annotations.ConfigGroup;
-import io.quarkus.runtime.annotations.ConfigItem;
 import java.util.List;
 import java.util.Optional;
 
 /** This class holds runtime configuration items related to connection settings. */
 @ConfigGroup
-public class CassandraClientConnectionConfig {
+public interface CassandraClientConnectionConfig {
 
   /**
    * Contact-points used to connect to Apache Cassandra (R) or DataStax Enterprise (DSE).
@@ -31,16 +30,14 @@ public class CassandraClientConnectionConfig {
    *
    * <p>This setting is not required to connect to DataStax Astra.
    */
-  @ConfigItem(name = "contact-points")
-  public Optional<List<String>> contactPoints;
+  Optional<List<String>> contactPoints();
 
   /**
    * Local datacenter used to connect to Apache Cassandra (R) or DataStax Enterprise (DSE).
    *
    * <p>This setting is not required to connect to DataStax Astra.
    */
-  @ConfigItem(name = "local-datacenter")
-  public Optional<String> localDatacenter;
+  Optional<String> localDatacenter();
 
   /**
    * The name of the keyspace that the session should initially be connected to.
@@ -57,5 +54,5 @@ public class CassandraClientConnectionConfig {
    * either qualify table names in your queries, or use the per-query keyspace feature available in
    * Cassandra 4 and above.
    */
-  public Optional<String> keyspace;
+  Optional<String> keyspace();
 }
