@@ -267,11 +267,6 @@
                   <goal>jar</goal>
                 </goals>
                 <configuration>
-                  <links>
-                    <link>https://docs.datastax.com/en/drivers/java/latest/</link>
-                    <link>http://smallrye.io/smallrye-reactive-utils/apidocs/</link>
-                    <link>https://www.reactive-streams.org/reactive-streams-1.0.3-javadoc/</link>
-                  </links>
                   <sourceFileExcludes>
                     <sourceFileExclude>**/*$$accessor.java</sourceFileExclude>
                     <sourceFileExclude>**/*__MapperGenerated.java</sourceFileExclude>
