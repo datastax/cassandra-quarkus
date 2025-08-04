@@ -86,8 +86,8 @@ pipeline {
           label "${OS_VERSION}"
         }
         environment {
-          JABBA_VERSION = 'openjdk@1.11'
-          GRAALVM_VERSION = '11.0.18-graalvm-ce-22.3.1'
+          JABBA_VERSION = 'openjdk@1.17'
+          GRAALVM_VERSION = 'graalvm@21.0.7'
         }
 
         stages {
