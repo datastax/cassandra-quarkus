@@ -31,7 +31,7 @@
       <artifactId>cassandra-quarkus-client</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.datastax.oss</groupId>
+      <groupId>org.apache.cassandra</groupId>
       <artifactId>java-driver-core</artifactId>
       <exclusions>
         <!-- test that these dependencies can be excluded -->
@@ -65,7 +65,7 @@
       <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.datastax.oss</groupId>
+      <groupId>org.apache.cassandra</groupId>
       <artifactId>java-driver-metrics-micrometer</artifactId>
     </dependency>
     <!-- Compression -->

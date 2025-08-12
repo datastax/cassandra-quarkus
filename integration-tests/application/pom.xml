@@ -47,11 +47,11 @@
       <artifactId>cassandra-quarkus-client</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.datastax.oss</groupId>
+      <groupId>org.apache.cassandra</groupId>
       <artifactId>java-driver-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.datastax.oss</groupId>
+      <groupId>org.apache.cassandra</groupId>
       <artifactId>java-driver-mapper-runtime</artifactId>
     </dependency>
   </dependencies>

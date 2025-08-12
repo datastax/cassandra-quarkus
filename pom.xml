@@ -34,7 +34,7 @@
     upgrade them in the quickstart module too.
     -->
     <quarkus.version>3.25.0</quarkus.version>
-    <datastax-java-driver.version>4.15.0</datastax-java-driver.version>
+    <java-driver.version>4.19.0</java-driver.version>
     <assertj.version>3.23.1</assertj.version>
     <maven.compiler.target>11</maven.compiler.target>
     <maven.compiler.source>11</maven.compiler.source>

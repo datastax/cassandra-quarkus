@@ -55,7 +55,7 @@
       <artifactId>cassandra-quarkus-client</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.datastax.oss</groupId>
+      <groupId>org.apache.cassandra</groupId>
       <artifactId>java-driver-mapper-processor</artifactId>
     </dependency>
     <dependency>
@@ -90,9 +90,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.datastax.oss</groupId>
+      <groupId>org.apache.cassandra</groupId>
       <artifactId>java-driver-mapper-processor</artifactId>
-      <version>${datastax-java-driver.version}</version>
+      <version>${java-driver.version}</version>
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
