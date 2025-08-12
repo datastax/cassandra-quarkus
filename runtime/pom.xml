@@ -52,12 +52,12 @@
   </dependencyManagement>
   <dependencies>
     <dependency>
-      <groupId>com.datastax.oss</groupId>
+      <groupId>org.apache.cassandra</groupId>
       <artifactId>java-driver-core</artifactId>
     </dependency>
     <!-- Driver Object Mapper -->
     <dependency>
-      <groupId>com.datastax.oss</groupId>
+      <groupId>org.apache.cassandra</groupId>
       <artifactId>java-driver-mapper-runtime</artifactId>
       <optional>true</optional>
     </dependency>
@@ -93,6 +93,14 @@
     <dependency>
       <groupId>io.smallrye.reactive</groupId>
       <artifactId>mutiny-zero-flow-adapters</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.spotbugs</groupId>
+      <artifactId>spotbugs-annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.stephenc.jcip</groupId>
+      <artifactId>jcip-annotations</artifactId>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>

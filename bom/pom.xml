@@ -30,9 +30,9 @@
     <dependencies>
       <!-- DataStax Java Driver BOM -->
       <dependency>
-        <groupId>com.datastax.oss</groupId>
+        <groupId>org.apache.cassandra</groupId>
         <artifactId>java-driver-bom</artifactId>
-        <version>${datastax-java-driver.version}</version>
+        <version>${java-driver.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -41,9 +41,9 @@
       in order for the exclusions to be taken into account
       -->
       <dependency>
-        <groupId>com.datastax.oss</groupId>
+        <groupId>org.apache.cassandra</groupId>
         <artifactId>java-driver-core</artifactId>
-        <version>${datastax-java-driver.version}</version>
+        <version>${java-driver.version}</version>
         <exclusions>
           <!--
           This extension uses either Micrometer or Microprofile Metrics, so we don't
@@ -101,6 +101,16 @@
         <artifactId>esri-geometry-api</artifactId>
         <version>1.2.1</version>
         <optional>true</optional>
+      </dependency>
+      <dependency>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-annotations</artifactId>
+        <version>3.1.12</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.stephenc.jcip</groupId>
+        <artifactId>jcip-annotations</artifactId>
+        <version>1.0-1</version>
       </dependency>
       <!-- Cassandra Quarkus Extension -->
       <dependency>

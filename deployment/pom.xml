@@ -112,12 +112,12 @@
     cannot coexist; the tests will add the appropriate module dynamically.
      -->
     <dependency>
-      <groupId>com.datastax.oss</groupId>
+      <groupId>org.apache.cassandra</groupId>
       <artifactId>java-driver-metrics-microprofile</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.datastax.oss</groupId>
+      <groupId>org.apache.cassandra</groupId>
       <artifactId>java-driver-metrics-micrometer</artifactId>
       <scope>test</scope>
     </dependency>
