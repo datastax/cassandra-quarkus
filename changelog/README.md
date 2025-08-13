@@ -1,3 +1,14 @@
+### 1.3.0-rc1
+This release is built against [Quarkus 3.25.0](https://github.com/quarkusio/quarkus/releases/tag/3.25.0) and the Java driver for Apache Cassandra [4.19.0](https://search.maven.org/artifact/org.apache.cassandra/java-driver-core/4.19.0/bundle).
+
+- [improvement] Upgrade to Quarkus 3.25.0
+- [improvement] Upgrade Java driver to 4.19.0
+
+### 1.2.0
+This release is built against [Quarkus 3.0.0.Final](https://github.com/quarkusio/quarkus/releases/tag/3.0.0.Final) and the Cassanrda driver [4.15.0](https://search.maven.org/artifact/com.datastax.oss/java-driver-core/4.15.0/bundle).
+
+- [improvement] Upgrade to Quarkus 3.0.0.Final
+
 ### 1.2.0-alpha2
 
 This release is built against [Quarkus 3.0.0.CR2](https://github.com/quarkusio/quarkus/releases/tag/3.0.0.CR2) and the Cassanrda driver [4.15.0](https://search.maven.org/artifact/com.datastax.oss/java-driver-core/4.15.0/bundle).

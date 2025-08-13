@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.datastax.oss.quarkus</groupId>
   <artifactId>cassandra-quarkus-quickstart</artifactId>
-  <version>1.2.1-SNAPSHOT</version>
+  <version>1.3.0-rc1</version>
   <name>Cassandra Quarkus :: Quickstart</name>
   <description>Quickstart Application for the Quarkus extension for Apache Cassandra(R)</description>
   <url>https://github.com/datastax/cassandra-quarkus/quickstart</url>
@@ -200,6 +200,11 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+        <version>0.7.0</version>
+      </plugin>
     </plugins>
   </build>
   <profiles>
@@ -276,27 +281,19 @@
             </executions>
           </plugin>
           <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <version>1.6.13</version>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
             <extensions>true</extensions>
             <configuration>
-              <serverId>ossrh</serverId>
-              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>false</autoReleaseAfterClose>
-              <skipLocalStaging>true</skipLocalStaging>
+              <publishingServerId>central</publishingServerId>
+              <checksums>all</checksums>
+              <autoPublish>false</autoPublish>
             </configuration>
           </plugin>
         </plugins>
       </build>
     </profile>
   </profiles>
-  <distributionManagement>
-    <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-  </distributionManagement>
   <licenses>
     <license>
       <name>Apache 2</name>
