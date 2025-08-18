@@ -1,3 +1,6 @@
+### 1.3.0
+This release is identical to 1.3.0-rc1
+
 ### 1.3.0-rc1
 This release is built against [Quarkus 3.25.0](https://github.com/quarkusio/quarkus/releases/tag/3.25.0) and the Java driver for Apache Cassandra [4.19.0](https://search.maven.org/artifact/org.apache.cassandra/java-driver-core/4.19.0/bundle).
 
