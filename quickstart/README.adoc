@@ -408,7 +408,7 @@ Here's an example of the configuration for DataStax Astra:
 quarkus.cassandra.cloud.secure-connect-bundle=/path/to/secure-connect-bundle.zip
 quarkus.cassandra.auth.username=token
 quarkus.cassandra.auth.password=AstraCS:...
-quarkus.cassandra.keyspace=default_keyspace
+quarkus.cassandra.keyspace=k1
 ----
 
 === Advanced Driver Configuration
