@@ -391,21 +391,24 @@ quarkus.cassandra.auth.password=s3cr3t
 === Connecting to a DataStax Astra Cloud Database
 
 When connecting to link:https://astra.datastax.com[DataStax Astra], instead of providing a contact
-point and a datacenter, you should provide a so-called _secure connect bundle_, which should point
-to a valid path to an Astra secure connect bundle file. You can download your secure connect bundle
-from the Astra web console.
+point and a datacenter, you provide the path to your database's Secure Connect Bundle (SCB) zip file.
+You can [download your SCB](https://docs.datastax.com/en/astra-db-serverless/databases/secure-connect-bundle.html) throught the Astra Portal or the Astra DevOps API.
 
-You will also need to provide a username and password, since authentication is always required on
+You must also provide a username and password, since authentication is always required on
 Astra clusters.
+For username, enter the literal string `token`, and for password, provide an [Astra application token](https://docs.datastax.com/en/astra-db-serverless/administration/manage-application-tokens.html) (prefixed by `AstraCS:`).
 
-A sample configuration for DataStax Astra should look like this:
+Treat the SCB and application token as you would any sensitive credentials:
+store them securely and use secure references in your application code.
+
+Here's an example of the configuration for DataStax Astra:
 
 [source,properties]
 ----
 quarkus.cassandra.cloud.secure-connect-bundle=/path/to/secure-connect-bundle.zip
-quarkus.cassandra.auth.username=john
-quarkus.cassandra.auth.password=s3cr3t
-quarkus.cassandra.keyspace=k1
+quarkus.cassandra.auth.username=token
+quarkus.cassandra.auth.password=AstraCS:...
+quarkus.cassandra.keyspace=default_keyspace
 ----
 
 === Advanced Driver Configuration
