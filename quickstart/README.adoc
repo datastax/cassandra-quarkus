@@ -459,7 +459,7 @@ docker exec -it local-cassandra-instance cqlsh
 
 In the project root directory:
 
-- Run `mvn clean package` and then `java -jar ./target/cassandra-quarkus-quickstart-*-runner.jar` to
+- Run `mvn clean package` and then `java -jar ./target/quarkus-app/quarkus-run.jar` to
   start the application;
 - Or better yet, run the application in dev mode: `mvn clean quarkus:dev`.
 
