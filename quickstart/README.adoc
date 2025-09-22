@@ -45,7 +45,7 @@ link:https://docs.datastax.com/en/developer/java-driver/latest[DataStax Java dri
 
 This guide will also use the
 link:https://docs.datastax.com/en/developer/java-driver/latest/manual/mapper[DataStax Object Mapper]
-– a powerful Java-to-CQL mapping framework that greatly simplifies your application's data access
+- a powerful Java-to-CQL mapping framework that greatly simplifies your application's data access
 layer code by sparing you the hassle of writing your CQL queries by hand.
 
 The application built in this quickstart guide is quite simple: the user can add elements in a list
@@ -72,7 +72,7 @@ The `pom.xml` is importing all the Quarkus extensions and dependencies you need.
 
 In this example, we will create an application to manage a list of fruits.
 
-First, let's create our data model – represented by the `Fruit` class – as follows:
+First, let's create our data model, represented by the `Fruit` class, as follows:
 
 [source,java]
 ----
@@ -103,7 +103,7 @@ into, and retrieved from, the Cassandra database. Here, the table name will be i
 class name: `fruit`.
 
 Also, the `name` field represents a Cassandra partition key, and so we are annotating it with
-`@PartitionKey` – another annotation from the Object Mapper library.
+`@PartitionKey`, which is another annotation from the Object Mapper library.
 
 IMPORTANT: Entity classes are normally required to have a default no-arg constructor, unless they
 are annotated with `@PropertyStrategy(mutable = false)`, which is the case here.
@@ -391,20 +391,34 @@ quarkus.cassandra.auth.password=s3cr3t
 === Connecting to a DataStax Astra Cloud Database
 
 When connecting to link:https://astra.datastax.com[DataStax Astra], instead of providing a contact
-point and a datacenter, you should provide a so-called _secure connect bundle_, which should point
-to a valid path to an Astra secure connect bundle file. You can download your secure connect bundle
-from the Astra web console.
+point and a datacenter, you provide the path to your database's Secure Connect Bundle (SCB) zip file.
+You can [download your SCB](https://docs.datastax.com/en/astra-db-serverless/databases/secure-connect-bundle.html) through the Astra Portal or the Astra DevOps API.
 
-You will also need to provide a username and password, since authentication is always required on
+You must also provide a username and password, since authentication is always required on
 Astra clusters.
+The username and password values are sourced from an [Astra application token](https://docs.datastax.com/en/astra-db-serverless/administration/manage-application-tokens.html).
+You have two options:
 
-A sample configuration for DataStax Astra should look like this:
+- Token-only authentication (Recommended):
+
+   - Set `username` to the literal string `token`.
+   - Set `password` to your actual Astra application token (prefixed by `AstraCS:`).
+
+- Client ID and secret authentication:
+
+   - Set `username` to the `clientId` value generated with the token.
+   - Set `password` to the `secret` value generated with the token.
+
+Treat the SCB and application token as you would any sensitive credentials:
+store them securely and use secure references in your application code.
+
+Here's an example of the configuration for DataStax Astra:
 
 [source,properties]
 ----
 quarkus.cassandra.cloud.secure-connect-bundle=/path/to/secure-connect-bundle.zip
-quarkus.cassandra.auth.username=john
-quarkus.cassandra.auth.password=s3cr3t
+quarkus.cassandra.auth.username=token
+quarkus.cassandra.auth.password=AstraCS:...
 quarkus.cassandra.keyspace=k1
 ----
 
