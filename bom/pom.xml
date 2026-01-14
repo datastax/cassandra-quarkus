@@ -61,9 +61,9 @@
       </dependency>
       <!-- Driver optional dependencies -->
       <dependency>
-        <groupId>org.lz4</groupId>
+        <groupId>at.yawk.lz4</groupId>
         <artifactId>lz4-java</artifactId>
-        <version>1.7.1</version>
+        <version>1.10.1</version>
         <optional>true</optional>
       </dependency>
       <dependency>
