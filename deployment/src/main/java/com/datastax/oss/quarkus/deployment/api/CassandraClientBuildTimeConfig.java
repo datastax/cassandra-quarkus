@@ -85,8 +85,8 @@ public interface CassandraClientBuildTimeConfig {
    *
    * <ul>
    *   <li><code>none</code>: indicates no compression - this is the default value.
-   *   <li><code>lz4</code>: activates compression using LZ4; requires <code>at.yawk.lz4:lz4-java</code>
-   *       in the classpath.
+   *   <li><code>lz4</code>: activates compression using LZ4; requires <code>at.yawk.lz4:lz4-java
+   *       </code> in the classpath.
    *   <li><code>snappy</code>: activates compression using Snappy; requires <code>
    *       org.xerial.snappy:snappy-java</code> in the classpath. <em>Does not work in Graal Native
    *       mode.</em>
