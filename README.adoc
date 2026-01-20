@@ -22,9 +22,9 @@ link:http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.datastax.oss%22.quark
 
 The extension is compatible with Quarkus version `3.25.0` and higher.
 
-Quarkus [requires Java17 or greater](https://quarkus.io/blog/java-17/) since Quarkus 3.7 so this project does as well.
+Quarkus link:https://quarkus.io/blog/java-17/[requires Java17 or greater] since Quarkus 3.7 so this project does as well.
 
-Quarkus 3.x requires at least Maven version `3.8.2` or higher to build correctly (see [Quarkus3 notes](https://github.com/quarkusio/quarkus/wiki/Migration-Guide-3.0#maven-versions)).
+Quarkus 3.x requires at least Maven version `3.8.2` or higher to build correctly (see link:https://github.com/quarkusio/quarkus/wiki/Migration-Guide-3.0#maven-versions[Quarkus3 notes].
 
 == Useful links
 
@@ -54,5 +54,5 @@ DataStax is a registered trademark of DataStax, Inc. and its subsidiaries in the
 and/or other countries.
 
 Apache Cassandra, Apache, Tomcat, Lucene, Solr, Hadoop, Spark, TinkerPop, and Cassandra are 
-trademarks of the [Apache Software Foundation](http://www.apache.org/) or its subsidiaries in
+trademarks of the link:http://www.apache.org/[Apache Software Foundation] or its subsidiaries in
 Canada, the United States and/or other countries. 
