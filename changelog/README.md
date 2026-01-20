@@ -1,3 +1,10 @@
+### 1.3.1
+This release is built against [Quarkus 3.25.0](https://github.com/quarkusio/quarkus/releases/tag/3.25.0) and the Java driver for Apache Cassandra [4.19.0](https://search.maven.org/artifact/org.apache.cassandra/java-driver-core/4.19.0/bundle).
+
+This release shifts to a new lz4 implementation in order to address several recent CVEs.
+
+- [improvement] Switch from org.lz4:lz4-java to at.yawk.lz4:lz4-java
+
 ### 1.3.0
 This release is identical to 1.3.0-rc1
 
