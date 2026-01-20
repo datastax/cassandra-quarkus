@@ -24,7 +24,7 @@ The extension is compatible with Quarkus version `3.25.0` and higher.
 
 Quarkus link:https://quarkus.io/blog/java-17/[requires Java17 or greater] since Quarkus 3.7 so this project does as well.
 
-Quarkus 3.x requires at least Maven version `3.8.2` or higher to build correctly (see link:https://github.com/quarkusio/quarkus/wiki/Migration-Guide-3.0#maven-versions[Quarkus3 notes].
+Quarkus 3.x requires at least Maven version `3.8.2` or higher to build correctly (see link:https://github.com/quarkusio/quarkus/wiki/Migration-Guide-3.0#maven-versions[Quarkus3 notes]).
 
 == Useful links
 
