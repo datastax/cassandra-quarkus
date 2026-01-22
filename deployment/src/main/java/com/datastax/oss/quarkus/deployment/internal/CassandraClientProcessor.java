@@ -208,13 +208,8 @@ class CassandraClientProcessor {
             Stream.of(
                 TaggingMetricIdGenerator.class.getName(),
                 "com.datastax.oss.driver.internal.metrics.micrometer.MicrometerMetricsFactory");
-      } else if (metricsCapabilityItem.metricsSupported(MetricsFactory.MP_METRICS)) {
-        clzStream =
-            Stream.of(
-                TaggingMetricIdGenerator.class.getName(),
-                "com.datastax.oss.driver.internal.metrics.microprofile.MicroProfileMetricsFactory");
       } else {
-        LOG.warn("The cassandra-quarkus plugin only supports Micrometer or MicroProfile metrics");
+        LOG.warn("The cassandra-quarkus plugin only supports Micrometer");
       }
       return clzStream
           .map(
@@ -234,9 +229,6 @@ class CassandraClientProcessor {
       if (metricsCapabilityItem.metricsSupported(MetricsFactory.MICROMETER)) {
         return UnremovableBeanBuildItem.beanTypes(
             DotName.createSimple("io.micrometer.core.instrument.MeterRegistry"));
-      } else if (metricsCapabilityItem.metricsSupported(MetricsFactory.MP_METRICS)) {
-        return UnremovableBeanBuildItem.targetWithAnnotation(
-            DotName.createSimple("org.eclipse.microprofile.metrics.annotation.RegistryType"));
       }
     }
     return null;
@@ -261,26 +253,15 @@ class CassandraClientProcessor {
             LOG.warn(
                 "Make sure to include a dependency to the java-driver-metrics-micrometer module.");
           }
-        } else if (metricsCapabilityItem.metricsSupported(MetricsFactory.MP_METRICS)) {
-          if (checkMicroProfileMetricsFactoryPresent()) {
-            recorder.configureMicroProfileMetrics();
-          } else {
-            LOG.warn(
-                "MicroProfile metrics were enabled by configuration, but MicroProfileMetricsFactory was not found.");
-            LOG.warn(
-                "Make sure to include a dependency to the java-driver-metrics-microprofile module.");
-          }
         } else {
           LOG.warn(
               "Cassandra metrics were enabled by configuration, but the installed metrics capability is not supported.");
-          LOG.warn(
-              "Make sure to include a dependency to either quarkus-micrometer-registry-prometheus or quarkus-smallrye-metrics.");
+          LOG.warn("Make sure to include a dependency to quarkus-micrometer-registry-prometheus.");
         }
       } else {
         LOG.warn(
             "Cassandra metrics were enabled by configuration, but no metrics capability is installed.");
-        LOG.warn(
-            "Make sure to include a dependency to either quarkus-micrometer-registry-prometheus or quarkus-smallrye-metrics.");
+        LOG.warn("Make sure to include a dependency to quarkus-micrometer-registry-prometheus.");
       }
     } else {
       LOG.info("Cassandra metrics were disabled by configuration.");
