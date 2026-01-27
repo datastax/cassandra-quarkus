@@ -29,7 +29,7 @@
     <java.version>11</java.version>
     <quarkus.version>3.25.0</quarkus.version>
     <java-driver.version>4.19.0</java-driver.version>
-    <assertj.version>3.23.1</assertj.version>
+    <assertj.version>3.27.7</assertj.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <failsafe.testGroups>!native</failsafe.testGroups>
