@@ -715,7 +715,7 @@ Cassandra health checks, you can disable Cassandra health checks by setting the
 
 *IMPORTANT NOTE* Versions up to 1.4.0 supported both Micrometer and MicroProfile metrics, however
 with this version Quarkus
-link:https://github.com/quarkusio/quarkus/wiki/Migration-Guide-3.31#removed-smallrye-metrics[]plans to support] only
+link:https://github.com/quarkusio/quarkus/wiki/Migration-Guide-3.31#removed-smallrye-metrics[plans to support] only
 Micrometer going forward.  As a result we've removed MicroProfile support in its entirety from this plugin.
 
 The Cassandra Quarkus client can provide metrics about the Cassandra session and about individual
