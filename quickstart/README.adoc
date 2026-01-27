@@ -713,11 +713,13 @@ Cassandra health checks, you can disable Cassandra health checks by setting the
 
 == Metrics
 
-The Cassandra Quarkus client can provide metrics about the Cassandra session and about individual
-Cassandra nodes. It supports both Micrometer and MicroProfile.
+*IMPORTANT NOTE* Versions up to 1.4.0 supported both Micrometer and MicroProfile metrics, however
+with this version Quarkus
+link:https://github.com/quarkusio/quarkus/wiki/Migration-Guide-3.31#removed-smallrye-metrics[plans to support] only
+Micrometer going forward.  As a result we've removed MicroProfile support in its entirety from this plugin.
 
-The first step to enable metrics is to add a few additional dependencies depending on the metrics
-framework you plan to use.
+The Cassandra Quarkus client can provide metrics about the Cassandra session and about individual
+Cassandra nodes.  The first step to enable metrics is to add a few additional dependencies.
 
 === Enabling Metrics with Micrometer
 
@@ -738,22 +740,6 @@ To enable Micrometer metrics in your application, you need to add the following 
 ----
 
 This guide uses Micrometer, so the above dependencies are already included in this guide's pom.xml.
-
-=== Enabling Metrics with MicroProfile Metrics
-
-Remove any dependency to Micrometer from your pom.xml, then add the following ones instead:
-
-[source,xml]
-----
-<dependency>
-  <groupId>com.datastax.oss</groupId>
-  <artifactId>java-driver-metrics-microprofile</artifactId>
-</dependency>
-<dependency>
-  <groupId>io.quarkus</groupId>
-  <artifactId>quarkus-smallrye-metrics</artifactId>
-</dependency>
-----
 
 === Enabling Cassandra Metrics
 

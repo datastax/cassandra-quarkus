@@ -21,7 +21,7 @@
   <parent>
     <groupId>com.datastax.oss.quarkus</groupId>
     <artifactId>cassandra-quarkus-parent</artifactId>
-    <version>1.3.1</version>
+    <version>1.4.0</version>
   </parent>
   <artifactId>cassandra-quarkus-client-deployment</artifactId>
   <name>Cassandra Quarkus :: Client :: Deployment</name>
@@ -104,16 +104,6 @@
     <dependency>
       <groupId>com.datastax.oss.quarkus</groupId>
       <artifactId>cassandra-quarkus-test-framework</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <!--
-    Metrics: add both microprofile and micrometer driver modules,
-    but don't add corresponding metrics extensions as two metrics providers
-    cannot coexist; the tests will add the appropriate module dynamically.
-     -->
-    <dependency>
-      <groupId>org.apache.cassandra</groupId>
-      <artifactId>java-driver-metrics-microprofile</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

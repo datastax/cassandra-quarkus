@@ -21,7 +21,6 @@ import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
 import jakarta.enterprise.util.TypeLiteral;
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import org.slf4j.Logger;
@@ -88,29 +87,6 @@ public class CassandraClientRecorder {
     } catch (Exception e) {
       LOG.error("Failed to enable Cassandra metrics using Micrometer", e);
     }
-  }
-
-  public void configureMicroProfileMetrics() {
-    LOG.info("Enabling Cassandra metrics using MicroProfile.");
-    try {
-      Object metricRegistry = locateMicroProfileVendorMetricRegistry();
-      CassandraClientProducer producer = getProducerInstance();
-      producer.setMetricRegistry(metricRegistry);
-      producer.setMetricsFactoryClassName(
-          "com.datastax.oss.driver.internal.metrics.microprofile.MicroProfileMetricsFactory");
-    } catch (Exception e) {
-      LOG.error("Failed to enable Cassandra metrics using MicroProfile", e);
-    }
-  }
-
-  private Object locateMicroProfileVendorMetricRegistry()
-      throws ClassNotFoundException,
-          IllegalAccessException,
-          InvocationTargetException,
-          NoSuchMethodException {
-    Class<?> metricRegistriesClass = Class.forName("io.smallrye.metrics.MetricRegistries");
-    Object metricRegistries = Arc.container().instance(metricRegistriesClass).get();
-    return metricRegistriesClass.getMethod("getVendorRegistry").invoke(metricRegistries);
   }
 
   public void configureCompression(String protocolCompression) {

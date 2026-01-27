@@ -20,7 +20,7 @@ link:http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.datastax.oss%22.quark
 
 == Compatibility
 
-The extension is compatible with Quarkus version `3.25.0` and higher.
+The extension is compatible with Quarkus version `3.31.0` and higher.
 
 Quarkus link:https://quarkus.io/blog/java-17/[requires Java17 or greater] since Quarkus 3.7 so this project does as well.
 
