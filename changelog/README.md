@@ -1,3 +1,15 @@
+### 1.4.0
+This release is built against [Quarkus 3.31.0](https://github.com/quarkusio/quarkus/releases/tag/3.31.0) and the Java driver for Apache Cassandra [4.19.0](https://search.maven.org/artifact/org.apache.cassandra/java-driver-core/4.19.0/bundle).
+
+This release brings us up-to-date with Quarkus 3.31.0.  Note that going forward Quarkus will 
+[no longer be supporting MicroProfile](https://quarkus.io/blog/quarkus-observability-roadmap-2023/#metrics-and-micrometer) 
+for metrics.  To support this goal SmallRye support has been 
+[removed entirely](https://github.com/quarkusio/quarkus/wiki/Migration-Guide-3.31#removed-smallrye-metrics) in 3.31.  In
+order to support this transition we have completely removed MicroProfile support from cassandra-quarkus.  All
+users should aim to use MicroMeter going forward.
+
+- [improvement] Update to Quarkus 3.31
+
 ### 1.3.1
 This release is built against [Quarkus 3.25.0](https://github.com/quarkusio/quarkus/releases/tag/3.25.0) and the Java driver for Apache Cassandra [4.19.0](https://search.maven.org/artifact/org.apache.cassandra/java-driver-core/4.19.0/bundle).
 

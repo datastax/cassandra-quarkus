@@ -49,12 +49,8 @@ public interface CassandraClientBuildTimeConfig {
    * <p>Note that you need to include additional dependencies in your application when enabling
    * Cassandra metrics.
    *
-   * <p>If you are using Micrometer, you should add: quarkus-micrometer-registry-prometheus, which
-   * will enable metrics globally with reporting via Prometheus, and java-driver-metrics-micrometer,
-   * which will enable driver-specific metrics to be reported.
-   *
-   * <p>If you are using MicroProfile metrics, you should add: quarkus-smallrye-metrics, which will
-   * enable metrics globally, and java-driver-metrics-microprofile, which will enable
+   * <p>You should add: quarkus-micrometer-registry-prometheus, which will enable metrics globally
+   * with reporting via Prometheus, and java-driver-metrics-micrometer, which will enable
    * driver-specific metrics to be reported.
    *
    * <p>Lastly, you can also customize which session-level and node-level metrics you wish the
