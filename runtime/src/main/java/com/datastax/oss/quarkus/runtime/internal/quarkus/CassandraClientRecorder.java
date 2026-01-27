@@ -90,29 +90,6 @@ public class CassandraClientRecorder {
     }
   }
 
-  public void configureMicroProfileMetrics() {
-    LOG.info("Enabling Cassandra metrics using MicroProfile.");
-    try {
-      Object metricRegistry = locateMicroProfileVendorMetricRegistry();
-      CassandraClientProducer producer = getProducerInstance();
-      producer.setMetricRegistry(metricRegistry);
-      producer.setMetricsFactoryClassName(
-          "com.datastax.oss.driver.internal.metrics.microprofile.MicroProfileMetricsFactory");
-    } catch (Exception e) {
-      LOG.error("Failed to enable Cassandra metrics using MicroProfile", e);
-    }
-  }
-
-  private Object locateMicroProfileVendorMetricRegistry()
-      throws ClassNotFoundException,
-          IllegalAccessException,
-          InvocationTargetException,
-          NoSuchMethodException {
-    Class<?> metricRegistriesClass = Class.forName("io.smallrye.metrics.MetricRegistries");
-    Object metricRegistries = Arc.container().instance(metricRegistriesClass).get();
-    return metricRegistriesClass.getMethod("getVendorRegistry").invoke(metricRegistries);
-  }
-
   public void configureCompression(String protocolCompression) {
     LOG.debug("Configuring protocol compression {}", protocolCompression);
     CassandraClientProducer producer = getProducerInstance();

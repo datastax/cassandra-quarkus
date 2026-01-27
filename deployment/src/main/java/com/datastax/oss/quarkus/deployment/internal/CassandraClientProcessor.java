@@ -277,16 +277,6 @@ class CassandraClientProcessor {
     }
   }
 
-  private boolean checkMicroProfileMetricsFactoryPresent() {
-    try {
-      Class.forName(
-          "com.datastax.oss.driver.internal.metrics.microprofile.MicroProfileMetricsFactory");
-      return true;
-    } catch (ClassNotFoundException ignored) {
-      return false;
-    }
-  }
-
   @Record(STATIC_INIT)
   @BuildStep
   void configureCompression(

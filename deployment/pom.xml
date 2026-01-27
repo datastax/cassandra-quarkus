@@ -106,16 +106,6 @@
       <artifactId>cassandra-quarkus-test-framework</artifactId>
       <scope>test</scope>
     </dependency>
-    <!--
-    Metrics: add both microprofile and micrometer driver modules,
-    but don't add corresponding metrics extensions as two metrics providers
-    cannot coexist; the tests will add the appropriate module dynamically.
-     -->
-    <dependency>
-      <groupId>org.apache.cassandra</groupId>
-      <artifactId>java-driver-metrics-microprofile</artifactId>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>org.apache.cassandra</groupId>
       <artifactId>java-driver-metrics-micrometer</artifactId>

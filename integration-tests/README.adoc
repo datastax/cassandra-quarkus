@@ -6,8 +6,7 @@ It contains the following modules:
 
 1. application: the application classes (no tests);
 2. default: the main suite of integration tests;
-3. metrics-microprofile: specific tests for metrics with MicroProfile;
-4. metrics-disabled: specific tests for disabled metrics.
+3. metrics-disabled: specific tests for disabled metrics.
 
 IMPORTANT: Integration tests in submodules of this module are executed as part of the Quarkus
 Platform builds. For this reason they need to be deployed to Maven Central. Any changes in the
