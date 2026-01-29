@@ -1,3 +1,11 @@
+### 1.4.1
+This release is built against [Quarkus 3.31.0](https://github.com/quarkusio/quarkus/releases/tag/3.31.0) and the Java driver for Apache Cassandra [4.19.2](https://search.maven.org/artifact/org.apache.cassandra/java-driver-core/4.19.2/bundle)
+
+- [improvement] Remove lz4-java from cassandra-quarkus-bom as it's already defined in quarkus-bom
+- [improvement] Bump org.assertj:assertj-core from 3.23.1 to 3.27.7 in /quickstart
+- [documentation] Update quickstart README to reference correct Maven coordinates for ASF Java drivers
+- [improvement] Bump Java driver version
+
 ### 1.4.0
 This release is built against [Quarkus 3.31.0](https://github.com/quarkusio/quarkus/releases/tag/3.31.0) and the Java driver for Apache Cassandra [4.19.0](https://search.maven.org/artifact/org.apache.cassandra/java-driver-core/4.19.0/bundle).
 
