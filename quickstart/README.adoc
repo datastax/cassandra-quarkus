@@ -217,7 +217,7 @@ file as follows:
 [source,xml]
 ----
 <dependency>
-  <groupId>com.datastax.oss</groupId>
+  <groupId>org.apache.cassandra</groupId>
   <artifactId>java-driver-mapper-runtime</artifactId>
 </dependency>
 ----
@@ -730,7 +730,7 @@ To enable Micrometer metrics in your application, you need to add the following 
 [source,xml]
 ----
 <dependency>
-  <groupId>com.datastax.oss</groupId>
+  <groupId>org.apache.cassandra</groupId>
   <artifactId>java-driver-metrics-micrometer</artifactId>
 </dependency>
 <dependency>
