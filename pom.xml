@@ -34,7 +34,7 @@
     upgrade them in the quickstart module too.
     -->
     <quarkus.version>3.31.0</quarkus.version>
-    <java-driver.version>4.19.0</java-driver.version>
+    <java-driver.version>4.19.2</java-driver.version>
     <assertj.version>3.23.1</assertj.version>
     <maven.compiler.target>17</maven.compiler.target>
     <maven.compiler.source>17</maven.compiler.source>
