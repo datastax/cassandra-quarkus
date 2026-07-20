@@ -28,6 +28,7 @@ import com.datastax.oss.driver.internal.core.config.typesafe.DefaultProgrammatic
 import com.datastax.oss.driver.internal.core.metrics.TaggingMetricIdGenerator;
 import com.datastax.oss.driver.internal.core.util.concurrent.CompletableFutures;
 import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
+import com.datastax.oss.quarkus.runtime.api.session.CqlSessionCustomizer;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.runtime.internal.session.QuarkusCqlSessionBuilder;
 import com.typesafe.config.ConfigFactory;
@@ -38,6 +39,7 @@ import io.quarkus.arc.Unremovable;
 import io.quarkus.netty.MainEventLoopGroup;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.Produces;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,11 +67,23 @@ public class CassandraClientProducer {
   private final List<String> nodeStateListeners = new ArrayList<>();
   private final List<String> schemaChangeListeners = new ArrayList<>();
 
+  private List<CqlSessionCustomizer> sortCustomizersInDescendingPriorityOrder(
+      Iterable<CqlSessionCustomizer> customizers) {
+    List<CqlSessionCustomizer> sortedCustomizers = new ArrayList<>();
+    for (CqlSessionCustomizer customizer : customizers) {
+      sortedCustomizers.add(customizer);
+    }
+    Collections.sort(sortedCustomizers);
+    return sortedCustomizers;
+  }
+
   @Produces
   @ApplicationScoped
   @Unremovable
   public CompletionStage<QuarkusCqlSession> produceQuarkusCqlSessionStage(
-      CassandraClientConfig config, @MainEventLoopGroup EventLoopGroup mainEventLoop) {
+      CassandraClientConfig config,
+      @MainEventLoopGroup EventLoopGroup mainEventLoop,
+      Instance<CqlSessionCustomizer> customizers) {
     LOG.debug(
         "Producing CompletionStage<QuarkusCqlSession> bean, metricRegistry = {}, useQuarkusEventLoop = {}",
         metricRegistry,
@@ -87,6 +101,8 @@ public class CassandraClientProducer {
       LOG.debug("Metric registry = {}", metricRegistry);
       builder.withMetricRegistry(metricRegistry);
     }
+    sortCustomizersInDescendingPriorityOrder(customizers)
+        .forEach(customizer -> customizer.customize(builder));
     if (config.cassandraClientInitConfig().useQuarkusEventLoop()) {
       if (mainEventLoop instanceof MultithreadEventExecutorGroup) {
         // Check event loop group size. The default in Quarkus is 2 * cores, which is usually fine.

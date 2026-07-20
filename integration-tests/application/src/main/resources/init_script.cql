@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS ks1.customer
     customer_id      uuid PRIMARY KEY,
     customer_name    text,
     customer_address ks1.address,
+    born             int
 );
 
 CREATE TABLE IF NOT EXISTS ks1.product

@@ -16,6 +16,7 @@
 package com.datastax.oss.quarkus.tests.service;
 
 import com.datastax.oss.quarkus.tests.dao.CustomerDao;
+import com.datastax.oss.quarkus.tests.entity.Born;
 import com.datastax.oss.quarkus.tests.entity.Customer;
 import io.smallrye.mutiny.Multi;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -42,6 +43,13 @@ public class CustomerService {
 
   public CompletionStage<Customer> findById(UUID customerId) {
     return daoCompletionStage.thenCompose(dao -> dao.findById(customerId));
+  }
+
+  public Multi<Customer> findByAge(int age) {
+    var born = Born.ofAge(age);
+    return Multi.createFrom()
+        .completionStage(daoCompletionStage)
+        .flatMap(dao -> dao.findByBornBefore(born));
   }
 
   public Multi<Customer> findAll() {
