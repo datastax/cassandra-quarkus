@@ -13,16 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datastax.oss.quarkus.tests.driver;
+package com.datastax.oss.quarkus.deployment.internal.driver;
 
-import com.datastax.oss.quarkus.runtime.api.session.CqlSessionCustomizer;
-import com.datastax.oss.quarkus.runtime.internal.session.QuarkusCqlSessionBuilder;
-import jakarta.inject.Singleton;
-
-@Singleton
-public class DefaultCqlSessionCustomizer implements CqlSessionCustomizer {
-  @Override
-  public void customize(QuarkusCqlSessionBuilder builder) {
-    builder.addTypeCodecs(new BornCodec());
-  }
-}
+/** A custom type handled by {@link PriceCodec}. */
+public record Price(int cents) {}

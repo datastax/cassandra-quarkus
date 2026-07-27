@@ -22,13 +22,13 @@ import com.datastax.oss.driver.api.core.config.DriverConfig;
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
 import com.datastax.oss.driver.api.core.config.ProgrammaticDriverConfigLoaderBuilder;
 import com.datastax.oss.driver.api.core.context.DriverContext;
+import com.datastax.oss.driver.api.core.type.codec.TypeCodec;
 import com.datastax.oss.driver.internal.core.auth.PlainTextAuthProvider;
 import com.datastax.oss.driver.internal.core.config.typesafe.DefaultDriverConfigLoader;
 import com.datastax.oss.driver.internal.core.config.typesafe.DefaultProgrammaticDriverConfigLoaderBuilder;
 import com.datastax.oss.driver.internal.core.metrics.TaggingMetricIdGenerator;
 import com.datastax.oss.driver.internal.core.util.concurrent.CompletableFutures;
 import com.datastax.oss.quarkus.runtime.api.config.CassandraClientConfig;
-import com.datastax.oss.quarkus.runtime.api.session.CqlSessionCustomizer;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.runtime.internal.session.QuarkusCqlSessionBuilder;
 import com.typesafe.config.ConfigFactory;
@@ -39,14 +39,17 @@ import io.quarkus.arc.Unremovable;
 import io.quarkus.netty.MainEventLoopGroup;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.Produces;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,24 +69,14 @@ public class CassandraClientProducer {
   private final List<String> requestTrackers = new ArrayList<>();
   private final List<String> nodeStateListeners = new ArrayList<>();
   private final List<String> schemaChangeListeners = new ArrayList<>();
-
-  private List<CqlSessionCustomizer> sortCustomizersInDescendingPriorityOrder(
-      Iterable<CqlSessionCustomizer> customizers) {
-    List<CqlSessionCustomizer> sortedCustomizers = new ArrayList<>();
-    for (CqlSessionCustomizer customizer : customizers) {
-      sortedCustomizers.add(customizer);
-    }
-    Collections.sort(sortedCustomizers);
-    return sortedCustomizers;
-  }
+  private final List<String> typeCodecClasses = new ArrayList<>();
+  private final List<TypeCodecProvider> typeCodecProviders = new ArrayList<>();
 
   @Produces
   @ApplicationScoped
   @Unremovable
   public CompletionStage<QuarkusCqlSession> produceQuarkusCqlSessionStage(
-      CassandraClientConfig config,
-      @MainEventLoopGroup EventLoopGroup mainEventLoop,
-      Instance<CqlSessionCustomizer> customizers) {
+      CassandraClientConfig config, @MainEventLoopGroup EventLoopGroup mainEventLoop) {
     LOG.debug(
         "Producing CompletionStage<QuarkusCqlSession> bean, metricRegistry = {}, useQuarkusEventLoop = {}",
         metricRegistry,
@@ -101,8 +94,7 @@ public class CassandraClientProducer {
       LOG.debug("Metric registry = {}", metricRegistry);
       builder.withMetricRegistry(metricRegistry);
     }
-    sortCustomizersInDescendingPriorityOrder(customizers)
-        .forEach(customizer -> customizer.customize(builder));
+    configureTypeCodecs(builder);
     if (config.cassandraClientInitConfig().useQuarkusEventLoop()) {
       if (mainEventLoop instanceof MultithreadEventExecutorGroup) {
         // Check event loop group size. The default in Quarkus is 2 * cores, which is usually fine.
@@ -185,6 +177,14 @@ public class CassandraClientProducer {
     this.nodeStateListeners.add(clz);
   }
 
+  public void addTypeCodecClass(String clz) {
+    this.typeCodecClasses.add(clz);
+  }
+
+  public void addTypeCodecProvider(String clz, String method) {
+    this.typeCodecProviders.add(new TypeCodecProvider(clz, method));
+  }
+
   private ProgrammaticDriverConfigLoaderBuilder createDriverConfigLoaderBuilder() {
     return new DefaultProgrammaticDriverConfigLoaderBuilder(
         () ->
@@ -206,6 +206,70 @@ public class CassandraClientProducer {
   private void configureProtocolCompression(
       ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder) {
     configLoaderBuilder.withString(DefaultDriverOption.PROTOCOL_COMPRESSION, protocolCompression);
+  }
+
+  /**
+   * Registers the type codecs discovered at build time.
+   *
+   * <p>Codec classes are collected by the extension's build steps and instantiated here, rather
+   * than at build time, so that codec instances are never captured in a native image heap.
+   */
+  private void configureTypeCodecs(QuarkusCqlSessionBuilder builder) {
+    LOG.debug("Type codecs = {}, type codec providers = {}", typeCodecClasses, typeCodecProviders);
+    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+    // Provider methods come first: they hand out ready-made instances, possibly of codec classes
+    // that were also found on their own. Registering the same class twice is pointless, since the
+    // driver keeps the codec registered first for a given type.
+    Set<String> providedClasses = new HashSet<>();
+    for (TypeCodecProvider provider : typeCodecProviders) {
+      for (TypeCodec<?> typeCodec : provider.getTypeCodecs(classLoader)) {
+        providedClasses.add(typeCodec.getClass().getName());
+        builder.addTypeCodecs(typeCodec);
+      }
+    }
+    for (String clz : typeCodecClasses) {
+      if (providedClasses.contains(clz)) {
+        LOG.debug("Type codec {} was already provided by a provider method", clz);
+      } else {
+        builder.addTypeCodecs(newTypeCodec(clz, classLoader));
+      }
+    }
+  }
+
+  private TypeCodec<?> newTypeCodec(String clz, ClassLoader classLoader) {
+    try {
+      return (TypeCodec<?>) Class.forName(clz, true, classLoader).getConstructor().newInstance();
+    } catch (ReflectiveOperationException | RuntimeException e) {
+      // failing fast here is preferable to a much later CodecNotFoundException
+      throw new IllegalStateException("Could not instantiate type codec " + clz, e);
+    }
+  }
+
+  /** A {@code public static TypeCodec<?>[] someMethod()} handing out codec instances. */
+  private record TypeCodecProvider(String className, String methodName) {
+
+    /** Returns the codecs handed out by the method, guaranteed to be non-null and null-free. */
+    TypeCodec<?>[] getTypeCodecs(ClassLoader classLoader) {
+      TypeCodec<?>[] typeCodecs;
+      try {
+        Class<?> providerClass = Class.forName(className, true, classLoader);
+        typeCodecs = (TypeCodec<?>[]) providerClass.getMethod(methodName).invoke(null);
+      } catch (ReflectiveOperationException | RuntimeException e) {
+        throw new IllegalStateException("Could not invoke type codec provider " + this, e);
+      }
+      if (typeCodecs == null) {
+        throw new IllegalStateException("Type codec provider " + this + " returned null");
+      }
+      if (Stream.of(typeCodecs).anyMatch(Objects::isNull)) {
+        throw new IllegalStateException("Type codec provider " + this + " returned a null codec");
+      }
+      return typeCodecs;
+    }
+
+    @Override
+    public String toString() {
+      return className + '.' + methodName + "()";
+    }
   }
 
   private void configureListeners(ProgrammaticDriverConfigLoaderBuilder configLoaderBuilder) {
