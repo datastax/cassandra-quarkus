@@ -113,4 +113,14 @@ public class CassandraClientRecorder {
     CassandraClientProducer producer = getProducerInstance();
     producer.addNodeStateListenerClass(clz);
   }
+
+  public void addTypeCodecClass(String clz) {
+    CassandraClientProducer producer = getProducerInstance();
+    producer.addTypeCodecClass(clz);
+  }
+
+  public void addTypeCodecProvider(String clz, String method) {
+    CassandraClientProducer producer = getProducerInstance();
+    producer.addTypeCodecProvider(clz, method);
+  }
 }

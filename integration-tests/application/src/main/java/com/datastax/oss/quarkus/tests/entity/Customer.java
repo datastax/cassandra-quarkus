@@ -32,12 +32,15 @@ public class Customer {
 
   private Address address;
 
+  private Born born;
+
   public Customer() {}
 
-  public Customer(UUID id, String name, Address address) {
+  public Customer(UUID id, String name, Address address, Born born) {
     this.id = id;
     this.name = name;
     this.address = address;
+    this.born = born;
   }
 
   public UUID getId() {
@@ -64,27 +67,41 @@ public class Customer {
     this.address = address;
   }
 
+  public Born getBorn() {
+    return born;
+  }
+
+  public void setBorn(Born born) {
+    this.born = born;
+  }
+
   @Override
   public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof Customer)) {
-      return false;
-    }
+    if (o == null || getClass() != o.getClass()) return false;
     Customer customer = (Customer) o;
-    return id.equals(customer.id)
-        && name.equals(customer.name)
-        && Objects.equals(address, customer.address);
+    return Objects.equals(id, customer.id)
+        && Objects.equals(name, customer.name)
+        && Objects.equals(address, customer.address)
+        && Objects.equals(born, customer.born);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, name, address);
+    return Objects.hash(id, name, address, born);
   }
 
   @Override
   public String toString() {
-    return "Customer{id=" + id + ", name='" + name + "'}";
+    return "Customer{"
+        + "id="
+        + id
+        + ", name='"
+        + name
+        + '\''
+        + ", address="
+        + address
+        + ", born="
+        + born
+        + '}';
   }
 }
