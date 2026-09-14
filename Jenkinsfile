@@ -42,14 +42,6 @@ def executeNativeTests() {
   '''
 }
 
-def executeCodeCoverage() {
-  jacoco(
-    execPattern: '**/target/*.exec',
-    classPattern: '**/classes',
-    sourcePattern: '**/src/main/java'
-  )
-}
-
 pipeline {
   agent none
 
@@ -118,12 +110,6 @@ pipeline {
                 junit testResults: '**/target/surefire-reports/TEST-*.xml', allowEmptyResults: true
                 junit testResults: '**/target/failsafe-reports/TEST-*.xml', allowEmptyResults: true
               }
-            }
-          }
-
-          stage('Execute-Code-Coverage') {
-            steps {
-              executeCodeCoverage()
             }
           }
 
