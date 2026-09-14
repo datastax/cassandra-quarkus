@@ -82,55 +82,54 @@ pipeline {
         }
       }
 
-        agent {
-          label "${OS_VERSION}"
+      agent {
+        label "${OS_VERSION}"
+      }
+      environment {
+        JABBA_VERSION = 'openjdk@1.17'
+        GRAALVM_VERSION = 'graalvm@21.0.7'
+      }
+
+      stages {
+        stage('Initialize-Environment') {
+          steps {
+            initializeEnvironment()
+          }
         }
-        environment {
-          JABBA_VERSION = 'openjdk@1.17'
-          GRAALVM_VERSION = 'graalvm@21.0.7'
+
+        stage('Build-And-Execute-Tests') {
+          steps {
+            catchError {
+              buildAndExecuteTests()
+            }
+          }
+          post {
+            always {
+              /*
+               * Empty results are possible
+               *
+               *  - Build failures during mvn verify may exist so report may not be available
+               */
+              junit testResults: '**/target/surefire-reports/TEST-*.xml', allowEmptyResults: true
+              junit testResults: '**/target/failsafe-reports/TEST-*.xml', allowEmptyResults: true
+            }
+          }
         }
 
-        stages {
-          stage('Initialize-Environment') {
-            steps {
-              initializeEnvironment()
-            }
+        stage('Execute-Code-Coverage') {
+          steps {
+            executeCodeCoverage()
           }
-
-          stage('Build-And-Execute-Tests') {
-            steps {
-              catchError {
-                buildAndExecuteTests()
-              }
-            }
-            post {
-              always {
-                /*
-                 * Empty results are possible
-                 *
-                 *  - Build failures during mvn verify may exist so report may not be available
-                 */
-                junit testResults: '**/target/surefire-reports/TEST-*.xml', allowEmptyResults: true
-                junit testResults: '**/target/failsafe-reports/TEST-*.xml', allowEmptyResults: true
-              }
-            }
-          }
-
-          stage('Execute-Code-Coverage') {
-            steps {
-              executeCodeCoverage()
-            }
-          }
-
-          stage('Native-Tests') {
-            steps {
-              catchError {
-                executeNativeTests()
-              }
-            }
-          }
-
         }
+
+        stage('Native-Tests') {
+          steps {
+            catchError {
+              executeNativeTests()
+            }
+          }
+        }
+      }
     }
   }
 }
