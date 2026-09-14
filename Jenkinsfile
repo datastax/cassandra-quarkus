@@ -114,14 +114,14 @@ pipeline {
           }
 
           stage('Native-Tests') {
-            steps {
-              catchError {
-                executeNativeTests()
-              }
-            }
             when {
               expression {
                 return env.JABBA_NAME.startsWith('graalvm')
+              }
+            }
+            steps {
+              catchError {
+                executeNativeTests()
               }
             }
           }
