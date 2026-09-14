@@ -93,55 +93,54 @@ pipeline {
                    'graalvm@25.0.3'
           }
         }
-      }
 
-      agent {
-        label "${OS_VERSION}"
-      }
-
-      stages {
-        stage('Initialize-Environment') {
-          steps {
-            initializeEnvironment()
-          }
+        agent {
+          label "${OS_VERSION}"
         }
-
-        // We always run base tests whether we're dealing with Graal or not.  We want to
-        // make sure Graal can also support the extension when running in pure Java mode.
-        stage('Build-And-Execute-Tests') {
-          steps {
-            catchError {
-              buildAndExecuteTests()
+        stages {
+          stage('Initialize-Environment') {
+            steps {
+              initializeEnvironment()
             }
           }
-          post {
-            always {
-              /*
-               * Empty results are possible
-               *
-               *  - Build failures during mvn verify may exist so report may not be available
-               */
-              junit testResults: '**/target/surefire-reports/TEST-*.xml', allowEmptyResults: true
-              junit testResults: '**/target/failsafe-reports/TEST-*.xml', allowEmptyResults: true
+
+          // We always run base tests whether we're dealing with Graal or not.  We want to
+          // make sure Graal can also support the extension when running in pure Java mode.
+          stage('Build-And-Execute-Tests') {
+            steps {
+              catchError {
+                buildAndExecuteTests()
+              }
+            }
+            post {
+              always {
+                /*
+                 * Empty results are possible
+                 *
+                 *  - Build failures during mvn verify may exist so report may not be available
+                 */
+                junit testResults: '**/target/surefire-reports/TEST-*.xml', allowEmptyResults: true
+                junit testResults: '**/target/failsafe-reports/TEST-*.xml', allowEmptyResults: true
+              }
             }
           }
-        }
 
-        stage('Execute-Code-Coverage') {
-          steps {
-            executeCodeCoverage()
-          }
-        }
-
-        stage('Native-Tests') {
-          steps {
-            catchError {
-              executeNativeTests()
+          stage('Execute-Code-Coverage') {
+            steps {
+              executeCodeCoverage()
             }
           }
-          when {
-            expression {
-              return params.JABBA_NAME.startsWith('graalvm')
+
+          stage('Native-Tests') {
+            steps {
+              catchError {
+                executeNativeTests()
+              }
+            }
+            when {
+              expression {
+                return params.JABBA_NAME.startsWith('graalvm')
+              }
             }
           }
         }
