@@ -8,20 +8,16 @@ def initializeEnvironment() {
   env.GITHUB_BRANCH_URL = "${GITHUB_PROJECT_URL}/tree/${env.BRANCH_NAME}"
   env.GITHUB_COMMIT_URL = "${GITHUB_PROJECT_URL}/commit/${env.GIT_COMMIT}"
 
-  env.MAVEN_HOME = "${env.HOME}/.mvn/apache-maven-3.6.3"
+  env.MAVEN_HOME = "${env.HOME}/.mvn/apache-maven-3.8.8"
   env.PATH = "${env.MAVEN_HOME}/bin:${env.PATH}"
 
   sh label: 'Display Java and environment information',script: '''#!/bin/bash -le
     . ${JABBA_SHELL}
     
-    echo "Java version used for compilation:"
-    jabba use ${JABBA_VERSION}
+    echo "Java version:"
+    jabba use ${JABBA_NAME}
     java -version
-    
-    echo "Java version used for native image generation:"
-    jabba use ${GRAALVM_VERSION}
-    java -version
-    
+
     echo "Maven version:"
     mvn -v
     
@@ -139,7 +135,7 @@ pipeline {
             }
             when {
               expression {
-                return params.JABBA_NAME.startsWith('graalvm')
+                return env.JABBA_NAME.startsWith('graalvm')
               }
             }
           }
