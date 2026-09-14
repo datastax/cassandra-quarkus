@@ -141,7 +141,7 @@ pipeline {
           }
           when {
             expression {
-              return params.JABBA_NAME.startsWith 'graalvm'
+              return params.JABBA_NAME.startsWith('graalvm')
             }
           }
         }
