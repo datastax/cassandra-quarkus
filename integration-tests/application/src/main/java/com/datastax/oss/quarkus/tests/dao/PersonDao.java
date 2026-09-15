@@ -15,31 +15,25 @@
  */
 package com.datastax.oss.quarkus.tests.dao;
 
+import com.datastax.oss.driver.api.core.PagingIterable;
 import com.datastax.oss.driver.api.mapper.annotations.Dao;
-import com.datastax.oss.driver.api.mapper.annotations.Delete;
 import com.datastax.oss.driver.api.mapper.annotations.Insert;
+import com.datastax.oss.driver.api.mapper.annotations.Query;
 import com.datastax.oss.driver.api.mapper.annotations.Select;
-import com.datastax.oss.driver.api.mapper.annotations.Update;
-import com.datastax.oss.quarkus.tests.entity.Customer;
-import io.smallrye.mutiny.Multi;
+import com.datastax.oss.quarkus.tests.entity.Born;
+import com.datastax.oss.quarkus.tests.entity.Person;
 import java.util.UUID;
-import java.util.concurrent.CompletionStage;
 
 @Dao
-public interface CustomerDao {
+public interface PersonDao {
 
   @Insert
-  CompletionStage<Void> create(Customer customer);
-
-  @Update
-  CompletionStage<Void> update(Customer customer);
-
-  @Delete(entityClass = Customer.class)
-  CompletionStage<Void> delete(UUID customerId);
+  void create(Person person);
 
   @Select
-  CompletionStage<Customer> findById(UUID customerId);
+  Person findById(UUID id);
 
-  @Select
-  Multi<Customer> findAll();
+  /** Exercises the codec on a bind marker rather than on an entity column. */
+  @Query("SELECT * FROM ${qualifiedTableId} WHERE born <= :born ALLOW FILTERING")
+  PagingIterable<Person> findBornBefore(Born born);
 }

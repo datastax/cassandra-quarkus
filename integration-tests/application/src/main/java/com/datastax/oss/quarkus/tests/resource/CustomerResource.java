@@ -73,8 +73,7 @@ public class CustomerResource {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public Multi<Customer> getAllCustomers(@QueryParam("age") Integer age) {
-    if (age == null) return service.findAll();
-    return service.findByAge(age);
+  public Multi<Customer> getAllCustomers() {
+    return service.findAll();
   }
 }

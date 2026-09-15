@@ -16,28 +16,31 @@
 package com.datastax.oss.quarkus.tests.entity;
 
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
-import com.datastax.oss.driver.api.mapper.annotations.NamingStrategy;
 import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
-import com.datastax.oss.quarkus.tests.mapper.CustomerNameConverter;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * An entity whose only purpose is to exercise user-supplied type codecs: {@link #born} has no
+ * built-in codec, so persisting this entity only works if {@link
+ * com.datastax.oss.quarkus.tests.driver.BornCodec} was discovered and registered on the session.
+ *
+ * <p>Kept separate from {@link Customer} on purpose, so that the basic CRUD tests stay a canary for
+ * the common case and do not depend on codec discovery.
+ */
 @Entity
-@NamingStrategy(customConverterClass = CustomerNameConverter.class)
-public class Customer {
+public class Person {
 
   @PartitionKey private UUID id;
-
   private String name;
+  private Born born;
 
-  private Address address;
+  public Person() {}
 
-  public Customer() {}
-
-  public Customer(UUID id, String name, Address address) {
+  public Person(UUID id, String name, Born born) {
     this.id = id;
     this.name = name;
-    this.address = address;
+    this.born = born;
   }
 
   public UUID getId() {
@@ -56,12 +59,12 @@ public class Customer {
     this.name = name;
   }
 
-  public Address getAddress() {
-    return address;
+  public Born getBorn() {
+    return born;
   }
 
-  public void setAddress(Address address) {
-    this.address = address;
+  public void setBorn(Born born) {
+    this.born = born;
   }
 
   @Override
@@ -69,22 +72,22 @@ public class Customer {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof Customer)) {
+    if (!(o instanceof Person)) {
       return false;
     }
-    Customer customer = (Customer) o;
-    return id.equals(customer.id)
-        && name.equals(customer.name)
-        && Objects.equals(address, customer.address);
+    Person that = (Person) o;
+    return Objects.equals(id, that.id)
+        && Objects.equals(name, that.name)
+        && Objects.equals(born, that.born);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, name, address);
+    return Objects.hash(id, name, born);
   }
 
   @Override
   public String toString() {
-    return "Customer{id=" + id + ", name='" + name + "'}";
+    return "Person{id=" + id + ", name='" + name + '\'' + ", born=" + born + '}';
   }
 }

@@ -13,7 +13,6 @@ CREATE TABLE IF NOT EXISTS ks1.customer
     customer_id      uuid PRIMARY KEY,
     customer_name    text,
     customer_address ks1.address,
-    born             int
 );
 
 CREATE TABLE IF NOT EXISTS ks1.product
@@ -27,4 +26,11 @@ CREATE TABLE IF NOT EXISTS ks1.votes
     product_id uuid PRIMARY KEY,
     up_votes   counter,
     down_votes counter
+);
+
+CREATE TABLE IF NOT EXISTS ks1.person
+(
+    id   uuid PRIMARY KEY,
+    name text,
+    born int
 );

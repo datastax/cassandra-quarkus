@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.endsWith;
 
 import com.datastax.oss.quarkus.tests.entity.Address;
-import com.datastax.oss.quarkus.tests.entity.Born;
 import com.datastax.oss.quarkus.tests.entity.Customer;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
@@ -37,13 +36,13 @@ public class CustomerResourceIT extends DseTestBase {
 
   @Test
   public void should_create_customer() {
-    Customer expected = new Customer(UUID.randomUUID(), "name", ADDRESS1, Born.inYear(1990));
+    Customer expected = new Customer(UUID.randomUUID(), "name", ADDRESS1);
     assertCreate(expected);
   }
 
   @Test
   public void should_update_customer() {
-    Customer expected = new Customer(UUID.randomUUID(), "name", ADDRESS1, Born.inYear(1990));
+    Customer expected = new Customer(UUID.randomUUID(), "name", ADDRESS1);
     assertCreate(expected);
     expected.setName("updated name");
     expected.setAddress(ADDRESS2);
@@ -52,16 +51,16 @@ public class CustomerResourceIT extends DseTestBase {
 
   @Test
   public void should_delete_customer() {
-    Customer expected = new Customer(UUID.randomUUID(), "name", ADDRESS1, Born.inYear(1990));
+    Customer expected = new Customer(UUID.randomUUID(), "name", ADDRESS1);
     assertCreate(expected);
     assertDelete(expected);
   }
 
   @Test
   public void should_find_customers() {
-    Customer expected1 = new Customer(UUID.randomUUID(), "name1", ADDRESS1, Born.inYear(1990));
-    Customer expected2 = new Customer(UUID.randomUUID(), "name2", ADDRESS2, Born.inYear(1980));
-    Customer expected3 = new Customer(UUID.randomUUID(), "name3", null, null);
+    Customer expected1 = new Customer(UUID.randomUUID(), "name1", ADDRESS1);
+    Customer expected2 = new Customer(UUID.randomUUID(), "name2", ADDRESS2);
+    Customer expected3 = new Customer(UUID.randomUUID(), "name3", null);
     assertCreate(expected1);
     assertCreate(expected2);
     assertCreate(expected3);
@@ -74,27 +73,6 @@ public class CustomerResourceIT extends DseTestBase {
             .body()
             .as(Customer[].class);
     assertThat(actual).contains(expected1, expected2, expected3);
-  }
-
-  @Test
-  public void should_find_customers_age() {
-    Customer expected1 = new Customer(UUID.randomUUID(), "name1", ADDRESS1, Born.inYear(1990));
-    Customer expected2 = new Customer(UUID.randomUUID(), "name2", ADDRESS2, Born.inYear(1980));
-    Customer expected3 = new Customer(UUID.randomUUID(), "name3", null, null);
-    assertCreate(expected1);
-    assertCreate(expected2);
-    assertCreate(expected3);
-    Customer[] actual =
-        given()
-            .queryParam("age", 18)
-            .when()
-            .get("/customer")
-            .then()
-            .statusCode(Status.OK.getStatusCode())
-            .extract()
-            .body()
-            .as(Customer[].class);
-    assertThat(actual).contains(expected1, expected2);
   }
 
   private void assertCreate(Customer customer) {
