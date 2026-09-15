@@ -18,6 +18,7 @@ package com.datastax.oss.quarkus.tests.mapper;
 import com.datastax.oss.driver.api.mapper.annotations.DaoFactory;
 import com.datastax.oss.driver.api.mapper.annotations.Mapper;
 import com.datastax.oss.quarkus.tests.dao.CustomerDao;
+import com.datastax.oss.quarkus.tests.dao.PersonDao;
 import com.datastax.oss.quarkus.tests.dao.ProductDao;
 import com.datastax.oss.quarkus.tests.dao.ProductReactiveDao;
 import io.smallrye.mutiny.Uni;
@@ -37,4 +38,7 @@ public interface InventoryMapper {
 
   @DaoFactory
   CompletionStage<CustomerDao> customerDaoAsync();
+
+  @DaoFactory
+  PersonDao personDao();
 }
