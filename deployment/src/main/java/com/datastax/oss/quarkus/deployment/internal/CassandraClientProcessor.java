@@ -19,13 +19,6 @@ import static io.quarkus.deployment.annotations.ExecutionTime.RUNTIME_INIT;
 import static io.quarkus.deployment.annotations.ExecutionTime.STATIC_INIT;
 
 import com.datastax.oss.driver.api.core.type.codec.MappingCodec;
-import com.datastax.oss.driver.api.core.type.codec.PrimitiveBooleanCodec;
-import com.datastax.oss.driver.api.core.type.codec.PrimitiveByteCodec;
-import com.datastax.oss.driver.api.core.type.codec.PrimitiveDoubleCodec;
-import com.datastax.oss.driver.api.core.type.codec.PrimitiveFloatCodec;
-import com.datastax.oss.driver.api.core.type.codec.PrimitiveIntCodec;
-import com.datastax.oss.driver.api.core.type.codec.PrimitiveLongCodec;
-import com.datastax.oss.driver.api.core.type.codec.PrimitiveShortCodec;
 import com.datastax.oss.driver.api.core.type.codec.TypeCodec;
 import com.datastax.oss.driver.internal.core.metadata.MetadataManager;
 import com.datastax.oss.driver.internal.core.metrics.DefaultMetricsFactory;
@@ -45,7 +38,6 @@ import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.Consume;
 import io.quarkus.deployment.annotations.Record;
-import io.quarkus.deployment.builditem.AdditionalIndexedClassesBuildItem;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.ExtensionSslNativeSupportBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
@@ -57,12 +49,16 @@ import io.quarkus.runtime.metrics.MetricsFactory;
 import io.quarkus.smallrye.health.deployment.spi.HealthBuildItem;
 import java.lang.reflect.Modifier;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.DotName;
+import org.jboss.jandex.IndexView;
 import org.jboss.jandex.MethodInfo;
 import org.jboss.jandex.Type;
 import org.slf4j.Logger;
@@ -75,6 +71,31 @@ class CassandraClientProcessor {
   private static final Logger LOG = LoggerFactory.getLogger(CassandraClientProcessor.class);
 
   private static final DotName TYPE_CODEC = DotName.createSimple(TypeCodec.class.getName());
+
+  /**
+   * The driver types an application codec is written against: {@link TypeCodec} to implement from
+   * scratch, {@link MappingCodec} to map a custom type onto a type the driver already handles.
+   *
+   * <p>Application codecs are found by asking the index for the subtypes of these. That works even
+   * though {@code java-driver-core} ships no Jandex index: Jandex records subtypes keyed by
+   * supertype name whether or not the supertype itself was indexed, and resolves them transitively,
+   * so {@code MyCodec extends MyBase extends MappingCodec} is found as well.
+   *
+   * <p>The driver's other codec base types are deliberately not listed, because nothing outside the
+   * driver implements them. The {@code PrimitiveXxxCodec} interfaces only exist so that the
+   * built-in codecs can offer unboxed access, and a codec competing with a built-in one is refused
+   * by the driver's own registry anyway. The {@code Abstract*ToArray} and geometry families take
+   * their element codec or dimension as a constructor argument, so they cannot be instantiated from
+   * a no-arg constructor and have to be handed out by a provider method regardless.
+   *
+   * <p>A codec whose parent chain leaves the index - because a base class of it lives in a
+   * dependency without a Jandex index - cannot be found here either, and also needs a provider
+   * method, which {@link #discoverTypeCodecProviders} finds by signature.
+   */
+  private static final List<DotName> CODEC_BASE_TYPES =
+      Stream.of(TypeCodec.class, MappingCodec.class)
+          .map(clz -> DotName.createSimple(clz.getName()))
+          .collect(Collectors.toList());
 
   @BuildStep
   FeatureBuildItem feature() {
@@ -297,37 +318,27 @@ class CassandraClientProcessor {
   }
 
   /**
-   * Adds the codec base types provided by the driver to the Jandex index.
-   *
-   * <p>{@code java-driver-core} does not ship a Jandex index, so without this step the index has no
-   * knowledge that e.g. {@link MappingCodec} implements {@link TypeCodec}, and application codecs
-   * extending it would not be found by {@link #discoverTypeCodecs}.
-   */
-  @BuildStep
-  AdditionalIndexedClassesBuildItem indexTypeCodecBaseTypes() {
-    return new AdditionalIndexedClassesBuildItem(
-        TypeCodec.class.getName(),
-        MappingCodec.class.getName(),
-        PrimitiveBooleanCodec.class.getName(),
-        PrimitiveByteCodec.class.getName(),
-        PrimitiveDoubleCodec.class.getName(),
-        PrimitiveFloatCodec.class.getName(),
-        PrimitiveIntCodec.class.getName(),
-        PrimitiveLongCodec.class.getName(),
-        PrimitiveShortCodec.class.getName());
-  }
-
-  /**
    * Finds all {@link TypeCodec} implementations in the application and turns each one into a {@link
    * CassandraTypeCodecBuildItem}.
    *
+   * <p>Candidates come from the index's subtype lookups on {@link #CODEC_BASE_TYPES}. Those are
+   * reverse-index queries, so the cost of this step is proportional to the number of codecs found
+   * rather than to the size of the index.
+   *
    * <p>Codecs are instantiated by {@link CassandraClientProducer} when the session is built, hence
-   * only public classes with a public no-arg constructor can be registered this way.
+   * only public classes with a public no-arg constructor can be registered this way; the rest have
+   * to be handed out by a provider method, see {@link #discoverTypeCodecProviders}.
    */
   @BuildStep
   void discoverTypeCodecs(
       CombinedIndexBuildItem combinedIndex, BuildProducer<CassandraTypeCodecBuildItem> typeCodecs) {
-    for (ClassInfo codec : combinedIndex.getIndex().getAllKnownImplementations(TYPE_CODEC)) {
+    IndexView index = combinedIndex.getIndex();
+    Set<ClassInfo> candidates = new LinkedHashSet<>();
+    for (DotName baseType : CODEC_BASE_TYPES) {
+      candidates.addAll(index.getAllKnownSubclasses(baseType));
+      candidates.addAll(index.getAllKnownImplementations(baseType));
+    }
+    for (ClassInfo codec : candidates) {
       String codecClassName = codec.name().toString();
       if (isDriverClass(codecClassName)) {
         // the driver registers its own codecs
@@ -356,6 +367,9 @@ class CassandraClientProcessor {
    * <p>This is how generated codecs are typically exposed: the codec classes themselves are not
    * public, but a single factory method hands out one instance of each. It is also the only way to
    * register codecs that cannot be built from a no-arg constructor.
+   *
+   * <p>Unlike {@link #discoverTypeCodecs} this has to visit every class in the index, because there
+   * is no reverse index for methods returning a given type.
    */
   @BuildStep
   void discoverTypeCodecProviders(
@@ -390,11 +404,14 @@ class CassandraClientProcessor {
       List<CassandraTypeCodecBuildItem> typeCodecs,
       CassandraClientRecorder recorder,
       BeanContainerBuildItem beanContainer) {
-    // the same codec can be contributed both by discovery and by another extension
+    // The same codec can be contributed both by discovery and by another extension. Sorting keeps
+    // the registration order stable from build to build: the index hands out classes in no
+    // particular order, and the driver keeps whichever codec was registered first for a given type.
     List<String> codecClassNames =
         typeCodecs.stream()
             .map(CassandraTypeCodecBuildItem::getCodecClassName)
             .distinct()
+            .sorted()
             .collect(Collectors.toList());
     LOG.debug("Registering type codecs: {}", codecClassNames);
     codecClassNames.forEach(recorder::addTypeCodecClass);
@@ -410,9 +427,15 @@ class CassandraClientProcessor {
       List<CassandraTypeCodecProviderBuildItem> typeCodecProviders,
       CassandraClientRecorder recorder,
       BeanContainerBuildItem beanContainer) {
-    // the same provider can be contributed both by discovery and by another extension
+    // the same provider can be contributed both by discovery and by another extension; sorting
+    // keeps the registration order stable from build to build
     List<CassandraTypeCodecProviderBuildItem> providers =
-        typeCodecProviders.stream().distinct().toList();
+        typeCodecProviders.stream()
+            .distinct()
+            .sorted(
+                Comparator.comparing(CassandraTypeCodecProviderBuildItem::getClassName)
+                    .thenComparing(CassandraTypeCodecProviderBuildItem::getMethodName))
+            .collect(Collectors.toList());
     for (CassandraTypeCodecProviderBuildItem provider : providers) {
       LOG.debug("Registering type codec provider: {}", provider);
       recorder.addTypeCodecProvider(provider.getClassName(), provider.getMethodName());

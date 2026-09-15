@@ -211,15 +211,17 @@ public class CassandraClientProducer {
   /**
    * Registers the type codecs discovered at build time.
    *
-   * <p>Codec classes are collected by the extension's build steps and instantiated here, rather
-   * than at build time, so that codec instances are never captured in a native image heap.
+   * Codec classes are collected by the extension's build steps as class names and instantiated
+   * here rather than at build time.
    */
   private void configureTypeCodecs(QuarkusCqlSessionBuilder builder) {
     LOG.debug("Type codecs = {}, type codec providers = {}", typeCodecClasses, typeCodecProviders);
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     // Provider methods come first: they hand out ready-made instances, possibly of codec classes
-    // that were also found on their own. Registering the same class twice is pointless, since the
-    // driver keeps the codec registered first for a given type.
+    // that discovery also found on their own. Skipping those is not just an optimization, it keeps
+    // the driver quiet: CachingCodecRegistry#register already refuses a codec that collides with an
+    // already registered one and logs a warning, which would otherwise show up on every start for
+    // every generated codec whose class happens to be public.
     Set<String> providedClasses = new HashSet<>();
     for (TypeCodecProvider provider : typeCodecProviders) {
       for (TypeCodec<?> typeCodec : provider.getTypeCodecs(classLoader)) {
