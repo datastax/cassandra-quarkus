@@ -8,20 +8,16 @@ def initializeEnvironment() {
   env.GITHUB_BRANCH_URL = "${GITHUB_PROJECT_URL}/tree/${env.BRANCH_NAME}"
   env.GITHUB_COMMIT_URL = "${GITHUB_PROJECT_URL}/commit/${env.GIT_COMMIT}"
 
-  env.MAVEN_HOME = "${env.HOME}/.mvn/apache-maven-3.6.3"
+  env.MAVEN_HOME = "${env.HOME}/.mvn/apache-maven-3.8.8"
   env.PATH = "${env.MAVEN_HOME}/bin:${env.PATH}"
 
   sh label: 'Display Java and environment information',script: '''#!/bin/bash -le
     . ${JABBA_SHELL}
     
-    echo "Java version used for compilation:"
-    jabba use ${JABBA_VERSION}
+    echo "Java version:"
+    jabba use ${JABBA_NAME}
     java -version
-    
-    echo "Java version used for native image generation:"
-    jabba use ${GRAALVM_VERSION}
-    java -version
-    
+
     echo "Maven version:"
     mvn -v
     
@@ -33,7 +29,7 @@ def initializeEnvironment() {
 def buildAndExecuteTests() {
   sh label: 'Build and execute tests in non-native mode with release profile', script: '''#!/bin/bash -le
     . ${JABBA_SHELL}
-    jabba use ${JABBA_VERSION}
+    jabba use ${JABBA_NAME}
     mvn -B -V install -Prelease -Dgpg.skip
   '''
 }
@@ -41,17 +37,9 @@ def buildAndExecuteTests() {
 def executeNativeTests() {
   sh label: 'Execute integration tests in native mode', script: '''#!/bin/bash -le
     . ${JABBA_SHELL}
-    jabba use ${GRAALVM_VERSION}
+    jabba use ${JABBA_NAME}
     mvn -B -V verify -Dnative -rf :cassandra-quarkus-integration-tests -Djacoco.skip=true
   '''
-}
-
-def executeCodeCoverage() {
-  jacoco(
-    execPattern: '**/target/*.exec',
-    classPattern: '**/classes',
-    sourcePattern: '**/src/main/java'
-  )
 }
 
 pipeline {
@@ -66,7 +54,7 @@ pipeline {
 
 
   environment {
-    OS_VERSION = 'ubuntu/jammy64/java-driver'
+    OS_VERSION = 'ubuntu/focal64/java-driver'
     JABBA_SHELL = '/usr/lib/jabba/jabba.sh'
   }
 
@@ -82,14 +70,21 @@ pipeline {
         }
       }
 
+      matrix {
+        axes {
+          axis {
+            name 'JABBA_NAME'
+            values 'openjdk@1.17',
+                   'openjdk@21',
+                   'openjdk@1.25',
+                   'graalvm@21.0.7',
+                   'graalvm@25.0.3'
+          }
+        }
+
         agent {
           label "${OS_VERSION}"
         }
-        environment {
-          JABBA_VERSION = 'openjdk@1.17'
-          GRAALVM_VERSION = 'graalvm@21.0.7'
-        }
-
         stages {
           stage('Initialize-Environment') {
             steps {
@@ -97,6 +92,8 @@ pipeline {
             }
           }
 
+          // We always run base tests whether we're dealing with Graal or not.  We want to
+          // make sure Graal can also support the extension when running in pure Java mode.
           stage('Build-And-Execute-Tests') {
             steps {
               catchError {
@@ -116,21 +113,20 @@ pipeline {
             }
           }
 
-          stage('Execute-Code-Coverage') {
-            steps {
-              executeCodeCoverage()
-            }
-          }
-
           stage('Native-Tests') {
+            when {
+              expression {
+                return env.JABBA_NAME.startsWith('graalvm')
+              }
+            }
             steps {
               catchError {
                 executeNativeTests()
               }
             }
           }
-
         }
+      }
     }
   }
 }
