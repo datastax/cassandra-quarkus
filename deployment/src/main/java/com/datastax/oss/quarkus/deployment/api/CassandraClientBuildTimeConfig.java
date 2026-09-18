@@ -100,4 +100,30 @@ public interface CassandraClientBuildTimeConfig {
 
   /** The classes of {@link SchemaChangeListener} implementations to register. */
   Optional<List<String>> schemaChangeListeners();
+
+  /**
+   * Codecs that have not been found by the discovery and which need registration. This will
+   * override any exclusion rules, and it will also work when "discovery" is disabled.
+   */
+  @WithName("codecs.include")
+  Optional<List<String>> includedCodecs();
+
+  /**
+   * Codecs that should be excluded from registration during discovery.
+   *
+   * <p>Each entry is either a fully qualified class name, a package name suffixed with {@code .*}
+   * to exclude the codecs of that package, or a package name suffixed with {@code .**} to exclude
+   * the codecs of that package and of all its subpackages. For example:
+   *
+   * <pre>{@code
+   * quarkus.cassandra.codecs.exclude=org.acme.MyCodec,org.acme.codecs.*,org.acme.legacy.**
+   * }</pre>
+   */
+  @WithName("codecs.exclude")
+  Optional<List<String>> excludedCodecs();
+
+  /** Disables the codec discovery */
+  @WithName("codecs.discovery.enabled")
+  @WithDefault("true")
+  boolean codecDiscoveryEnabled();
 }
