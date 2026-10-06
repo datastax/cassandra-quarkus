@@ -15,6 +15,7 @@
  */
 package com.datastax.oss.quarkus.test;
 
+import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Host;
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import java.net.URL;
@@ -150,10 +151,12 @@ public class CassandraTestResource implements QuarkusTestResourceLifecycleManage
   }
 
   private String getLocalDatacenter() {
-    for (Host host : cassandraContainer.getCluster().getMetadata().getAllHosts()) {
-      String dc = host.getDatacenter();
-      if (dc != null) {
-        return dc;
+    try (Cluster cluster = cassandraContainer.getCluster()) {
+      for (Host host : cluster.getMetadata().getAllHosts()) {
+        String dc = host.getDatacenter();
+        if (dc != null) {
+          return dc;
+        }
       }
     }
     LOGGER.warn(
