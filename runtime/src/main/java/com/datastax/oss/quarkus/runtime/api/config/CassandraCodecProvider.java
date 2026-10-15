@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
 
 /**
  * Marks a method as a provider of custom codecs for Cassandra. Method must be public-static and
- * return an array of TypeCodec<?>.
+ * return an array of TypeCodec&lt;?&gt;.
  *
  * <p>This annotation will also register codecs when "discovery" is disabled via the configuration
  * {@code quarkus.cassandra.discovery.enabled=false}.
