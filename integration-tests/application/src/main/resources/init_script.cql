@@ -27,3 +27,11 @@ CREATE TABLE IF NOT EXISTS ks1.votes
     up_votes   counter,
     down_votes counter
 );
+
+CREATE TABLE IF NOT EXISTS ks1.person
+(
+    id   uuid PRIMARY KEY,
+    name text,
+    born int,
+    birthdate date
+);
