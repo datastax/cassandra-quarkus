@@ -77,7 +77,6 @@ pipeline {
             values 'openjdk@1.17',
                    'openjdk@21',
                    'openjdk@1.25',
-                   'graalvm@21.0.7',
                    'graalvm@25.0.3'
           }
         }
