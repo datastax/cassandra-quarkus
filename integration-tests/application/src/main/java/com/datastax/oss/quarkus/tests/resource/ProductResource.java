@@ -16,7 +16,7 @@
 package com.datastax.oss.quarkus.tests.resource;
 
 import com.datastax.oss.quarkus.tests.entity.Product;
-import com.datastax.oss.quarkus.tests.service.ProductService;
+import com.datastax.oss.quarkus.tests.service.ProductReactiveService;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
@@ -37,13 +37,13 @@ import java.util.UUID;
 @Path("/product")
 public class ProductResource {
 
-  @Inject ProductService service;
+  @Inject ProductReactiveService service;
 
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
   public Uni<Response> createProduct(Product product) {
-    return Uni.createFrom()
-        .completionStage(service.create(product))
+    return service
+        .create(product)
         .map((ignore) -> Response.created(URI.create("/product/" + product.getId())).build());
   }
 
@@ -52,25 +52,21 @@ public class ProductResource {
   @Consumes(MediaType.APPLICATION_JSON)
   public Uni<Response> updateProduct(@PathParam("id") UUID id, Product product) {
     product.setId(id);
-    return Uni.createFrom()
-        .completionStage(service.update(product))
-        .map((ignore) -> Response.ok().build());
+    return service.update(product).map((ignore) -> Response.ok().build());
   }
 
   @DELETE
   @Path("/{id}")
   public Uni<Response> deleteProduct(@PathParam("id") UUID id) {
-    return Uni.createFrom()
-        .completionStage(service.delete(id))
-        .map((ignore) -> Response.ok().build());
+    return service.delete(id).map((ignore) -> Response.ok().build());
   }
 
   @GET
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
   public Uni<Response> getProduct(@PathParam("id") UUID id) {
-    return Uni.createFrom()
-        .completionStage(service.findById(id))
+    return service
+        .findById(id)
         .map(
             product -> {
               if (product == null) {
