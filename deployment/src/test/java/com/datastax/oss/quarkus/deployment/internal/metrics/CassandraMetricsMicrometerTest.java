@@ -54,7 +54,7 @@ public class CassandraMetricsMicrometerTest {
           .setForcedDependencies(
               Arrays.asList(
                   Dependency.of("io.quarkus", "quarkus-micrometer", Version.getVersion()),
-                  Dependency.of("io.quarkus", "quarkus-resteasy", Version.getVersion())))
+                  Dependency.of("io.quarkus", "quarkus-rest", Version.getVersion())))
           .overrideConfigKey("quarkus.cassandra.metrics.enabled", "true")
           // test a different prefix
           .overrideConfigKey("quarkus.cassandra.metrics.prefix", "custom.prefix");

@@ -19,6 +19,7 @@ import com.datastax.oss.driver.api.core.AsyncPagingIterable;
 import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.tests.entity.Product;
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -31,31 +32,42 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.util.UUID;
-import java.util.concurrent.CompletionStage;
 
 @Path("/product")
 public class ProductResource {
 
-  @Inject QuarkusCqlSession session;
+  @Inject Uni<QuarkusCqlSession> session;
 
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  public CompletionStage<Response> createProduct(Product product) {
+  public Uni<Response> createProduct(Product product) {
     return session
-        .executeAsync(
-            SimpleStatement.newInstance(
-                "INSERT INTO product (id, name) VALUES (?, ?)", product.getId(), product.getName()))
-        .thenApply((ignore) -> Response.created(URI.create("/product/" + product.getId())).build());
+        .flatMap(
+            session ->
+                Uni.createFrom()
+                    .completionStage(
+                        session.executeAsync(
+                            SimpleStatement.newInstance(
+                                "INSERT INTO product (id, name) VALUES (?, ?)",
+                                product.getId(),
+                                product.getName()))))
+        .map((ignore) -> Response.created(URI.create("/product/" + product.getId())).build());
   }
 
   @GET
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
-  public CompletionStage<Response> getProduct(@PathParam("id") UUID id) {
+  public Uni<Response> getProduct(@PathParam("id") UUID id) {
     return session
-        .executeAsync(SimpleStatement.newInstance("SELECT id, name FROM product WHERE id = ?", id))
-        .thenApply(AsyncPagingIterable::one)
-        .thenApply(
+        .flatMap(
+            session ->
+                Uni.createFrom()
+                    .completionStage(
+                        session.executeAsync(
+                            SimpleStatement.newInstance(
+                                "SELECT id, name FROM product WHERE id = ?", id))))
+        .map(AsyncPagingIterable::one)
+        .map(
             row -> {
               if (row == null) {
                 return Response.status(Status.NOT_FOUND).build();

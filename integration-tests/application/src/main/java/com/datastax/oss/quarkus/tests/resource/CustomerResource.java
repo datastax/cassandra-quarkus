@@ -18,14 +18,21 @@ package com.datastax.oss.quarkus.tests.resource;
 import com.datastax.oss.quarkus.tests.entity.Customer;
 import com.datastax.oss.quarkus.tests.service.CustomerService;
 import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.util.UUID;
-import java.util.concurrent.CompletionStage;
 
 @Path("/customer")
 public class CustomerResource {
@@ -34,34 +41,37 @@ public class CustomerResource {
 
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  public CompletionStage<Response> createCustomer(Customer customer) {
-    return service
-        .create(customer)
-        .thenApply(
-            (ignore) -> Response.created(URI.create("/customer/" + customer.getId())).build());
+  public Uni<Response> createCustomer(Customer customer) {
+    return Uni.createFrom()
+        .completionStage(service.create(customer))
+        .map((ignore) -> Response.created(URI.create("/customer/" + customer.getId())).build());
   }
 
   @PUT
   @Path("/{id}")
   @Consumes(MediaType.APPLICATION_JSON)
-  public CompletionStage<Response> updateCustomer(@PathParam("id") UUID id, Customer customer) {
+  public Uni<Response> updateCustomer(@PathParam("id") UUID id, Customer customer) {
     customer.setId(id);
-    return service.update(customer).thenApply((ignore) -> Response.ok().build());
+    return Uni.createFrom()
+        .completionStage(service.update(customer))
+        .map((ignore) -> Response.ok().build());
   }
 
   @DELETE
   @Path("/{id}")
-  public CompletionStage<Response> deleteCustomer(@PathParam("id") UUID id) {
-    return service.delete(id).thenApply((ignore) -> Response.ok().build());
+  public Uni<Response> deleteCustomer(@PathParam("id") UUID id) {
+    return Uni.createFrom()
+        .completionStage(service.delete(id))
+        .map((ignore) -> Response.ok().build());
   }
 
   @GET
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
-  public CompletionStage<Response> getCustomer(@PathParam("id") UUID id) {
-    return service
-        .findById(id)
-        .thenApply(
+  public Uni<Response> getCustomer(@PathParam("id") UUID id) {
+    return Uni.createFrom()
+        .completionStage(service.findById(id))
+        .map(
             customer -> {
               if (customer == null) {
                 return Response.status(Status.NOT_FOUND).build();
