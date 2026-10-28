@@ -54,7 +54,7 @@ public class CassandraMetricsDisabledTest {
           .setForcedDependencies(
               Arrays.asList(
                   Dependency.of("io.quarkus", "quarkus-micrometer", Version.getVersion()),
-                  Dependency.of("io.quarkus", "quarkus-resteasy", Version.getVersion())))
+                  Dependency.of("io.quarkus", "quarkus-rest", Version.getVersion())))
           // but Cassandra metrics are disabled
           .overrideConfigKey("quarkus.cassandra.metrics.enabled", "false");
 
