@@ -23,7 +23,7 @@ import com.datastax.oss.driver.internal.core.util.concurrent.BlockingOperation;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.runtime.internal.context.QuarkusDriverContext;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import jakarta.inject.Inject;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
@@ -37,8 +37,8 @@ public class UseQuarkusNettyEventLoopDisabledTest {
   @Inject QuarkusCqlSession cqlSession;
 
   @RegisterExtension
-  static QuarkusUnitTest runner =
-      new QuarkusUnitTest()
+  static QuarkusExtensionTest runner =
+      new QuarkusExtensionTest()
           .setArchiveProducer(
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
           .overrideConfigKey("quarkus.cassandra.init.use-quarkus-event-loop", "false");

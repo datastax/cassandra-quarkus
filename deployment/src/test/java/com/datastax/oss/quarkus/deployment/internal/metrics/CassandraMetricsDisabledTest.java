@@ -26,7 +26,7 @@ import io.micrometer.core.instrument.Meter.Id;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.quarkus.builder.Version;
 import io.quarkus.maven.dependency.Dependency;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import io.quarkus.test.common.QuarkusTestResource;
 import jakarta.inject.Inject;
 import java.util.Arrays;
@@ -45,8 +45,8 @@ public class CassandraMetricsDisabledTest {
   @Inject MeterRegistry registry;
 
   @RegisterExtension
-  static final QuarkusUnitTest quarkus =
-      new QuarkusUnitTest()
+  static final QuarkusExtensionTest quarkus =
+      new QuarkusExtensionTest()
           .setArchiveProducer(
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
 

@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.datastax.oss.quarkus.runtime.internal.health.CassandraAsyncHealthCheck;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import jakarta.inject.Inject;
 import java.util.concurrent.ExecutionException;
 import org.eclipse.microprofile.health.HealthCheckResponse;
@@ -34,8 +34,8 @@ public class CassandraHealthCheckBuildItemEnabledTest {
   @Inject @Readiness CassandraAsyncHealthCheck healthCheck;
 
   @RegisterExtension
-  static QuarkusUnitTest runner =
-      new QuarkusUnitTest()
+  static QuarkusExtensionTest runner =
+      new QuarkusExtensionTest()
           .setArchiveProducer(
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
           .overrideConfigKey("quarkus.cassandra.health.enabled", "true");
