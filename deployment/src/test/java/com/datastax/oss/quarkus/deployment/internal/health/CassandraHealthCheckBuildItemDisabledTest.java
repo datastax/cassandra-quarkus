@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.datastax.oss.quarkus.runtime.internal.health.CassandraAsyncHealthCheck;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import jakarta.enterprise.inject.UnsatisfiedResolutionException;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
@@ -35,8 +35,8 @@ public class CassandraHealthCheckBuildItemDisabledTest {
   @Inject @Readiness Provider<CassandraAsyncHealthCheck> healthCheckProvider;
 
   @RegisterExtension
-  static QuarkusUnitTest runner =
-      new QuarkusUnitTest()
+  static QuarkusExtensionTest runner =
+      new QuarkusExtensionTest()
           .setArchiveProducer(
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
           .overrideConfigKey("quarkus.cassandra.health.enabled", "false");
