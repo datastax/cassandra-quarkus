@@ -27,7 +27,7 @@ import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.datastax.oss.quarkus.runtime.api.reactive.MutinyReactiveResultSet;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.groups.MultiSubscribe;
@@ -44,8 +44,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 public class QuarkusCqlSessionTest {
 
   @RegisterExtension
-  static QuarkusUnitTest runner =
-      new QuarkusUnitTest()
+  static QuarkusExtensionTest runner =
+      new QuarkusExtensionTest()
           .overrideConfigKey("quarkus.cassandra.keyspace", "test_keyspace")
           .overrideConfigKey("quarkus.cassandra.auth.username", "alice")
           .overrideConfigKey("quarkus.cassandra.auth.password", "fakePasswordForTests")

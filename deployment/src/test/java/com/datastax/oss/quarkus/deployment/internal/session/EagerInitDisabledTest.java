@@ -25,7 +25,7 @@ import com.datastax.oss.quarkus.test.CassandraTestResource;
 import io.quarkus.arc.Arc;
 import io.quarkus.builder.BuildChainBuilder;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
@@ -41,8 +41,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 public class EagerInitDisabledTest {
 
   @RegisterExtension
-  static QuarkusUnitTest runner =
-      new QuarkusUnitTest()
+  static QuarkusExtensionTest runner =
+      new QuarkusExtensionTest()
           .setArchiveProducer(
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
           .overrideConfigKey("quarkus.cassandra.init.eager-init", "false")
