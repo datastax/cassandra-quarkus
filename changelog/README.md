@@ -1,5 +1,17 @@
+### 1.5.0
+This release is built against [Quarkus 3.40.0](https://github.com/quarkusio/quarkus/releases/tag/3.40.0) and the Java driver for Apache Cassandra [4.19.4](https://github.com/apache/cassandra-java-driver/releases/tag/4.19.4)
+
+With this release we begin the process of always building against a [Quarkus LTS release](https://quarkus.io/releases/).
+Support for registering and using custom codecs for the Java driver within the Quarkus framework has also been added.
+
+- [bug] Close the Cluster opened to find the local datacenter
+- [improvement] Bump Java driver version to 4.19.4
+- [new feature] discovery & registration of custom codecs
+- [improvement] Bump Quarkus version to current LTS
+- [improvement] QuarkusUnitTest is deprecated in Quarkus 3.40.x
+
 ### 1.4.1
-This release is built against [Quarkus 3.31.0](https://github.com/quarkusio/quarkus/releases/tag/3.31.0) and the Java driver for Apache Cassandra [4.19.2](https://search.maven.org/artifact/org.apache.cassandra/java-driver-core/4.19.2/bundle)
+This release is built against [Quarkus 3.31.0](https://github.com/quarkusio/quarkus/releases/tag/3.31.0) and the Java driver for Apache Cassandra [4.19.2](https://github.com/apache/cassandra-java-driver/releases/tag/4.19.2)
 
 - [improvement] Remove lz4-java from cassandra-quarkus-bom as it's already defined in quarkus-bom
 - [improvement] Bump org.assertj:assertj-core from 3.23.1 to 3.27.7 in /quickstart
@@ -7,7 +19,7 @@ This release is built against [Quarkus 3.31.0](https://github.com/quarkusio/quar
 - [improvement] Bump Java driver version
 
 ### 1.4.0
-This release is built against [Quarkus 3.31.0](https://github.com/quarkusio/quarkus/releases/tag/3.31.0) and the Java driver for Apache Cassandra [4.19.0](https://search.maven.org/artifact/org.apache.cassandra/java-driver-core/4.19.0/bundle).
+This release is built against [Quarkus 3.31.0](https://github.com/quarkusio/quarkus/releases/tag/3.31.0) and the Java driver for Apache Cassandra [4.19.0](https://github.com/apache/cassandra-java-driver/releases/tag/4.19.0).
 
 This release brings us up-to-date with Quarkus 3.31.0.  Note that going forward Quarkus will 
 [no longer be supporting MicroProfile](https://quarkus.io/blog/quarkus-observability-roadmap-2023/#metrics-and-micrometer) 
@@ -19,7 +31,7 @@ users should aim to use MicroMeter going forward.
 - [improvement] Update to Quarkus 3.31
 
 ### 1.3.1
-This release is built against [Quarkus 3.25.0](https://github.com/quarkusio/quarkus/releases/tag/3.25.0) and the Java driver for Apache Cassandra [4.19.0](https://search.maven.org/artifact/org.apache.cassandra/java-driver-core/4.19.0/bundle).
+This release is built against [Quarkus 3.25.0](https://github.com/quarkusio/quarkus/releases/tag/3.25.0) and the Java driver for Apache Cassandra [4.19.0](https://github.com/apache/cassandra-java-driver/releases/tag/4.19.0).
 
 This release shifts to a new lz4 implementation in order to address several recent CVEs.
 
@@ -29,7 +41,7 @@ This release shifts to a new lz4 implementation in order to address several rece
 This release is identical to 1.3.0-rc1
 
 ### 1.3.0-rc1
-This release is built against [Quarkus 3.25.0](https://github.com/quarkusio/quarkus/releases/tag/3.25.0) and the Java driver for Apache Cassandra [4.19.0](https://search.maven.org/artifact/org.apache.cassandra/java-driver-core/4.19.0/bundle).
+This release is built against [Quarkus 3.25.0](https://github.com/quarkusio/quarkus/releases/tag/3.25.0) and the Java driver for Apache Cassandra [4.19.0](https://github.com/apache/cassandra-java-driver/releases/tag/4.19.0).
 
 - [improvement] Upgrade to Quarkus 3.25.0
 - [improvement] Upgrade Java driver to 4.19.0
