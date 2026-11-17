@@ -16,8 +16,9 @@
 package com.datastax.oss.quarkus.tests.resource;
 
 import com.datastax.oss.quarkus.tests.entity.Product;
-import com.datastax.oss.quarkus.tests.service.ProductService;
+import com.datastax.oss.quarkus.tests.service.ProductReactiveService;
 import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -32,42 +33,41 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import java.net.URI;
 import java.util.UUID;
-import java.util.concurrent.CompletionStage;
 
 @Path("/product")
 public class ProductResource {
 
-  @Inject ProductService service;
+  @Inject ProductReactiveService service;
 
   @POST
   @Consumes(MediaType.APPLICATION_JSON)
-  public CompletionStage<Response> createProduct(Product product) {
+  public Uni<Response> createProduct(Product product) {
     return service
         .create(product)
-        .thenApply((ignore) -> Response.created(URI.create("/product/" + product.getId())).build());
+        .map((ignore) -> Response.created(URI.create("/product/" + product.getId())).build());
   }
 
   @PUT
   @Path("/{id}")
   @Consumes(MediaType.APPLICATION_JSON)
-  public CompletionStage<Response> updateProduct(@PathParam("id") UUID id, Product product) {
+  public Uni<Response> updateProduct(@PathParam("id") UUID id, Product product) {
     product.setId(id);
-    return service.update(product).thenApply((ignore) -> Response.ok().build());
+    return service.update(product).map((ignore) -> Response.ok().build());
   }
 
   @DELETE
   @Path("/{id}")
-  public CompletionStage<Response> deleteProduct(@PathParam("id") UUID id) {
-    return service.delete(id).thenApply((ignore) -> Response.ok().build());
+  public Uni<Response> deleteProduct(@PathParam("id") UUID id) {
+    return service.delete(id).map((ignore) -> Response.ok().build());
   }
 
   @GET
   @Path("/{id}")
   @Produces(MediaType.APPLICATION_JSON)
-  public CompletionStage<Response> getProduct(@PathParam("id") UUID id) {
+  public Uni<Response> getProduct(@PathParam("id") UUID id) {
     return service
         .findById(id)
-        .thenApply(
+        .map(
             product -> {
               if (product == null) {
                 return Response.status(Status.NOT_FOUND).build();
