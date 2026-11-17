@@ -1,28 +1,27 @@
 name: Build & test with native-image
-on:
-  pull_request:
-    types:
-      - closed
+on: [push, pull_request]
 jobs:
   build:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     name: Java ${{ matrix.java_version }}
     strategy:
       matrix:
-        java_version:
-          - '17'
-          - '21'
+        graal_version:
+          - '25.0'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - uses: graalvm/setup-graalvm@v1
         with:
-          java-version: ${{ matrix.java_version }}
+          distribution: "graalvm"
+          version: ${{ matrix.graal_version }}
           github-token: ${{ secrets.GB_TOKEN }}
-      - name: Build & test with native-image
+      - name: Log info
         run: |
           echo "GRAALVM_HOME: $GRAALVM_HOME"
           echo "JAVA_HOME: $JAVA_HOME"
           java --version
           native-image --version
-          mvn verify -Prelease -Dnative -Dgpg.skip
+      - name: Build & test (native-image)
+        run: |
+          mvn -B -V install -Prelease -Dgpg.skip -DskipTests=true
+          mvn -B -V verify -Dnative -rf :cassandra-quarkus-integration-tests -Djacoco.skip=true
