@@ -61,11 +61,13 @@ link:http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.datastax.oss%22.quark
 
 == Compatibility
 
-The extension is compatible with Quarkus version `3.31.0` and higher.
-
-Quarkus link:https://quarkus.io/blog/java-17/[requires Java17 or greater] since Quarkus 3.7 so this project does as well.
-
-Quarkus 3.x requires at least Maven version `3.8.2` or higher to build correctly (see link:https://github.com/quarkusio/quarkus/wiki/Migration-Guide-3.0#maven-versions[Quarkus3 notes]).
+* Quarkus version
+** The extension is compatible with link:https://github.com/quarkusio/quarkus/releases/tag/3.40.0[Quarkus 3.40.0] and up
+* JDK/GraalVM
+** link:https://quarkus.io/blog/java-17/[Java17 is required] for Quarkus 3.7 and up
+** link:https://quarkus.io/blog/mandrel-25-minimum-version/[GraalVM 25.0 is required] for Quarkus 3.36 and up
+* Maven
+** link:https://github.com/quarkusio/quarkus/wiki/Migration-Guide-3.0#maven-versions[Maven 3.8.2 or higher] is required to build with Quarkus 3.x
 
 == Useful links
 
