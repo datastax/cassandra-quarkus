@@ -21,7 +21,7 @@ import com.datastax.oss.driver.internal.core.context.InternalDriverContext;
 import com.datastax.oss.driver.internal.core.metrics.DefaultMetricsFactory;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
 import com.datastax.oss.quarkus.test.CassandraTestResource;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import io.quarkus.test.common.QuarkusTestResource;
 import jakarta.inject.Inject;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -35,8 +35,8 @@ public class MetricsCapabilityNotPresentTest {
   @Inject QuarkusCqlSession cqlSession;
 
   @RegisterExtension
-  static final QuarkusUnitTest config =
-      new QuarkusUnitTest()
+  static final QuarkusExtensionTest config =
+      new QuarkusExtensionTest()
           .setArchiveProducer(
               () -> ShrinkWrap.create(JavaArchive.class).addClasses(CassandraTestResource.class))
 
