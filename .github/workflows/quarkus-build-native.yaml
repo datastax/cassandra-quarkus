@@ -6,14 +6,15 @@ jobs:
     name: Java ${{ matrix.java_version }}
     strategy:
       matrix:
-        graal_version:
-          - '25.0'
+        java_version:
+          - '25'
     steps:
       - uses: actions/checkout@v7
       - uses: graalvm/setup-graalvm@v1
         with:
-          distribution: "graalvm"
-          version: ${{ matrix.graal_version }}
+          distribution: "mandrel"
+          java-version: ${{ matrix.java_version }}
+          version: "mandrel-latest"
           github-token: ${{ secrets.GB_TOKEN }}
       - name: Log info
         run: |
