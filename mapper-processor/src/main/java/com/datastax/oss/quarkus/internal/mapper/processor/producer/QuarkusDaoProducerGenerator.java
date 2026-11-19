@@ -153,7 +153,8 @@ public class QuarkusDaoProducerGenerator extends SingleFileCodeGenerator {
         .addAnnotation(QuarkusGeneratedNames.PRODUCES)
         .addAnnotation(QuarkusGeneratedNames.APPLICATION_SCOPED)
         .addAnnotation(QuarkusGeneratedNames.DEFAULT)
-        .addAnnotation(QuarkusGeneratedNames.DEFAULT_BEAN)
+        .addAnnotation(QuarkusGeneratedNames.RESERVE)
+        .addAnnotation(QuarkusGeneratedNames.RESERVE_PRIORITY)
         .addAnnotation(QuarkusGeneratedNames.GENERATED_MAPPER_BEAN)
         .returns(
             ParameterizedTypeName.get(
@@ -168,7 +169,8 @@ public class QuarkusDaoProducerGenerator extends SingleFileCodeGenerator {
         .addAnnotation(QuarkusGeneratedNames.PRODUCES)
         .addAnnotation(QuarkusGeneratedNames.APPLICATION_SCOPED)
         .addAnnotation(QuarkusGeneratedNames.DEFAULT)
-        .addAnnotation(QuarkusGeneratedNames.DEFAULT_BEAN)
+        .addAnnotation(QuarkusGeneratedNames.RESERVE)
+        .addAnnotation(QuarkusGeneratedNames.RESERVE_PRIORITY)
         .addAnnotation(QuarkusGeneratedNames.GENERATED_MAPPER_BEAN)
         .addException(ExecutionException.class)
         .addException(InterruptedException.class)
@@ -183,7 +185,8 @@ public class QuarkusDaoProducerGenerator extends SingleFileCodeGenerator {
         .addAnnotation(QuarkusGeneratedNames.PRODUCES)
         .addAnnotation(QuarkusGeneratedNames.APPLICATION_SCOPED)
         .addAnnotation(QuarkusGeneratedNames.DEFAULT)
-        .addAnnotation(QuarkusGeneratedNames.DEFAULT_BEAN)
+        .addAnnotation(QuarkusGeneratedNames.RESERVE)
+        .addAnnotation(QuarkusGeneratedNames.RESERVE_PRIORITY)
         .addAnnotation(QuarkusGeneratedNames.GENERATED_MAPPER_BEAN)
         .returns(
             ParameterizedTypeName.get(QuarkusGeneratedNames.UNI, ClassName.get(interfaceElement)))

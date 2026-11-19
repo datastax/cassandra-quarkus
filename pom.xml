@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.datastax.oss.quarkus</groupId>
   <artifactId>cassandra-quarkus-parent</artifactId>
-  <version>1.5.0</version>
+  <version>2.0.0</version>
   <packaging>pom</packaging>
   <name>Cassandra Quarkus :: Parent</name>
   <description>Quarkus extension for Apache Cassandra(R)</description>
@@ -33,11 +33,11 @@
     Note: when upgrading the Quarkus version or the DataStax Java driver version, make sure that you
     upgrade them in the quickstart module too.
     -->
-    <quarkus.version>3.40.0</quarkus.version>
+    <quarkus.version>4.0.0</quarkus.version>
     <java-driver.version>4.19.4</java-driver.version>
     <assertj.version>3.27.7</assertj.version>
-    <maven.compiler.target>17</maven.compiler.target>
-    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <maven.compiler.source>21</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
