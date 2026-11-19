@@ -21,7 +21,7 @@
   <parent>
     <groupId>com.datastax.oss.quarkus</groupId>
     <artifactId>cassandra-quarkus-parent</artifactId>
-    <version>1.5.0</version>
+    <version>2.0.0</version>
   </parent>
   <artifactId>cassandra-quarkus-client-deployment</artifactId>
   <name>Cassandra Quarkus :: Client :: Deployment</name>
@@ -88,7 +88,7 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-junit5-internal</artifactId>
+      <artifactId>quarkus-junit-internal</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

@@ -74,8 +74,7 @@ pipeline {
         axes {
           axis {
             name 'JABBA_NAME'
-            values 'openjdk@1.17',
-                   'openjdk@21',
+            values 'openjdk@21',
                    'openjdk@1.25',
                    'graalvm@25.0.3'
           }

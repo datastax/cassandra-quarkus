@@ -19,13 +19,15 @@ import com.datastax.oss.driver.api.mapper.annotations.Mapper;
 import com.datastax.oss.quarkus.runtime.api.mapper.QuarkusGeneratedDaoBean;
 import com.datastax.oss.quarkus.runtime.api.mapper.QuarkusGeneratedMapperBean;
 import com.datastax.oss.quarkus.runtime.api.session.QuarkusCqlSession;
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.ParameterizedTypeName;
-import io.quarkus.arc.DefaultBean;
 import io.smallrye.mutiny.Uni;
+import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.Produces;
+import jakarta.enterprise.inject.Reserve;
 import jakarta.inject.Inject;
 import java.util.concurrent.CompletionStage;
 import javax.lang.model.element.TypeElement;
@@ -47,7 +49,18 @@ public class QuarkusGeneratedNames {
 
   public static final ClassName DEFAULT = ClassName.get(Default.class);
 
-  public static final ClassName DEFAULT_BEAN = ClassName.get(DefaultBean.class);
+  /**
+   * Marks a generated producer as a reserve bean, i.e. one that is only used when no other bean of
+   * the same type is available. Replaces the ArC-specific {@code @DefaultBean}.
+   */
+  public static final ClassName RESERVE = ClassName.get(Reserve.class);
+
+  /**
+   * Priority applied alongside {@link #RESERVE}, as recommended when migrating from ArC's
+   * {@code @DefaultBean}.
+   */
+  public static final AnnotationSpec RESERVE_PRIORITY =
+      AnnotationSpec.builder(Priority.class).addMember("value", "$L", 0).build();
 
   public static final ClassName GENERATED_MAPPER_BEAN =
       ClassName.get(QuarkusGeneratedMapperBean.class);
